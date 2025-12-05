@@ -1,7 +1,5 @@
 "use client";
 
-import React from "react";
-
 type Props = {
   mousePosition: { x: number; y: number };
   windowSize: { width: number; height: number };
@@ -9,7 +7,7 @@ type Props = {
 
 export default function Particles({ mousePosition, windowSize }: Props) {
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
       {/* Large Cyan */}
       <div
         className="absolute w-96 h-96 bg-linear-to-br from-cyan-500 to-transparent rounded-full blur-3xl opacity-20"
