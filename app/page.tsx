@@ -1,65 +1,270 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
-  return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+import type { NextPage } from "next";
+import { FaArrowUp } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import Header from "./components/Header";
+import Particles from "./components/Particles";
+import Hero from "./components/Hero";
+import About from "./components/About";
+import Projects from "./components/Projects";
+import ContactInfo from "./components/ContactInfo";
+import Footer from "./components/Footer";
+
+function smoothScrollTo(targetY: number, duration = 1500) {
+  const startY = window.scrollY;
+  const distance = targetY - startY;
+  let startTime: number | null = null;
+
+  function step(timestamp: number) {
+    if (!startTime) startTime = timestamp;
+    const progress = timestamp - startTime;
+    const percent = Math.min(progress / duration, 1);
+
+    // Ease-in-out function
+    const easeInOut =
+      percent < 0.5
+        ? 2 * percent * percent
+        : -1 + (4 - 2 * percent) * percent;
+
+    window.scrollTo(0, startY + distance * easeInOut);
+
+    if (progress < duration) {
+      requestAnimationFrame(step);
+    }
+  }
+
+  requestAnimationFrame(step);
 }
+
+const Home: NextPage = () => {
+  const [showButton, setShowButton] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+  const [copied, setCopied] = useState<string | null>(null);
+  const [confettiPos, setConfettiPos] = useState<{ x: number; y: number } | null>(null);
+  const [text, setText] = useState("");
+  const fullText = "Developer Focused on Front-End, Mobile & UI/UX Excellence";
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentY = window.scrollY;
+      const heroHeight = document.getElementById("topMain")?.offsetHeight || 600;
+
+      if (currentY > heroHeight && currentY < lastScrollY) {
+        // past hero and scrolling up
+        setShowHeader(true);
+      } else {
+        setShowHeader(false);
+      }
+
+      setLastScrollY(currentY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
+  const scrollToTop = () => {
+    const topMain = document.getElementById("topMain");
+    if (topMain) {
+      const targetY = topMain.offsetTop;
+      smoothScrollTo(targetY, 1000);
+    }
+  };
+
+  const scrollToAbout = () => {
+    const topMain = document.getElementById("about");
+    if (topMain) {
+      const targetY = topMain.offsetTop;
+      smoothScrollTo(targetY, 1000);
+    }
+  };
+
+  const scrollToProject = () => {
+    const topMain = document.getElementById("projects");
+    if (topMain) {
+      const targetY = topMain.offsetTop;
+      smoothScrollTo(targetY, 1000);
+    }
+  };
+
+  const scrollToContact = () => {
+    const topMain = document.getElementById("contact");
+    if (topMain) {
+      const targetY = topMain.offsetTop;
+      smoothScrollTo(targetY, 1000);
+    }
+  };
+
+  const handleCopy = async (text: string, e: React.MouseEvent<HTMLSpanElement>) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(text);
+
+      // Get click position relative to viewport
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      setConfettiPos({
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      });
+
+      // Reset after 2 seconds
+      setTimeout(() => {
+        setCopied(null);
+        setConfettiPos(null);
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to copy!", err);
+    }
+  };
+
+  // Track mouse position
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Track window size safely
+  useEffect(() => {
+    const updateSize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+    updateSize(); // set initial size
+    window.addEventListener("resize", updateSize);
+    return () => window.removeEventListener("resize", updateSize);
+  }, []);
+
+  // Show back-to-top button after scrolling down a bit (client-side only)
+  useEffect(() => {
+    const handleShowButton = () => {
+      setShowButton(window.scrollY > 100);
+    };
+
+    // Only attach in browser
+    if (typeof window !== "undefined") {
+      window.addEventListener("scroll", handleShowButton);
+      // initialize
+      handleShowButton();
+      return () => window.removeEventListener("scroll", handleShowButton);
+    }
+  }, []);
+
+  useEffect(() => {
+    let i = 0;
+    let typing = true; // true = typing, false = erasing
+    let interval: NodeJS.Timeout;
+
+    const startTyping = () => {
+      interval = setInterval(() => {
+        if (typing) {
+          setText(fullText.slice(0, i));
+          i++;
+
+          if (i > fullText.length) {
+            clearInterval(interval);
+            typing = false;
+            // pause 10s before erasing
+            setTimeout(startTyping, 10000);
+          }
+        } else {
+          setText(fullText.slice(0, i));
+          i--;
+
+          if (i < 0) {
+            clearInterval(interval);
+            typing = true;
+            i = 0;
+            // immediately start typing again (no pause here)
+            startTyping();
+          }
+        }
+      }, 20); // speed (ms per character)
+    };
+
+    startTyping();
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <main className="relative font-sans cursor-default overflow-hidden">
+      <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onContact={scrollToContact} />
+
+      <Particles mousePosition={mousePosition} windowSize={windowSize} />
+
+      <Hero text={text} />
+
+      <About />
+
+      <Projects />
+
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 text-center relative"
+      >
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+          Contact Me
+        </h2>
+        <p className="text-sm sm:text-base md:text-lg">
+          Let's build something together!
+        </p>
+
+        {/* Horizontal contact info */}
+        <ContactInfo handleCopy={handleCopy} />
+
+        {/* Confetti GIF at click position */}
+        {confettiPos && (
+          <img
+            src="/confetti.gif"
+            alt="Confetti"
+            className="w-32 h-32 fixed pointer-events-none z-40"
+            style={{
+              left: confettiPos.x,
+              top: confettiPos.y,
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        )}
+
+        {/* Glassmorphism toast */}
+        {copied && (
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white/30 backdrop-blur-md px-6 py-2 rounded-xl shadow-lg border border-white/20 animate-slideUp">
+            Copied to Clipboard
+          </div>
+        )}
+      </section>
+
+      {/* Footer */}
+      <Footer />
+
+      {showButton && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full shadow-lg border hover:scale-110 transition"
+          style={{ background: 'var(--glass)', color: 'var(--foreground)', borderColor: 'rgba(255,255,255,0.06)' }}
+          aria-label="Back to top"
+        >
+          <FaArrowUp size={20} />
+        </button>
+      )}
+    </main>
+  );
+};
+
+export default Home;
