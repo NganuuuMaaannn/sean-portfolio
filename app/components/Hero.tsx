@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { FaArrowDown } from "react-icons/fa";
 
 type Props = {
@@ -21,10 +20,10 @@ export default function Hero({ text }: Props) {
 
       {/* View More button at bottom */}
       <div className="absolute bottom-6 flex flex-col items-center cursor-default text-gray-700 group">
-        <span className="sm:text-sm md:text-sm font-light">
+        <span className="sm:text-sm md:text-sm font-extralight">
           View More
         </span>
-        <FaArrowDown className="mt-1 w-3 h-3 animate-bounce" />
+        <FaArrowDown className="mt-1 w-3 h-3 font-extralight animate-bounce" />
       </div>
     </section>
   );

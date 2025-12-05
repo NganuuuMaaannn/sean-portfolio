@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { FaLaptopCode, FaAndroid, FaPalette } from "react-icons/fa";
 
 export default function About() {
     return (
@@ -15,10 +16,17 @@ export default function About() {
                         About Me
                     </h2>
                     <p className="text-sm sm:text-base md:text-lg leading-relaxed text-center md:text-left">
-                        I'm a developer passionate about building robust authentication flows,
-                        admin dashboards, and polished user experiences. I love crafting
-                        responsive interfaces and bringing playful UI ideas to life.
+                        I’m a developer who loves design and front‑end development, with a strong passion for
+                        building apps and crafting intuitive UI/UX experiences. I enjoy blending creativity
+                        with code to deliver responsive, polished interfaces that feel both modern and playful.
                     </p>
+
+                    {/* Icons row */}
+                    <div className="flex gap-6 mt-6 text-3xl">
+                        <FaLaptopCode title="Front-End Development" className="text-blue-500 hover:scale-110 transition-transform duration-300" />
+                        <FaAndroid title="Mobile App Development" className="text-green-500 hover:scale-110 transition-transform duration-300" />
+                        <FaPalette title="UI/UX Design" className="hover:scale-110 transition-transform duration-300" />
+                    </div>
                 </div>
 
                 {/* Right side: Image */}
@@ -30,7 +38,6 @@ export default function About() {
                             fill
                             className="object-cover w-full h-full transform scale-100 transition-transform duration-500 ease-in-out group-hover:animate-[smooth-zoom_1s_ease-in-out_forwards]"
                             priority
-                            quality={100}
                         />
                     </div>
                 </div>
