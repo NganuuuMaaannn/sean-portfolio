@@ -36,7 +36,7 @@ export default function About() {
                             src="/image/Sean.jpg"
                             alt="Sean profile"
                             fill
-                            className="object-cover w-full h-full transform scale-100 transition-transform duration-500 ease-in-out group-hover:animate-[smooth-zoom_1s_ease-in-out_forwards]"
+                            className="object-cover w-full h-full transform scale-100 transition-transform duration-1000 ease-in-out group-hover:scale-105"
                             priority
                         />
                     </div>

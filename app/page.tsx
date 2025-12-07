@@ -10,6 +10,7 @@ import About from "./components/About";
 import Projects from "./components/Projects";
 import ContactInfo from "./components/ContactInfo";
 import Footer from "./components/Footer";
+import Certificates from "./components/Certificates";
 
 function smoothScrollTo(targetY: number, duration = 1500) {
   const startY = window.scrollY;
@@ -94,6 +95,14 @@ const Home: NextPage = () => {
 
   const scrollToProject = () => {
     const topMain = document.getElementById("projects");
+    if (topMain) {
+      const targetY = topMain.offsetTop;
+      smoothScrollTo(targetY, 1000);
+    }
+  };
+
+  const scrollToCertificates = () => {
+    const topMain = document.getElementById("certificates");
     if (topMain) {
       const targetY = topMain.offsetTop;
       smoothScrollTo(targetY, 1000);
@@ -203,7 +212,7 @@ const Home: NextPage = () => {
 
   return (
     <main className="relative font-sans cursor-default overflow-hidden">
-      <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onContact={scrollToContact} />
+      <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onCertificates={scrollToCertificates} onContact={scrollToContact} />
 
       <Particles mousePosition={mousePosition} windowSize={windowSize} />
 
@@ -212,6 +221,8 @@ const Home: NextPage = () => {
       <About />
 
       <Projects />
+
+      <Certificates />
 
       {/* Contact Section */}
       <section

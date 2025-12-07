@@ -13,7 +13,7 @@ export default function Projects() {
     },
     {
       title: "Think A Goal",
-      description: "Goal Management Application",
+      description: "A Goal Management Application using Expo CLI.",
       image: "/image/think-a-goal.png",
       tech: ["React Native", "Firebase"],
       liveUrl: "https://github.com/NganuuuMaaannn/think-a-goal",
@@ -24,6 +24,27 @@ export default function Projects() {
       image: "/image/love-davao.png",
       tech: ["Next.js", "Tailwind CSS", "TypeScript"],
       liveUrl: "https://love-davao.vercel.app",
+    },
+    {
+      title: "HCDC ITS Online Membership System",
+      description: "Online Membership Fee Management System with Attendance Monitoring for ITS Organization.",
+      image: "/image/onlinememfee.png",
+      tech: ["Next.js", "Tailwind CSS", "PostgreSQL"],
+      liveUrl: "https://hcdc-itsociety.vercel.app",
+    },
+    {
+      title: "HCDC Comelec Voting System",
+      description: "Online Membership Fee Management System with Attendance Monitoring for ITS Organization.",
+      image: "/image/hcdc-comelec.png",
+      tech: ["Next.js", "Tailwind CSS", "Postgres SQL"],
+      liveUrl: "https://github.com/NganuuuMaaannn/HCDC-Comelec-2025",
+    },
+    {
+      title: "Portfolio Website",
+      description: "A modern, responsive portfolio built with Next.js, Tailwind CSS, and TypeScript to showcase my front-end and UI/UX skills.",
+      image: "/image/portfolio.png",
+      tech: ["Next.js", "Tailwind CSS", "TypeScript"],
+      liveUrl: "https://github.com/NganuuuMaaannn/sean-portfolio",
     },
   ];
 
