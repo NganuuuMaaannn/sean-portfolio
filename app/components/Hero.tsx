@@ -79,7 +79,7 @@ export default function Hero({ text, onAbout }: Props) {
 
       <p className="mt-4 text-base sm:text-lg md:text-xl font-light">
         {text}
-        <span className="animate-pulse ml-1">|</span>
+        <span className="animate-ping ml-1">|</span>
       </p>
 
       {/* View More button */}
