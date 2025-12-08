@@ -63,14 +63,14 @@ export default function Hero({ text, onAbout }: Props) {
         {showLottie && (
           <div
             className="
-        absolute pointer-events-none
-        w-[120px] h-[120px]
-        sm:w-[140px] sm:h-[140px]
-        md:w-[150px] md:h-[150px]
-        -right-20 -top-10
-        sm:-right-24 sm:-top-12
-        md:-right-28 md:-top-14
-      "
+              absolute pointer-events-none
+              w-[120px] h-[120px]
+              sm:w-[140px] sm:h-[140px]
+              md:w-[150px] md:h-[150px]
+              -right-20 -top-10
+              sm:-right-24 sm:-top-12
+              md:-right-28 md:-top-14
+            "
           >
             <Lottie animationData={waveAnim} loop={false} />
           </div>
