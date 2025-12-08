@@ -21,7 +21,7 @@ export default function Hero({ text, onAbout }: Props) {
       setTimeout(() => setStep(2), 500),
       setTimeout(() => setStep(3), 700),
       setTimeout(() => setShowLottie(true), 800),
-      setTimeout(() => setShowLottie(false), 5800),
+      setTimeout(() => setShowLottie(false), 4500),
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
