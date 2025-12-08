@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { FaArrowDown } from "react-icons/fa";
-import Lottie from "lottie-react"; // <-- install: npm i lottie-react
+import Lottie from "lottie-react";
 
-import waveAnim from "@/public/lottie/hand.json"; // <-- your Lottie file
+import waveAnim from "@/public/lottie/hand.json";
 
 type Props = {
   text: string;
@@ -17,11 +17,11 @@ export default function Hero({ text, onAbout }: Props) {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setStep(1), 300), // Hi!
-      setTimeout(() => setStep(2), 500), // I'm
-      setTimeout(() => setStep(3), 700), // Sean.
-      setTimeout(() => setShowLottie(true), 800), // Show Lottie after Sean appears
-      setTimeout(() => setShowLottie(false), 5800), // Hide Lottie after 5 seconds
+      setTimeout(() => setStep(1), 300),
+      setTimeout(() => setStep(2), 500),
+      setTimeout(() => setStep(3), 700),
+      setTimeout(() => setShowLottie(true), 800),
+      setTimeout(() => setShowLottie(false), 5800),
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
@@ -60,7 +60,6 @@ export default function Hero({ text, onAbout }: Props) {
           Sean.
         </span>
 
-        {/* ⭐ Absolutely positioned Lottie — responsive offset */}
         {showLottie && (
           <div
             className="
