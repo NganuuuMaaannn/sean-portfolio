@@ -1,6 +1,6 @@
 "use client";
 
-import { FaGithub, FaYoutube, FaFacebook } from "react-icons/fa";
+import { FaGithub, FaFacebook } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Footer() {

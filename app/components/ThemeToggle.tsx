@@ -10,14 +10,14 @@ export default function ThemeToggle() {
 
   useEffect(() => {
     setMounted(true);
-    // Read from dataset or localStorage once mounted
+    // Read from dataset or localStorage once mounted, default to dark
     try {
       const docTheme = document.documentElement.getAttribute("data-theme");
       const saved = localStorage.getItem("theme");
-      const initial = docTheme ?? saved ?? (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      const initial = docTheme ?? saved ?? 'dark';
       setTheme(initial);
     } catch (e) {
-      setTheme('light');
+      setTheme('dark');
     }
   }, []);
 
