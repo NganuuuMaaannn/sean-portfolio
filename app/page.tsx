@@ -188,7 +188,7 @@ const Home: NextPage = () => {
             clearInterval(interval);
             typing = false;
             // pause 10s before erasing
-            setTimeout(startTyping, 10000);
+            setTimeout(startTyping, 20000);
           }
         } else {
           setText(fullText.slice(0, i));
@@ -216,7 +216,7 @@ const Home: NextPage = () => {
 
       <Particles mousePosition={mousePosition} windowSize={windowSize} />
 
-      <Hero text={text} />
+      <Hero onAbout={scrollToAbout} text={text} />
 
       <About />
 
