@@ -18,13 +18,13 @@ export default function Certificates() {
     },
     {
       title: "PHP with MySQL: Build 8 PHP and MySQL Projects",
-      issuer: "Udemy",
+      issuer: "Udemy.com",
       image: "/image/c3.png",
       verifyUrl: "https://www.udemy.com/certificate/UC-3abfc85e-4724-4f5f-90b9-7548919bfd32/",
     },
     {
       title: "Introduction to SQL",
-      issuer: "SimpliLearn",
+      issuer: "Simplilearn.com",
       image: "/image/c4.png",
       verifyUrl: "https://simpli-web.app.link/e/to8hHyEEUYb",
     },
