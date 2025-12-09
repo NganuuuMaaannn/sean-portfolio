@@ -1,6 +1,7 @@
 "use client";
 
 import { FaExternalLinkAlt } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 type Props = {
     title: string;

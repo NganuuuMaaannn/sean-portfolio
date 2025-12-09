@@ -34,7 +34,7 @@ export default function Hero({ text, onAbout }: Props) {
       <h1
         className={`
           relative flex items-center font-bold 
-          text-3xl sm:text-4xl md:text-5xl 
+          text-3xl sm:text-4xl md:text-5xl
           space-x-2 transition-all duration-700 ease-out
           ${showLottie ? "-translate-x-2.5" : "translate-x-0"}
         `}
@@ -47,14 +47,14 @@ export default function Hero({ text, onAbout }: Props) {
         </span>
 
         <span
-          className={`transition-opacity duration-700 ml-1 md:ml-2 ${step >= 2 ? "opacity-100" : "opacity-0"
+          className={`transition-opacity duration-700 ml-0 md:ml-2 ${step >= 2 ? "opacity-100" : "opacity-0"
             }`}
         >
           I'm
         </span>
 
         <span
-          className={`transition-opacity duration-700 ml-1 md:ml-2 ${step >= 3 ? "opacity-100" : "opacity-0"
+          className={`transition-opacity duration-700 ml-0 md:ml-2 ${step >= 3 ? "opacity-100" : "opacity-0"
             }`}
         >
           Sean.
@@ -67,7 +67,7 @@ export default function Hero({ text, onAbout }: Props) {
               w-[120px] h-[120px]
               sm:w-[140px] sm:h-[140px]
               md:w-[150px] md:h-[150px]
-              -right-20 -top-10
+              -right-20 -top-12
               sm:-right-24 sm:-top-12
               md:-right-28 md:-top-14
             "
@@ -77,7 +77,7 @@ export default function Hero({ text, onAbout }: Props) {
         )}
       </h1>
 
-      <p className="mt-4 text-base sm:text-lg md:text-xl font-light">
+      <p className="mt-2 lg:mt-4 text-sm sm:text-lg md:text-xl font-light">
         {text}
         <span className="animate-ping ml-1">|</span>
       </p>
