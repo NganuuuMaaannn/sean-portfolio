@@ -13,7 +13,11 @@ type Props = {
 
 export default function ProjectCard({ title, description, image, tech, liveUrl }: Props) {
     return (
-        <div className="flex flex-col z-10 h-[420px] lg:h-[550px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10 transform transition-all duration-700 ease-in-out hover:-translate-y-2 hover:shadow-2xl">
+        <motion.div
+            whileHover={{ y: "-1%", scale: 1.01 }}
+            transition={{ type: "spring", stiffness: 200, duration: 1 }}
+            className="flex flex-col z-10 h-[420px] lg:h-[550px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
+        >    
             {/* Image */}
             <div className="relative h-60 sm:h-64 md:h-72 overflow-hidden">
                 <img
@@ -48,6 +52,6 @@ export default function ProjectCard({ title, description, image, tech, liveUrl }
                     )}
                 </div>
             </div>
-        </div>
+        </motion.div>
     );
 }

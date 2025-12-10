@@ -11,10 +11,10 @@ export default function About() {
             className="h-screen flex justify-center items-center px-4 sm:px-8 text-center"
         >
             <div className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-center gap-12 md:gap-16">
-                
+
                 {/* Left side: About Me text */}
                 <div className="w-full md:w-1/2 flex flex-col items-center md:items-start order-2 md:order-1">
-                    
+
                     {/* Heading */}
                     <motion.h2
                         initial={{ opacity: 0, y: 100 }}
@@ -57,7 +57,7 @@ export default function About() {
                 <motion.div
                     initial={{ opacity: 0, y: 50 }}
                     whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 1}}
+                    transition={{ duration: 1 }}
                     viewport={{ once: true }}
                     className="w-full md:w-1/2 flex justify-center md:justify-end order-1 md:order-2"
                 >
@@ -66,6 +66,7 @@ export default function About() {
                             src="/image/Sean.jpg"
                             alt="Sean profile"
                             fill
+                            sizes="(max-width: 768px) 80vw, (max-width: 1200px) 40vw, 30vw"
                             className="object-cover w-full h-full transform scale-100 transition-transform duration-1000 ease-in-out group-hover:scale-105"
                             priority
                         />

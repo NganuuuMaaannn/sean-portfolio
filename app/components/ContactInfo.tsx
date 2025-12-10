@@ -2,6 +2,7 @@
 
 import React from "react";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 type Props = {
   handleCopy: (text: string, e: React.MouseEvent<HTMLSpanElement>) => void;

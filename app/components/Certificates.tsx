@@ -1,6 +1,7 @@
 "use client";
 
 import CertificateCard from "./CertificateCard";
+import { motion } from "framer-motion";
 
 export default function Certificates() {
   const certificates = [
@@ -30,21 +31,69 @@ export default function Certificates() {
     },
   ];
 
+  const container = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2,
+      },
+    },
+  };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   return (
     <section
       id="certificates"
       className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 mt-16"
     >
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center">
+      <motion.h2
+        className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center"
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, ease: "easeOut" }}
+        viewport={{ once: true }}
+      >
         My Certificates
-      </h2>
+      </motion.h2>
 
-      {/* Grid layout: 2x2 */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-6xl w-full">
-        {certificates.map((c) => (
-          <CertificateCard key={c.title} {...c} />
+      {/* Motion grid */}
+      <motion.div
+        className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-6xl w-full"
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+      >
+        {certificates.map((c, i) => (
+          <motion.div
+            key={c.title}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, ease: "easeOut", delay: i * 0.3 }}
+            viewport={{ once: true, amount: 0.2 }}
+          >
+            <CertificateCard {...c} />
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
     </section>
   );
 }

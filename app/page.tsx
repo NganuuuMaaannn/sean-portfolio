@@ -11,6 +11,7 @@ import Projects from "./components/Projects";
 import ContactInfo from "./components/ContactInfo";
 import Footer from "./components/Footer";
 import Certificates from "./components/Certificates";
+import { motion } from "framer-motion";
 
 function smoothScrollTo(targetY: number, duration = 1500) {
   const startY = window.scrollY;
@@ -229,15 +230,33 @@ const Home: NextPage = () => {
         id="contact"
         className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 text-center relative"
       >
-        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4">
+        <motion.h2
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4"
+        >
           Contact Me
-        </h2>
-        <p className="text-sm sm:text-base md:text-lg">
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-sm sm:text-base md:text-lg"
+        >
           Let's build something together!
-        </p>
+        </motion.p>
 
-        {/* Horizontal contact info */}
-        <ContactInfo handleCopy={handleCopy} />
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <ContactInfo handleCopy={handleCopy} />
+        </motion.div>
 
         {/* Confetti GIF at click position */}
         {confettiPos && (
