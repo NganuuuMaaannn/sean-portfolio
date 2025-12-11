@@ -13,15 +13,15 @@ type Props = {
 export default function CertificateCard({ title, issuer, image, verifyUrl }: Props) {
   return (
     <motion.div
-      whileHover={{ y: "-2%", scale: 1.01 }}
-      transition={{ type: "spring", duration: 1, delay: 2 }}
+      whileHover={{ y: "-1%", scale: 1.01 }}
+      transition={{ type: "spring", duration: 1 }}
       className="flex flex-col z-10 h-[420px] lg:h-[550px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
     >
       {/* Certificate Image Transition */}
       <div className="relative h-60 sm:h-64 md:h-72 overflow-hidden">
-        <img 
-          src={image} 
-          alt={title} 
+        <img
+          src={image}
+          alt={title}
           className="w-full h-full object-cover" />
       </div>
 
