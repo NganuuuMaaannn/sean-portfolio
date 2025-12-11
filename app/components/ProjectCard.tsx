@@ -15,7 +15,7 @@ export default function ProjectCard({ title, description, image, tech, liveUrl }
     return (
         <motion.div
             whileHover={{ y: "-1%", scale: 1.01 }}
-            transition={{ type: "spring", stiffness: 200, duration: 1 }}
+            transition={{ type: "spring", duration: 1 }}
             className="flex flex-col z-10 h-[420px] lg:h-[550px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
         >    
             {/* Image */}
