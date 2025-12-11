@@ -36,9 +36,15 @@ export default function Certificates() {
     show: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
+        staggerChildren: 0.16,
+        delayChildren: 0.08,
       },
     },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 40 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6 } },
   };
 
 
@@ -68,7 +74,7 @@ export default function Certificates() {
         className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center"
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
+        transition={{ duration: 1 }}
         viewport={{ once: true }}
       >
         My Certificates
@@ -82,14 +88,8 @@ export default function Certificates() {
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
       >
-        {certificates.map((c, i) => (
-          <motion.div
-            key={c.title}
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut", delay: i * 0.3 }}
-            viewport={{ once: true, amount: 0.2 }}
-          >
+        {certificates.map((c) => (
+          <motion.div key={c.title} variants={item}>
             <CertificateCard {...c} />
           </motion.div>
         ))}
