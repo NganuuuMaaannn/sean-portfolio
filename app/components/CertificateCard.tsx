@@ -17,7 +17,7 @@ export default function CertificateCard({ title, issuer, image, verifyUrl }: Pro
       transition={{ type: "spring", stiffness: 100, damping: 14, mass: 0.8 }}
       className="flex flex-col z-10 h-[420px] lg:h-[550px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
     >
-      {/* Certificate Image */}
+      {/* Certificate Image Transition */}
       <div className="relative h-60 sm:h-64 md:h-72 overflow-hidden">
         <img 
           src={image} 
