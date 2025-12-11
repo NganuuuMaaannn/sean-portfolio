@@ -9,14 +9,14 @@ export default function Projects() {
       title: "BayadBox",
       description: "An Automated Fare Collection System Using IoT for PUV.",
       image: "/image/bayadbox.png",
-      tech: ["React Native", "Supabase"],
+      tech: ["React Native", "TypeScript", "Supabase"],
       liveUrl: "https://github.com/NganuuuMaaannn/bayadBox",
     },
     {
       title: "Think A Goal",
       description: "A Goal Management Application using Expo CLI.",
       image: "/image/think-a-goal.png",
-      tech: ["React Native", "Firebase"],
+      tech: ["React Native", "JavaScript", "Firebase"],
       liveUrl: "https://github.com/NganuuuMaaannn/think-a-goal",
     },
     {
