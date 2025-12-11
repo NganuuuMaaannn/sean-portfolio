@@ -13,8 +13,8 @@ type Props = {
 export default function CertificateCard({ title, issuer, image, verifyUrl }: Props) {
   return (
     <motion.div
-      whileHover={{ y: "-1%", scale: 1.01 }}
-      transition={{ type: "spring", stiffness: 200, duration: 1 }}
+      whileHover={{ y: -6, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 100, damping: 14, mass: 0.8 }}
       className="flex flex-col z-10 h-[420px] lg:h-[550px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
     >
       {/* Certificate Image */}
