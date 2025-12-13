@@ -1,16 +1,17 @@
 "use client";
 
-import ProjectCard from "./ProjectCard";
+import ProjectCard, { type Props } from "./ProjectCard";
 import { motion } from "framer-motion";
 
 export default function Projects() {
-  const projects = [
+  const projects: Props[] = [
     {
       title: "BayadBox",
       description: "An Automated Fare Collection System Using IoT for PUV.",
       image: "/image/bayadbox.png",
       tech: ["React Native", "TypeScript", "Supabase"],
       liveUrl: "https://github.com/NganuuuMaaannn/bayadBox",
+      type: "app",
     },
     {
       title: "Think A Goal",
@@ -18,6 +19,7 @@ export default function Projects() {
       image: "/image/think-a-goal.png",
       tech: ["React Native", "JavaScript", "Firebase"],
       liveUrl: "https://github.com/NganuuuMaaannn/think-a-goal",
+      type: "app",
     },
     {
       title: "Love, Davao",
@@ -25,6 +27,7 @@ export default function Projects() {
       image: "/image/love-davao.png",
       tech: ["Next.js", "Tailwind CSS", "TypeScript"],
       liveUrl: "https://love-davao.vercel.app",
+      type: "web",
     },
     {
       title: "HCDC ITS Online Membership System",
@@ -32,13 +35,15 @@ export default function Projects() {
       image: "/image/onlinememfee.png",
       tech: ["Next.js", "Tailwind CSS", "PostgreSQL"],
       liveUrl: "https://hcdc-itsociety.vercel.app",
+      type: "web",
     },
     {
       title: "HCDC Comelec Voting System",
-      description: "Online Membership Fee Management System with Attendance Monitoring for ITS Organization.",
+      description: "Online Voting System for HCDC Comelec Elections with secure authentication and real-time results.",
       image: "/image/hcdc-comelec.png",
-      tech: ["Next.js", "Tailwind CSS", "Postgres SQL"],
+      tech: ["Next.js", "Tailwind CSS", "PostgreSQL"],
       liveUrl: "https://github.com/NganuuuMaaannn/HCDC-Comelec-2025",
+      private: true,
     },
     {
       title: "Portfolio Website",
@@ -46,6 +51,7 @@ export default function Projects() {
       image: "/image/portfolio.png",
       tech: ["Next.js", "Tailwind CSS", "TypeScript"],
       liveUrl: "https://github.com/NganuuuMaaannn/sean-portfolio",
+      type: "web",
     },
   ];
 

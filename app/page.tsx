@@ -217,7 +217,7 @@ const Home: NextPage = () => {
 
       <Particles mousePosition={mousePosition} windowSize={windowSize} />
 
-      <Hero onAbout={scrollToAbout} text={text} />
+      <Hero onAbout={scrollToAbout} onContact={scrollToContact} text={text} />
 
       <About />
 
@@ -286,8 +286,21 @@ const Home: NextPage = () => {
       {showButton && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-6 right-6 w-12 h-12 flex items-center justify-center rounded-full shadow-lg border hover:scale-110 transition"
-          style={{ background: 'var(--glass)', color: 'var(--foreground)', borderColor: 'rgba(255,255,255,0.06)' }}
+          className="
+          fixed 
+          bottom-4 right-4 
+          sm:bottom-6 sm:right-6 
+          w-10 h-10 
+          sm:w-12 sm:h-12 
+          flex items-center justify-center 
+          rounded-full shadow-lg border 
+          hover:scale-110 active:scale-95 
+          transition-all duration-300"
+          style={{
+            background: "var(--glass)",
+            color: "var(--foreground)",
+            borderColor: "rgba(255,255,255,0.06)",
+          }}
           aria-label="Back to top"
         >
           <FaArrowUp size={20} />

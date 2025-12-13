@@ -29,7 +29,6 @@ export default function Footer() {
             href="https://github.com/NganuuuMaaannn"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white"
             whileHover={{ scale: 1.2, rotate: 5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
@@ -40,7 +39,6 @@ export default function Footer() {
             href="https://www.facebook.com/seanthesheepzx"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white"
             whileHover={{ scale: 1.2, rotate: -5 }}
             transition={{ type: "spring", stiffness: 300 }}
           >
@@ -49,7 +47,7 @@ export default function Footer() {
 
           <motion.div
             className="theme-toggle-inline-spacing"
-            whileHover={{ scale: 1.1 }}
+            whileHover={{ scale: 1.1, rotate: -10 }}
             whileTap={{ scale: 0.95 }}
             transition={{ type: "spring", stiffness: 250 }}
           >

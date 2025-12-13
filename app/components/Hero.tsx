@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { FaArrowDown } from "react-icons/fa";
+import { FaArrowDown, FaFileAlt, FaGithub, FaFacebook } from "react-icons/fa";
 import Lottie from "lottie-react";
+import { motion } from "framer-motion";
 
 import waveAnim from "@/public/lottie/hand.json";
 
 type Props = {
   text: string;
   onAbout: () => void;
+  onContact: () => void;
 };
 
-export default function Hero({ text, onAbout }: Props) {
+export default function Hero({ text, onAbout, onContact }: Props) {
   const [step, setStep] = useState(0);
   const [showLottie, setShowLottie] = useState(false);
+  const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => {
     const timers = [
@@ -22,9 +25,26 @@ export default function Hero({ text, onAbout }: Props) {
       setTimeout(() => setStep(3), 700),
       setTimeout(() => setShowLottie(true), 800),
       setTimeout(() => setShowLottie(false), 4500),
+      setTimeout(() => setShowButtons(true), 1500),
     ];
     return () => timers.forEach(clearTimeout);
   }, []);
+
+  const container = {
+    hidden: { opacity: 0, y: 30 },
+    show: {
+      opacity: 1,
+      y: 0,
+    },
+  };
+
+  const item = {
+    hidden: { opacity: 0, y: 20 },
+    show: {
+      opacity: 1,
+      y: 0,
+    },
+  };
 
   return (
     <section
@@ -81,6 +101,87 @@ export default function Hero({ text, onAbout }: Props) {
         {text}
         <span className="animate-ping ml-1">|</span>
       </p>
+
+      {/* Main Buttons */}
+      <motion.div
+        variants={container}
+        initial={false}
+        animate={showButtons ? "show" : "hidden"}
+        transition={{ duration: 0.6, ease: "easeOut", staggerChildren: 0.15 }}
+        className="mt-8 flex flex-col items-center gap-6"
+      >
+
+        <motion.div
+          variants={item}
+          transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
+          className="flex flex-wrap justify-center gap-4"
+        >
+          <a
+            href="/Sean-CV.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+            inline-flex items-center gap-2 sm:gap-3
+            px-4 py-2 sm:px-6 sm:py-3
+            rounded-full text-sm sm:text-base
+            bg-white/10 dark:bg-white/20
+            backdrop-blur-md border border-white/20
+            font-medium shadow-lg hover:shadow-xl
+            hover:bg-white/20 dark:hover:bg-white/20
+            transition-all ease-in-out duration-700
+            hover:scale-105 active:scale-95"
+          >
+            <span>View CV</span>
+            <FaFileAlt className="w-4 h-4" />
+          </a>
+
+          {/* Contact Me */}
+          <a
+            onClick={onContact}
+            href="#contact"
+            className="
+            inline-flex items-center gap-2 sm:gap-3
+            px-4 py-2 sm:px-6 sm:py-3
+            rounded-full text-sm sm:text-base
+            bg-white/10 dark:bg-white/0
+            backdrop-blur-md border border-white/20
+            font-medium shadow-lg hover:shadow-xl
+            transition-all ease-in-out duration-700
+            hover:scale-105 active:scale-95"
+          >
+            <span>Contact Me</span>
+          </a>
+        </motion.div>
+
+        {/* Icon Row */}
+        <motion.div
+          variants={item}
+          transition={{ duration: 1, ease: "easeOut", delay: 0.6 }}
+          className="flex items-center gap-4 sm:gap-6"
+        >
+          {/* GitHub Icon */}
+          <motion.a
+            href="https://github.com/NganuuuMaaannn"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.2, rotate: 5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <FaGithub className="w-5 h-5" />
+          </motion.a>
+
+          {/* Facebook Icon */}
+          <motion.a
+            href="https://www.facebook.com/seanthesheepzx"
+            target="_blank"
+            rel="noopener noreferrer"
+            whileHover={{ scale: 1.2, rotate: -5 }}
+            transition={{ type: "spring", stiffness: 300 }}
+          >
+            <FaFacebook className="w-5 h-5" />
+          </motion.a>
+        </motion.div>
+      </motion.div>
 
       {/* View More button */}
       <div className="absolute bottom-6 flex flex-col items-center cursor-default text-gray-700 group transform transition ease-in-out duration-1000 hover:scale-105 hover:text-gray-600">
