@@ -6,11 +6,11 @@ export default function Figma() {
   const figmaProjects = [
     {
       title: "BayadBox",
-      src: "https://embed.figma.com/proto/3KLXXroJN0EesN8sAyrSBY/BayadBox?scaling=scale-down&content-scaling=fixed&page-id=0%3A1&node-id=222-622&starting-point-node-id=222%3A622&show-proto-sidebar=1&embed-host=share"
+      src: "https://embed.figma.com/proto/3KLXXroJN0EesN8sAyrSBY/BayadBox?scaling=scale-down&content-scaling=fixed&page-id=0%3A1&node-id=222-622&starting-point-node-id=222%3A622&show-proto-sidebar=0&embed-host=share"
     },
     {
       title: "Riane’s Violet Studio Cafe",
-      src: "https://embed.figma.com/proto/YyMdjt2ij2eQVJtHT7KXH0/Doinog_ButtonDesignActivity?node-id=1-2&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=1&embed-host=share"
+      src: "https://embed.figma.com/proto/YyMdjt2ij2eQVJtHT7KXH0/Doinog_ButtonDesignActivity?node-id=1-2&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=0&embed-host=share"
     }
   ];
 
