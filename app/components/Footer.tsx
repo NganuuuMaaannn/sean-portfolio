@@ -21,7 +21,7 @@ export default function Footer() {
           transition={{ delay: 0.2, duration: 0.6 }}
           viewport={{ once: true }}
         >
-          &copy; {new Date().getFullYear()} Sean. All rights reserved.
+          &copy; {new Date().getFullYear()} Sean Michael Doinog. All rights reserved.
         </motion.p>
 
         <div className="flex items-center space-x-4 sm:space-x-6 text-lg sm:text-xl">

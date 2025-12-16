@@ -8,7 +8,7 @@ export default function About() {
     return (
         <section
             id="about"
-            className="h-screen flex justify-center items-center px-4 sm:px-8 text-center"
+            className="h-screen flex justify-center items-center px-4 sm:px-8 text-center mt-16"
         >
             <div className="w-full max-w-6xl flex flex-col md:flex-row items-center justify-center gap-12 md:gap-16">
 
@@ -32,11 +32,13 @@ export default function About() {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 1, delay: 0.3 }}
                         viewport={{ once: true }}
-                        className="text-sm sm:text-base md:text-lg leading-relaxed text-justify md:text-left"
+                        className="text-sm sm:text-base md:text-lg leading-relaxed text-justify"
                     >
-                        I’m a developer who loves design and front‑end development, with a strong passion for
-                        building apps and crafting intuitive UI/UX experiences. I enjoy blending creativity
-                        with code to deliver responsive, polished interfaces that feel both modern and playful.
+                        Hi! I'm Sean, a 23‑year‑old Front‑End Developer passionate about modern design, smooth interactions, and 
+                        responsive user interfaces. I focus mainly on front‑end development but also understand basic back‑end concepts. 
+                        I’ve worked with React Native, React JS, Next.js, TypeScript, and JavaScript, and I have photo and video editing 
+                        skills that add a creative touch to my work. I’m adaptable, detail‑oriented, and always eager to learn new 
+                        frameworks and programming languages to grow in the tech industry.
                     </motion.p>
 
                     {/* Icons row */}
@@ -61,7 +63,7 @@ export default function About() {
                     viewport={{ once: true }}
                     className="w-full md:w-1/2 flex justify-center md:justify-end order-1 md:order-2"
                 >
-                    <div className="w-80 h-80 sm:w-96 sm:h-96 md:w-96 md:h-96 rounded-2xl shadow-xl overflow-hidden transition-shadow duration-700 group relative">
+                    <div className="w-80 h-80 sm:w-106 sm:h-106 md:w-106 md:h-106 rounded-2xl shadow-xl overflow-hidden transition-shadow duration-700 group relative">
                         <Image
                             src="/image/Sean.jpg"
                             alt="Sean profile"

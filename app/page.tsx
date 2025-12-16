@@ -60,7 +60,7 @@ export default function CmdIntro() {
         await new Promise((r) => setTimeout(r, 400));
 
         if (cmd.text === "npm run dev") {
-          await new Promise((r) => setTimeout(r, 2000));
+          await new Promise((r) => setTimeout(r, 1000));
         }
 
         if (cmd.text.startsWith("▲ Next.js ready")) {

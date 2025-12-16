@@ -68,7 +68,7 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8"
+      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 mt-16"
     >
       <motion.h2
         className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center"
