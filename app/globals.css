@@ -270,3 +270,33 @@ button {
 html {
   scroll-behavior: smooth;
 }
+
+
+
+/* CMD exit animation */
+.cmd-exit {
+  animation: cmdExit 0.6s ease forwards;
+}
+
+@keyframes cmdExit {
+  to {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+}
+
+/* Page enter animation */
+.page-enter {
+  animation: pageEnter 0.6s ease forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
