@@ -8,6 +8,7 @@ import Particles from "../components/Particles";
 import Hero from "../components/Hero";
 import About from "../components/About";
 import Projects from "../components/Projects";
+import Figma from "../components/Figma";
 import TechStack from "../components/TechStack";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
@@ -65,10 +66,16 @@ const Home: NextPage = () => {
     const handleScroll = () => {
       const currentY = window.scrollY;
 
-      if (currentY < lastScrollY) {
-        // scrolling up
-        setShowHeader(true);
+      // Only apply scroll effect on medium screens and up (768px+)
+      if (window.innerWidth >= 768) {
+        if (currentY < lastScrollY) {
+          // scrolling up
+          setShowHeader(true);
+        } else {
+          setShowHeader(false);
+        }
       } else {
+        // On small screens, always show header (for toggle menu access)
         setShowHeader(false);
       }
 
@@ -97,6 +104,14 @@ const Home: NextPage = () => {
 
   const scrollToProject = () => {
     const topMain = document.getElementById("projects");
+    if (topMain) {
+      const targetY = topMain.offsetTop;
+      smoothScrollTo(targetY, 1000);
+    }
+  };
+
+  const scrollToFigmaProject = () => {
+    const topMain = document.getElementById("figma-projects");
     if (topMain) {
       const targetY = topMain.offsetTop;
       smoothScrollTo(targetY, 1000);
@@ -200,7 +215,7 @@ const Home: NextPage = () => {
 
   return (
     <main className="relative font-sans cursor-default overflow-hidden">
-      <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onTech={scrollToTech} onCertificates={scrollToCertificates} onContact={scrollToContact} />
+      <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onFigma={scrollToFigmaProject} onTech={scrollToTech} onCertificates={scrollToCertificates} onContact={scrollToContact} />
 
       <Particles mousePosition={mousePosition} windowSize={windowSize} />
 
@@ -209,6 +224,8 @@ const Home: NextPage = () => {
       <About />
 
       <Projects />
+
+      <Figma />
 
       <TechStack />
 
