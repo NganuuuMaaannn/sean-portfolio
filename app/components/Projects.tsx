@@ -50,7 +50,7 @@ export default function Projects() {
       description: "A modern, responsive portfolio built with Next.js, Tailwind CSS, and TypeScript to showcase my front-end and UI/UX skills.",
       image: "/image/portfolio.png",
       tech: ["Next.js", "Tailwind CSS", "TypeScript"],
-      liveUrl: "https://github.com/NganuuuMaaannn/sean-portfolio",
+      liveUrl: "https://seanmichaeldoinog.vercel.app/sean-portfolio",
       type: "web",
     },
   ];
