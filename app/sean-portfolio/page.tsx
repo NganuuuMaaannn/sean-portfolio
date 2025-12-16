@@ -1,5 +1,6 @@
 "use client";
 
+import type { NextPage } from "next";
 import { FaArrowUp } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import Header from "../components/Header";
@@ -38,7 +39,7 @@ function smoothScrollTo(targetY: number, duration = 1500) {
   requestAnimationFrame(step);
 }
 
-export default function Home() {
+const Home: NextPage = () => {
   const [showButton, setShowButton] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showHeader, setShowHeader] = useState(true);
@@ -48,11 +49,9 @@ export default function Home() {
   const [confettiPos, setConfettiPos] = useState<{ x: number; y: number } | null>(null);
   const [text, setText] = useState("");
   const fullText = "Developer Focused on Front-End, Mobile & UI/UX Excellence";
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     document.body.classList.remove("cmd-exit");
-    setMounted(true);
   }, []);
 
   useEffect(() => {
@@ -67,10 +66,9 @@ export default function Home() {
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
-      const heroHeight = document.getElementById("topMain")?.offsetHeight || 600;
 
-      if (currentY > heroHeight && currentY < lastScrollY) {
-        // past hero and scrolling up
+      if (currentY < lastScrollY) {
+        // scrolling up
         setShowHeader(true);
       } else {
         setShowHeader(false);
@@ -217,82 +215,81 @@ export default function Home() {
   }, []);
 
   return (
-    <div className={mounted ? "page-enter" : ""}>
-      <main className="relative font-sans cursor-default overflow-hidden">
-        <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onCertificates={scrollToCertificates} onContact={scrollToContact} />
+    <main className="relative font-sans cursor-default overflow-hidden">
+      <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onCertificates={scrollToCertificates} onContact={scrollToContact} />
 
-        <Particles mousePosition={mousePosition} windowSize={windowSize} />
+      <Particles mousePosition={mousePosition} windowSize={windowSize} />
 
-        <Hero onAbout={scrollToAbout} onContact={scrollToContact} text={text} />
+      <Hero onAbout={scrollToAbout} onContact={scrollToContact} text={text} />
 
-        <About />
+      <About />
 
-        <Projects />
+      <Projects />
 
-        <Certificates />
+      <Certificates />
 
-        {/* Contact Section */}
-        <section
-          id="contact"
-          className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 text-center relative"
+      {/* Contact Section */}
+      <section
+        id="contact"
+        className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 text-center relative"
+      >
+        <motion.h2
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1 }}
+          viewport={{ once: true }}
+          className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4"
         >
-          <motion.h2
-            initial={{ opacity: 0, y: 100 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-            viewport={{ once: true }}
-            className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4"
-          >
-            Contact Me
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 100 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3 }}
-            viewport={{ once: true }}
-            className="text-sm sm:text-base md:text-lg"
-          >
-            Let's build something together!
-          </motion.p>
+          Contact Me
+        </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.3 }}
+          viewport={{ once: true }}
+          className="text-sm sm:text-base md:text-lg"
+        >
+          Let's build something together!
+        </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 100 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <ContactInfo handleCopy={handleCopy} />
-          </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, delay: 0.6 }}
+          viewport={{ once: true }}
+        >
+          <ContactInfo handleCopy={handleCopy} />
+        </motion.div>
 
-          {/* Confetti GIF at click position */}
-          {confettiPos && (
-            <img
-              src="/confetti.gif"
-              alt="Confetti"
-              className="w-32 h-32 fixed pointer-events-none z-40"
-              style={{
-                left: confettiPos.x,
-                top: confettiPos.y,
-                transform: "translate(-50%, -50%)",
-              }}
-            />
-          )}
+        {/* Confetti GIF at click position */}
+        {confettiPos && (
+          <img
+            src="/confetti.gif"
+            alt="Confetti"
+            className="w-32 h-32 fixed pointer-events-none z-40"
+            style={{
+              left: confettiPos.x,
+              top: confettiPos.y,
+              transform: "translate(-50%, -50%)",
+            }}
+          />
+        )}
 
-          {/* Glassmorphism toast */}
-          {copied && (
-            <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white/30 backdrop-blur-md px-6 py-2 rounded-xl shadow-lg border border-white/20 animate-slideUp">
-              Copied to Clipboard
-            </div>
-          )}
-        </section>
+        {/* Glassmorphism toast */}
+        {copied && (
+          <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-white/30 backdrop-blur-md px-6 py-2 rounded-xl shadow-lg border border-white/20 animate-slideUp">
+            Copied to Clipboard
+          </div>
+        )}
+      </section>
 
-        {/* Footer */}
-        <Footer />
+      {/* Footer */}
+      <Footer />
 
-        {showButton && (
-          <button
-            onClick={scrollToTop}
-            className="
+      {showButton && (
+        <button
+          onClick={scrollToTop}
+          className="
           fixed 
           bottom-4 right-4 
           sm:bottom-6 sm:right-6 
@@ -302,17 +299,18 @@ export default function Home() {
           rounded-full shadow-lg border 
           hover:scale-110 active:scale-95 
           transition-all duration-300"
-            style={{
-              background: "var(--glass)",
-              color: "var(--foreground)",
-              borderColor: "rgba(255,255,255,0.06)",
-            }}
-            aria-label="Back to top"
-          >
-            <FaArrowUp size={20} />
-          </button>
-        )}
-      </main>
-    </div>
+          style={{
+            background: "var(--glass)",
+            color: "var(--foreground)",
+            borderColor: "rgba(255,255,255,0.06)",
+          }}
+          aria-label="Back to top"
+        >
+          <FaArrowUp size={20} />
+        </button>
+      )}
+    </main>
   );
 };
+
+export default Home;

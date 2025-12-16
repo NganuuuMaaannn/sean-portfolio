@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { RxCross2 } from "react-icons/rx";
+import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
+import { FiMinus } from "react-icons/fi";
 
 const commands = [
   { text: "git clone https://github.com/NganuuuMaaannn/sean-portfolio.git", color: "green" },
@@ -91,10 +94,10 @@ export default function CmdIntro() {
           <span className="text-gray-300 text-sm">
             C:\Windows\System32\cmd.exe
           </span>
-          <div className="flex gap-2">
-            <span className="w-3 h-3 bg-gray-500 rounded-full" />
-            <span className="w-3 h-3 bg-gray-500 rounded-full" />
-            <span className="w-3 h-3 bg-red-600 rounded-full" />
+          <div className="flex gap-2 text-gray-300 text-sm">
+            <FiMinus className="text-gray-300" />
+            <MdOutlineCheckBoxOutlineBlank className="text-gray-300" />
+            <RxCross2 className="text-gray-300" />
           </div>
         </div>
 
