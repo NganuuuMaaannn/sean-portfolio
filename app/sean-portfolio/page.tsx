@@ -66,16 +66,10 @@ const Home: NextPage = () => {
     const handleScroll = () => {
       const currentY = window.scrollY;
 
-      // Only apply scroll effect on medium screens and up (768px+)
-      if (window.innerWidth >= 768) {
-        if (currentY < lastScrollY) {
-          // scrolling up
-          setShowHeader(true);
-        } else {
-          setShowHeader(false);
-        }
+      if (currentY < lastScrollY) {
+        // scrolling up
+        setShowHeader(true);
       } else {
-        // On small screens, always show header (for toggle menu access)
         setShowHeader(false);
       }
 
@@ -233,14 +227,14 @@ const Home: NextPage = () => {
 
       <Contact />
 
-      {/* Footer */ }
-  <Footer />
+      {/* Footer */}
+      <Footer />
 
-  {
-    showButton && (
-      <button
-        onClick={scrollToTop}
-        className="
+      {
+        showButton && (
+          <button
+            onClick={scrollToTop}
+            className="
           fixed 
           bottom-4 right-4 
           sm:bottom-6 sm:right-6 
@@ -250,17 +244,17 @@ const Home: NextPage = () => {
           rounded-full shadow-lg border 
           hover:scale-110 active:scale-95 
           transition-all duration-300"
-        style={{
-          background: "var(--glass)",
-          color: "var(--foreground)",
-          borderColor: "rgba(255,255,255,0.06)",
-        }}
-        aria-label="Back to top"
-      >
-        <FaArrowUp size={20} />
-      </button>
-    )
-  }
+            style={{
+              background: "var(--glass)",
+              color: "var(--foreground)",
+              borderColor: "rgba(255,255,255,0.06)",
+            }}
+            aria-label="Back to top"
+          >
+            <FaArrowUp size={20} />
+          </button>
+        )
+      }
     </main >
   );
 };
