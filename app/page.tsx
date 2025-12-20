@@ -37,8 +37,13 @@ export default function CmdIntro() {
   }, []);
 
   // Typing animation
+  // Typing animation (≈ 8 seconds total)
   useEffect(() => {
     let cancelled = false;
+
+    const TYPE_SPEED = 12;     // ms per character
+    const LINE_DELAY = 200;    // after each command
+    const EXTRA_DELAY = 500;   // for special commands
 
     const typeAll = async () => {
       for (const cmd of commands) {
@@ -49,7 +54,7 @@ export default function CmdIntro() {
 
           typed += char;
           setCurrent(typed);
-          await new Promise((r) => setTimeout(r, 25));
+          await new Promise((r) => setTimeout(r, TYPE_SPEED));
         }
 
         if (cancelled) return;
@@ -57,14 +62,13 @@ export default function CmdIntro() {
         setLines((prev) => [...prev, { text: cmd.text, color: cmd.color }]);
         setCurrent("");
 
-        await new Promise((r) => setTimeout(r, 400));
+        await new Promise((r) => setTimeout(r, LINE_DELAY));
 
-        if (cmd.text === "npm run dev") {
-          await new Promise((r) => setTimeout(r, 1000));
-        }
-
-        if (cmd.text.startsWith("▲ Next.js ready")) {
-          await new Promise((r) => setTimeout(r, 1000));
+        if (
+          cmd.text === "npm run dev" ||
+          cmd.text.startsWith("▲ Next.js ready")
+        ) {
+          await new Promise((r) => setTimeout(r, EXTRA_DELAY));
         }
 
         containerRef.current?.scrollTo({
@@ -75,7 +79,7 @@ export default function CmdIntro() {
 
       if (!cancelled) {
         document.body.classList.add("cmd-exit");
-        setTimeout(() => router.push("/sean-portfolio"), 600);
+        setTimeout(() => router.push("/sean-portfolio"), 400);
       }
     };
 
