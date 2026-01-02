@@ -6,84 +6,199 @@ import { RxCross2 } from "react-icons/rx";
 import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
 import { FiMinus } from "react-icons/fi";
 
-const commands = [
-  { text: "git clone https://github.com/NganuuuMaaannn/sean-portfolio.git", color: "green" },
-  { text: "Cloning into 'sean-portfolio'...", color: "white" },
-  { text: "Receiving objects: 100% (245/245)", color: "white" },
-  { text: "Resolving deltas: 100% (120/120)", color: "white" },
-  { text: "cd sean-portfolio", color: "green" },
-  { text: "npm install", color: "green" },
-  { text: "Installing dependencies...", color: "white" },
-  { text: "✔ react", color: "white" },
-  { text: "✔ next", color: "white" },
-  { text: "✔ tailwindcss", color: "white" },
-  { text: "✔ done", color: "white" },
-  { text: "npm run dev", color: "green" },
-  { text: "▲ Next.js ready on http://localhost:3000", color: "white" },
+type Part = { text: string; color?: string };
+type Line = {
+  text?: string;
+  indent?: boolean;
+  isCommand?: boolean;
+  parts?: Part[];
+  delay?: number;
+};
+
+const outputSteps: Line[] = [
+  {
+    parts: [
+      { text: " ", color: "text-white" },
+    ],
+  },
+  {
+    delay: 500,
+    parts: [
+      { text: "> sean-portfolio@0.1.0 dev", color: "text-white" },
+    ],
+  },
+  {
+    parts: [
+      { text: "> next dev", color: "text-white" },
+    ],
+  },
+  {
+    parts: [
+      { text: " ", color: "text-white" },
+    ],
+  },
+  { 
+    delay: 500, 
+    indent: true, 
+    parts: [
+      { 
+        text: "▲ Next.js 16.0.7 ", 
+        color: "text-purple-400" 
+      },
+      { 
+        text: "(Turbopack)", 
+        color: "text-white" 
+      },
+    ], 
+  }, 
+  { 
+    indent: true, 
+    parts: [
+      { text: "- Local: http://localhost:3000", color: "text-white" }
+    ], 
+  }, 
+  { 
+    indent: true, 
+    parts: [
+      { text: "- Network: http://192.168.100.10:3000", color: "text-white" }
+    ], 
+  },
+  {
+    parts: [
+      { text: " ", color: "text-white" },
+    ],
+  },
+  {
+    parts: [
+      { 
+        text: "✓ ", 
+        color: "text-green-400" 
+      },
+      { 
+        text: "Starting...", 
+        color: "text-white" 
+      },
+    ], 
+  },
+  {
+    delay: 500,
+    parts: [
+      { 
+        text: "✓ ", 
+        color: "text-green-400" 
+      },
+      { 
+        text: "Ready in 1651ms", 
+        color: "text-white" 
+      },
+    ],
+  },
+  {
+    delay: 500,
+    parts: [
+      { text: "○ Compiling / ...", color: "text-white" },
+    ],
+  },
+  {
+    delay: 1000,
+    parts: [
+      {
+        text: "GET / ",
+        color: "text-white",
+      },
+      {
+        text: "200 ",
+        color: "text-green-400",
+      },
+      {
+        text: "in 4.8s (compile: 4.2s, render: 616ms)",
+        color: "text-white",
+      },
+    ],
+  },
+  {
+    delay: 1500,
+    parts: [
+      {
+        text: "GET /sean-portfolio ",
+        color: "text-white",
+      },
+      {
+        text: "200 ",
+        color: "text-green-400",
+      },
+      {
+        text: "in 3.1s (compile: 3.0s, render: 62ms)",
+        color: "text-white",
+      },
+    ],
+  },
 ];
 
 export default function CmdIntro() {
   const router = useRouter();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const [lines, setLines] = useState<{ text: string; color: string }[]>([]);
+  const [lines, setLines] = useState<Line[]>([]);
   const [current, setCurrent] = useState("");
   const [cursor, setCursor] = useState(true);
 
-  // Cursor blink
+  /* Cursor blink */
   useEffect(() => {
     const blink = setInterval(() => setCursor((c) => !c), 500);
     return () => clearInterval(blink);
   }, []);
 
-  // Typing animation
-  // Typing animation (≈ 8 seconds total)
+  /* Auto scroll */
+  useEffect(() => {
+    containerRef.current?.scrollTo({
+      top: containerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
+  }, [lines, current]);
+
+  /* Typing + Output Flow */
   useEffect(() => {
     let cancelled = false;
 
-    const TYPE_SPEED = 12;     // ms per character
-    const LINE_DELAY = 200;    // after each command
-    const EXTRA_DELAY = 500;   // for special commands
+    const typeCommand = async () => {
+      const cmd = "npm run dev";
+      let typed = "";
 
-    const typeAll = async () => {
-      for (const cmd of commands) {
-        let typed = "";
-
-        for (const char of cmd.text) {
-          if (cancelled) return;
-
-          typed += char;
-          setCurrent(typed);
-          await new Promise((r) => setTimeout(r, TYPE_SPEED));
-        }
-
+      for (const char of cmd) {
         if (cancelled) return;
-
-        setLines((prev) => [...prev, { text: cmd.text, color: cmd.color }]);
-        setCurrent("");
-
-        await new Promise((r) => setTimeout(r, LINE_DELAY));
-
-        if (
-          cmd.text === "npm run dev" ||
-          cmd.text.startsWith("▲ Next.js ready")
-        ) {
-          await new Promise((r) => setTimeout(r, EXTRA_DELAY));
-        }
-
-        containerRef.current?.scrollTo({
-          top: containerRef.current.scrollHeight,
-          behavior: "smooth",
-        });
+        typed += char;
+        setCurrent(typed);
+        await new Promise((r) => setTimeout(r, 40));
       }
 
-      if (!cancelled) {
-        document.body.classList.add("cmd-exit");
-        setTimeout(() => router.push("/sean-portfolio"), 400);
-      }
+      // Commit typed command
+      setLines([
+        {
+          isCommand: true,
+          parts: [
+            { text: "PS C:\\Users\\Sean\\sean-portfolio> ", color: "text-gray-200" },
+            { text: "npm", color: "text-yellow-400" },
+            { text: " run dev", color: "text-white" },
+          ],
+        },
+      ]);
+      setCurrent("");
     };
 
-    typeAll();
+    const showOutputs = async () => {
+      for (const step of outputSteps) {
+        await new Promise((r) => setTimeout(r, step.delay || 500));
+        setLines((prev) => [...prev, step]);
+      }
+
+      setTimeout(() => router.push("/sean-portfolio"), 1000);
+    };
+
+    (async () => {
+      await typeCommand();
+      await showOutputs();
+    })();
 
     return () => {
       cancelled = true;
@@ -91,17 +206,18 @@ export default function CmdIntro() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0b0f19]">
+    <div className="min-h-screen flex items-center justify-center">
       <div className="w-[90%] max-w-3xl rounded-lg shadow-2xl border border-gray-700 bg-black">
+
         {/* Title Bar */}
         <div className="flex items-center justify-between px-4 py-2 bg-[#111] border-b border-gray-700 rounded-t-lg">
           <span className="text-gray-300 text-sm">
             C:\Windows\System32\cmd.exe
           </span>
           <div className="flex gap-2 text-gray-300 text-sm">
-            <FiMinus className="text-gray-300" />
-            <MdOutlineCheckBoxOutlineBlank className="text-gray-300" />
-            <RxCross2 className="text-gray-300" />
+            <FiMinus />
+            <MdOutlineCheckBoxOutlineBlank />
+            <RxCross2 />
           </div>
         </div>
 
@@ -118,23 +234,35 @@ export default function CmdIntro() {
           </div>
           <br />
 
-          {lines.map((line, i) => (
-            <div
-              key={i}
-              className={`whitespace-pre-wrap ${line.color === "green" ? "text-gray-200" : "text-green-400"
-                }`}
-            >
-              C:\Users\Sean&gt; {line.text}
+          {/* Live typing line */}
+          {lines.length === 0 && (
+            <div className="whitespace-pre-wrap text-gray-200">
+              PS C:\Users\Sean\sean-portfolio&gt;
+              <span className="text-gray-200 ml-2">
+                <span className="text-yellow-400">{current.slice(0, 3)}</span>
+                <span className="text-white">{current.slice(3)}</span>
+                {cursor ? "▋" : " "}
+              </span>
             </div>
-          ))}
+          )}
 
-          <div className="flex text-gray-200">
-            <span>C:\Users\Sean&gt;</span>
-            <span className="ml-2">
-              {current}
-              {cursor ? "▋" : " "}
-            </span>
-          </div>
+          {/* Output Lines */}
+          {lines.map((line, i) => {
+            const content = line.parts?.map((p, idx) => (
+              <span key={idx} className={p.color || "text-white"}>
+                {p.text}
+              </span>
+            ));
+
+            return (
+              <div
+                key={i}
+                className={`whitespace-pre ${line.indent ? "pl-4" : ""}`}
+              >
+                {content || line.text}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
