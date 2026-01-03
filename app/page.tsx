@@ -120,7 +120,7 @@ const outputSteps: Line[] = [
     delay: 1500,
     parts: [
       {
-        text: "GET /sean-portfolio ",
+        text: "GET / sean-portfolio ",
         color: "text-white",
       },
       {
