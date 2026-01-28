@@ -37,7 +37,7 @@ export default function ProjectCard({
 
             <div className="p-4 sm:p-6 flex flex-col grow">
                 <h3 className="text-xl sm:text-2xl font-bold mb-2">{title}</h3>
-                <p className="text-sm sm:text-base text-white/80 mb-2">{description}</p>
+                <p className="text-sm sm:text-base mb-2">{description}</p>
 
                 <div className="mt-auto">
                     <div className="flex gap-3 mb-4 text-indigo-400">
@@ -48,7 +48,7 @@ export default function ProjectCard({
                         ))}
                     </div>
 
-                    {/* ✅ Private repo handling */}
+                    {/* Private repo handling */}
                     {isPrivate ? (
                         <span className="text-sm text-red-400 italic">
                             Private Repository
