@@ -4,6 +4,8 @@ import {
   SiReact, SiNextdotjs, SiTypescript, SiTailwindcss, SiNodedotjs,
   SiFigma, SiGit, SiGithub, SiVercel, SiAdobephotoshop, SiAdobepremierepro
 } from "react-icons/si";
+import { RiVuejsFill } from "react-icons/ri";
+import { FaLaravel } from "react-icons/fa6";
 import { IoLogoJavascript } from "react-icons/io5";
 import { FaHtml5, FaCss3Alt, FaBootstrap } from "react-icons/fa";
 import { VscVscode } from "react-icons/vsc";
@@ -17,6 +19,8 @@ export default function TechStack() {
     { name: "TypeScript", icon: <SiTypescript className="text-blue-500" /> },
     { name: "JavaScript", icon: <IoLogoJavascript className="text-yellow-500" /> },
     { name: "Tailwind CSS", icon: <SiTailwindcss className="text-cyan-400" /> },
+    { name: "Vue.js", icon: <RiVuejsFill className="text-green-500" /> },
+    { name: "Laravel", icon: <FaLaravel className="text-orange-500" /> },
     { name: "Node.js", icon: <SiNodedotjs className="text-green-500" /> },
     { name: "HTML", icon: <FaHtml5 className="text-orange-500" /> },
     { name: "CSS", icon: <FaCss3Alt className="text-blue-500" /> },
