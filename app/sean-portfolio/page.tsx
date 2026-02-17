@@ -250,6 +250,7 @@ const Home: NextPage = () => {
               borderColor: "rgba(255,255,255,0.06)",
             }}
             aria-label="Back to top"
+            title="Back to top"
           >
             <FaArrowUp size={20} />
           </button>

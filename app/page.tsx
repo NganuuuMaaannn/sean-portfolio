@@ -100,7 +100,7 @@ const outputSteps: Line[] = [
     ],
   },
   {
-    delay: 1000,
+    delay: 500,
     parts: [
       {
         text: "GET / ",
@@ -117,7 +117,7 @@ const outputSteps: Line[] = [
     ],
   },
   {
-    delay: 1500,
+    delay: 500,
     parts: [
       {
         text: "GET / sean-portfolio ",
@@ -188,11 +188,11 @@ export default function CmdIntro() {
 
     const showOutputs = async () => {
       for (const step of outputSteps) {
-        await new Promise((r) => setTimeout(r, step.delay || 500));
+        await new Promise((r) => setTimeout(r, step.delay || 140));
         setLines((prev) => [...prev, step]);
       }
 
-      setTimeout(() => router.push("/sean-portfolio"), 1000);
+      setTimeout(() => router.push("/sean-portfolio"), 500);
     };
 
     (async () => {
