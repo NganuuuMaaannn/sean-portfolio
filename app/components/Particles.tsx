@@ -1,11 +1,50 @@
 "use client";
 
-type Props = {
-  mousePosition: { x: number; y: number };
-  windowSize: { width: number; height: number };
-};
+import { useEffect, useState } from "react";
 
-export default function Particles({ mousePosition, windowSize }: Props) {
+type Position = { x: number; y: number };
+type Size = { width: number; height: number };
+
+export default function Particles() {
+  const [mousePosition, setMousePosition] = useState<Position>({ x: 0, y: 0 });
+  const [windowSize, setWindowSize] = useState<Size>({ width: 0, height: 0 });
+
+  useEffect(() => {
+    let frameId: number | null = null;
+
+    const updateSize = () => {
+      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    const handleMouseMove = (event: MouseEvent) => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
+
+      frameId = requestAnimationFrame(() => {
+        setMousePosition({ x: event.clientX, y: event.clientY });
+        frameId = null;
+      });
+    };
+
+    updateSize();
+    window.addEventListener("resize", updateSize);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+
+    return () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId);
+      }
+      window.removeEventListener("resize", updateSize);
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
+  const deltaX = mousePosition.x - windowSize.width / 2;
+  const deltaY = mousePosition.y - windowSize.height / 2;
+  const translate = (strength: number) =>
+    `translate(${deltaX * strength}px, ${deltaY * strength}px)`;
+
   return (
     <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
       {/* Large Cyan */}
@@ -14,7 +53,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
         style={{
           top: "10%",
           left: "10%",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.05}px, ${(mousePosition.y - windowSize.height / 2) * 0.05}px)`
+          transform: translate(0.05),
         }}
       ></div>
       {/* Large Yellow */}
@@ -24,7 +63,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           top: "50%",
           right: "5%",
           animationDelay: "1s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.08}px, ${(mousePosition.y - windowSize.height / 2) * 0.08}px)`
+          transform: translate(0.08),
         }}
       ></div>
       {/* Large Blue */}
@@ -34,7 +73,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           bottom: "10%",
           left: "30%",
           animationDelay: "2s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.06}px, ${(mousePosition.y - windowSize.height / 2) * 0.06}px)`
+          transform: translate(0.06),
         }}
       ></div>
 
@@ -45,7 +84,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           top: "25%",
           right: "20%",
           animationDelay: "0.5s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.07}px, ${(mousePosition.y - windowSize.height / 2) * 0.07}px)`
+          transform: translate(0.07),
         }}
       ></div>
       {/* Medium Pink */}
@@ -55,7 +94,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           bottom: "25%",
           right: "25%",
           animationDelay: "1.5s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.065}px, ${(mousePosition.y - windowSize.height / 2) * 0.065}px)`
+          transform: translate(0.065),
         }}
       ></div>
       {/* Medium Green */}
@@ -65,7 +104,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           top: "60%",
           left: "15%",
           animationDelay: "0.3s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.075}px, ${(mousePosition.y - windowSize.height / 2) * 0.075}px)`
+          transform: translate(0.075),
         }}
       ></div>
 
@@ -76,7 +115,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           top: "35%",
           left: "65%",
           animationDelay: "1.2s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.09}px, ${(mousePosition.y - windowSize.height / 2) * 0.09}px)`
+          transform: translate(0.09),
         }}
       ></div>
       {/* Small Red */}
@@ -86,7 +125,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           bottom: "20%",
           right: "10%",
           animationDelay: "0.8s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.095}px, ${(mousePosition.y - windowSize.height / 2) * 0.095}px)`
+          transform: translate(0.095),
         }}
       ></div>
       {/* Small Indigo */}
@@ -96,7 +135,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           top: "70%",
           right: "35%",
           animationDelay: "0.2s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.085}px, ${(mousePosition.y - windowSize.height / 2) * 0.085}px)`
+          transform: translate(0.085),
         }}
       ></div>
       {/* Small Teal */}
@@ -106,7 +145,7 @@ export default function Particles({ mousePosition, windowSize }: Props) {
           top: "15%",
           right: "40%",
           animationDelay: "1.7s",
-          transform: `translate(${(mousePosition.x - windowSize.width / 2) * 0.095}px, ${(mousePosition.y - windowSize.height / 2) * 0.095}px)`
+          transform: translate(0.095),
         }}
       ></div>
     </div>

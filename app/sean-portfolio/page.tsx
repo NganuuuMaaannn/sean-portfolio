@@ -1,10 +1,8 @@
 "use client";
 
-import type { NextPage } from "next";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { FaArrowUp } from "react-icons/fa";
-import { useState, useEffect } from "react";
 import Header from "../components/Header";
-import Particles from "../components/Particles";
 import Hero from "../components/Hero";
 import About from "../components/About";
 import Projects from "../components/Projects";
@@ -13,6 +11,23 @@ import TechStack from "../components/TechStack";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 import Certificates from "../components/Certificates";
+import { Rajdhani } from "next/font/google";
+
+const bodyFont = Rajdhani({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const AboutSection = memo(About);
+const ProjectsSection = memo(Projects);
+const FigmaSection = memo(Figma);
+const TechStackSection = memo(TechStack);
+const CertificatesSection = memo(Certificates);
+const ContactSection = memo(Contact);
+const FooterSection = memo(Footer);
+
+const SCROLL_DURATION = 1000;
+const BACK_TO_TOP_THRESHOLD = 100;
 
 function smoothScrollTo(targetY: number, duration = 1500) {
   const startY = window.scrollY;
@@ -20,11 +35,13 @@ function smoothScrollTo(targetY: number, duration = 1500) {
   let startTime: number | null = null;
 
   function step(timestamp: number) {
-    if (!startTime) startTime = timestamp;
+    if (!startTime) {
+      startTime = timestamp;
+    }
+
     const progress = timestamp - startTime;
     const percent = Math.min(progress / duration, 1);
 
-    // Ease-in-out function
     const easeInOut =
       percent < 0.5
         ? 2 * percent * percent
@@ -40,210 +57,135 @@ function smoothScrollTo(targetY: number, duration = 1500) {
   requestAnimationFrame(step);
 }
 
-const Home: NextPage = () => {
+const Home = () => {
   const [showButton, setShowButton] = useState(false);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-  const [text, setText] = useState("");
-  const fullText = "Developer Focused on Front-End, Mobile & UI/UX Excellence";
+  const lastScrollYRef = useRef(0);
+  const scrollFrameRef = useRef<number | null>(null);
 
   useEffect(() => {
     document.body.classList.remove("cmd-exit");
   }, []);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      setWindowSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
+    const updateScrollState = () => {
       const currentY = window.scrollY;
+      const nextShowHeader =
+        currentY <= 0 || currentY < lastScrollYRef.current;
+      const nextShowButton = currentY > BACK_TO_TOP_THRESHOLD;
 
-      if (currentY < lastScrollY) {
-        // scrolling up
-        setShowHeader(true);
-      } else {
-        setShowHeader(false);
+      setShowHeader((prev) => (prev === nextShowHeader ? prev : nextShowHeader));
+      setShowButton((prev) => (prev === nextShowButton ? prev : nextShowButton));
+      lastScrollYRef.current = currentY;
+    };
+
+    const handleScroll = () => {
+      if (scrollFrameRef.current !== null) {
+        return;
       }
 
-      setLastScrollY(currentY);
+      scrollFrameRef.current = requestAnimationFrame(() => {
+        updateScrollState();
+        scrollFrameRef.current = null;
+      });
     };
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+    updateScrollState();
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
-  const scrollToTop = () => {
-    const topMain = document.getElementById("topMain");
-    if (topMain) {
-      const targetY = topMain.offsetTop;
-      smoothScrollTo(targetY, 1000);
-    }
-  };
-
-  const scrollToAbout = () => {
-    const topMain = document.getElementById("about");
-    if (topMain) {
-      const targetY = topMain.offsetTop;
-      smoothScrollTo(targetY, 1000);
-    }
-  };
-
-  const scrollToProject = () => {
-    const topMain = document.getElementById("projects");
-    if (topMain) {
-      const targetY = topMain.offsetTop;
-      smoothScrollTo(targetY, 1000);
-    }
-  };
-
-  const scrollToFigmaProject = () => {
-    const topMain = document.getElementById("figma-projects");
-    if (topMain) {
-      const targetY = topMain.offsetTop;
-      smoothScrollTo(targetY, 1000);
-    }
-  };
-
-  const scrollToTech = () => {
-    const topMain = document.getElementById("tech-stack");
-    if (topMain) {
-      const targetY = topMain.offsetTop;
-      smoothScrollTo(targetY, 1000);
-    }
-  };
-
-  const scrollToCertificates = () => {
-    const topMain = document.getElementById("certificates");
-    if (topMain) {
-      const targetY = topMain.offsetTop;
-      smoothScrollTo(targetY, 1000);
-    }
-  };
-
-  const scrollToContact = () => {
-    const topMain = document.getElementById("contact");
-    if (topMain) {
-      const targetY = topMain.offsetTop;
-      smoothScrollTo(targetY, 1000);
-    }
-  };
-
-  // Track mouse position
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
+    return () => {
+      if (scrollFrameRef.current !== null) {
+        cancelAnimationFrame(scrollFrameRef.current);
+      }
+      window.removeEventListener("scroll", handleScroll);
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Track window size safely
-  useEffect(() => {
-    const updateSize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    updateSize(); // set initial size
-    window.addEventListener("resize", updateSize);
-    return () => window.removeEventListener("resize", updateSize);
-  }, []);
-
-  // Show back-to-top button after scrolling down a bit (client-side only)
-  useEffect(() => {
-    const handleShowButton = () => {
-      setShowButton(window.scrollY > 100);
-    };
-
-    // Only attach in browser
-    if (typeof window !== "undefined") {
-      window.addEventListener("scroll", handleShowButton);
-      // initialize
-      handleShowButton();
-      return () => window.removeEventListener("scroll", handleShowButton);
+  const scrollToSection = useCallback((sectionId: string) => {
+    const section = document.getElementById(sectionId);
+    if (!section) {
+      return;
     }
+
+    smoothScrollTo(section.offsetTop, SCROLL_DURATION);
   }, []);
 
-  useEffect(() => {
-    let i = 0;
-    let typing = true; // true = typing, false = erasing
-    let interval: NodeJS.Timeout;
+  const scrollToTop = useCallback(() => {
+    scrollToSection("topMain");
+  }, [scrollToSection]);
 
-    const startTyping = () => {
-      interval = setInterval(() => {
-        if (typing) {
-          setText(fullText.slice(0, i));
-          i++;
+  const scrollToAbout = useCallback(() => {
+    scrollToSection("about");
+  }, [scrollToSection]);
 
-          if (i > fullText.length) {
-            clearInterval(interval);
-            typing = false;
-            // pause 10s before erasing
-            setTimeout(startTyping, 20000);
-          }
-        } else {
-          setText(fullText.slice(0, i));
-          i--;
+  const scrollToProject = useCallback(() => {
+    scrollToSection("projects");
+  }, [scrollToSection]);
 
-          if (i < 0) {
-            clearInterval(interval);
-            typing = true;
-            i = 0;
-            // immediately start typing again (no pause here)
-            startTyping();
-          }
-        }
-      }, 20); // speed (ms per character)
-    };
+  const scrollToFigmaProject = useCallback(() => {
+    scrollToSection("figma-projects");
+  }, [scrollToSection]);
 
-    startTyping();
+  const scrollToTech = useCallback(() => {
+    scrollToSection("tech-stack");
+  }, [scrollToSection]);
 
-    return () => clearInterval(interval);
-  }, []);
+  const scrollToCertificates = useCallback(() => {
+    scrollToSection("certificates");
+  }, [scrollToSection]);
+
+  const scrollToContact = useCallback(() => {
+    scrollToSection("contact");
+  }, [scrollToSection]);
 
   return (
-    <main className="relative font-sans cursor-default overflow-hidden">
-      <Header showHeader={showHeader} onAbout={scrollToAbout} onProjects={scrollToProject} onFigma={scrollToFigmaProject} onTech={scrollToTech} onCertificates={scrollToCertificates} onContact={scrollToContact} />
+    <main className={`cyber-portfolio relative font-sans cursor-default overflow-hidden ${bodyFont.className}`} id="topMain">
+      <div className="bg-layer bg-gradient" />
+      <div className="bg-layer bg-grid" />
+      <div className="bg-layer bg-scanlines" />
+      <div className="orb orb-left" />
+      <div className="orb orb-right" />
 
-      <Particles mousePosition={mousePosition} windowSize={windowSize} />
+      <div className="relative z-10">
+        <Header
+          showHeader={showHeader}
+          onAbout={scrollToAbout}
+          onProjects={scrollToProject}
+          onFigma={scrollToFigmaProject}
+          onTech={scrollToTech}
+          onCertificates={scrollToCertificates}
+          onContact={scrollToContact}
+        />
 
-      <Hero onAbout={scrollToAbout} onContact={scrollToContact} text={text} />
+        <Hero onAbout={scrollToAbout} onContact={scrollToContact} />
 
-      <About />
+        <AboutSection />
 
-      <Projects />
+        <ProjectsSection />
 
-      <Figma />
+        <FigmaSection />
 
-      <TechStack />
+        <TechStackSection />
 
-      <Certificates />
+        <CertificatesSection />
 
-      <Contact />
+        <ContactSection />
 
-      {/* Footer */}
-      <Footer />
+        <FooterSection />
 
-      {
-        showButton && (
+        {showButton && (
           <button
             onClick={scrollToTop}
             className="
-          fixed 
-          bottom-4 right-4 
-          sm:bottom-6 sm:right-6 
-          w-10 h-10 
-          sm:w-12 sm:h-12 
-          flex items-center justify-center 
-          rounded-full shadow-lg border 
-          hover:scale-110 active:scale-95 
-          transition-all duration-300"
+            fixed
+            bottom-4 right-4
+            sm:bottom-6 sm:right-6
+            w-10 h-10
+            sm:w-12 sm:h-12
+            flex items-center justify-center
+            rounded-full shadow-lg border
+            hover:scale-110 active:scale-95
+            transition-all duration-300"
             style={{
               background: "var(--glass)",
               color: "var(--foreground)",
@@ -254,9 +196,10 @@ const Home: NextPage = () => {
           >
             <FaArrowUp size={20} />
           </button>
-        )
-      }
-    </main >
+        )}
+      </div>
+
+    </main>
   );
 };
 

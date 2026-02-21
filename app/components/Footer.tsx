@@ -3,8 +3,35 @@
 import { FaGithub, FaFacebook } from "react-icons/fa";
 import ThemeToggle from "./ThemeToggle";
 import { motion } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Footer() {
+  const router = useRouter();
+  const holdTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const clearHoldTimer = () => {
+    if (!holdTimerRef.current) {
+      return;
+    }
+
+    clearTimeout(holdTimerRef.current);
+    holdTimerRef.current = null;
+  };
+
+  const startHoldTimer = () => {
+    clearHoldTimer();
+    holdTimerRef.current = setTimeout(() => {
+      router.push("/sean-login");
+    }, 5000);
+  };
+
+  useEffect(() => {
+    return () => {
+      clearHoldTimer();
+    };
+  }, []);
+
   return (
     <motion.footer
       className="py-10 sm:py-20 px-4 sm:px-8 relative"
@@ -21,7 +48,17 @@ export default function Footer() {
           transition={{ delay: 0.2, duration: 0.6 }}
           viewport={{ once: true }}
         >
-          &copy; {new Date().getFullYear()} Sean Michael Doinog. All rights reserved.
+          &copy; {new Date().getFullYear()}{" "}
+          <span
+            className="cursor-default select-none"
+            onPointerDown={startHoldTimer}
+            onPointerUp={clearHoldTimer}
+            onPointerLeave={clearHoldTimer}
+            onPointerCancel={clearHoldTimer}
+          >
+            Sean
+          </span>{" "}
+          Michael Doinog. All rights reserved.
         </motion.p>
 
         <div className="flex items-center space-x-4 sm:space-x-6 text-lg sm:text-xl">
@@ -44,15 +81,6 @@ export default function Footer() {
           >
             <FaFacebook />
           </motion.a>
-
-          <motion.div
-            className="theme-toggle-inline-spacing"
-            whileHover={{ scale: 1.1, rotate: -10 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 250 }}
-          >
-            <ThemeToggle />
-          </motion.div>
         </div>
       </div>
     </motion.footer>

@@ -8,15 +8,18 @@ import { motion } from "framer-motion";
 import waveAnim from "@/public/lottie/hand.json";
 
 type Props = {
-  text: string;
   onAbout: () => void;
   onContact: () => void;
 };
 
-export default function Hero({ text, onAbout, onContact }: Props) {
+const TYPING_TEXT =
+  "Developer Focused on Front-End, Mobile & UI/UX Excellence";
+
+export default function Hero({ onAbout, onContact }: Props) {
   const [step, setStep] = useState(0);
   const [showLottie, setShowLottie] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
+  const [text, setText] = useState("");
 
   useEffect(() => {
     const timers = [
@@ -28,6 +31,37 @@ export default function Hero({ text, onAbout, onContact }: Props) {
       setTimeout(() => setShowButtons(true), 1500),
     ];
     return () => timers.forEach(clearTimeout);
+  }, []);
+
+  useEffect(() => {
+    let charIndex = 0;
+    let typing = true;
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      setText(TYPING_TEXT.slice(0, charIndex));
+
+      if (typing) {
+        if (charIndex >= TYPING_TEXT.length) {
+          typing = false;
+          timeoutId = setTimeout(tick, 20000);
+          return;
+        }
+        charIndex += 1;
+      } else {
+        if (charIndex <= 0) {
+          typing = true;
+        } else {
+          charIndex -= 1;
+        }
+      }
+
+      timeoutId = setTimeout(tick, 20);
+    };
+
+    tick();
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const container = {
@@ -70,7 +104,7 @@ export default function Hero({ text, onAbout, onContact }: Props) {
           className={`transition-opacity duration-700 ml-0 md:ml-2 ${step >= 2 ? "opacity-100" : "opacity-0"
             }`}
         >
-          I'm
+          I&apos;m
         </span>
 
         <span
