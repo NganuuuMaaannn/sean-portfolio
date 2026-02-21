@@ -5,6 +5,12 @@ import { useRouter } from "next/navigation";
 import { RxCross2 } from "react-icons/rx";
 import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
 import { FiMinus } from "react-icons/fi";
+import { Rajdhani } from "next/font/google";
+
+const bodyFont = Rajdhani({
+  subsets: ["latin"],
+  weight: ["400"],
+});
 
 type Part = { text: string; color?: string };
 type Line = {
@@ -37,31 +43,31 @@ const outputSteps: Line[] = [
       { text: " ", color: "text-white" },
     ],
   },
-  { 
-    delay: 500, 
-    indent: true, 
+  {
+    delay: 500,
+    indent: true,
     parts: [
-      { 
-        text: "▲ Next.js 16.0.7 ", 
-        color: "text-purple-400" 
+      {
+        text: "▲ Next.js 16.0.7 ",
+        color: "text-purple-400"
       },
-      { 
-        text: "(Turbopack)", 
-        color: "text-white" 
+      {
+        text: "(Turbopack)",
+        color: "text-white"
       },
-    ], 
-  }, 
-  { 
-    indent: true, 
+    ],
+  },
+  {
+    indent: true,
     parts: [
       { text: "- Local: http://localhost:3000", color: "text-white" }
-    ], 
-  }, 
-  { 
-    indent: true, 
+    ],
+  },
+  {
+    indent: true,
     parts: [
       { text: "- Network: http://192.168.100.10:3000", color: "text-white" }
-    ], 
+    ],
   },
   {
     parts: [
@@ -70,26 +76,26 @@ const outputSteps: Line[] = [
   },
   {
     parts: [
-      { 
-        text: "✓ ", 
-        color: "text-green-400" 
+      {
+        text: "✓ ",
+        color: "text-green-400"
       },
-      { 
-        text: "Starting...", 
-        color: "text-white" 
+      {
+        text: "Starting...",
+        color: "text-white"
       },
-    ], 
+    ],
   },
   {
     delay: 500,
     parts: [
-      { 
-        text: "✓ ", 
-        color: "text-green-400" 
+      {
+        text: "✓ ",
+        color: "text-green-400"
       },
-      { 
-        text: "Ready in 1651ms", 
-        color: "text-white" 
+      {
+        text: "Ready in 1651ms",
+        color: "text-white"
       },
     ],
   },
@@ -206,65 +212,73 @@ export default function CmdIntro() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="w-[90%] max-w-3xl rounded-lg shadow-2xl border border-gray-700 bg-black">
+    <main className={`cyber-portfolio relative font-sans cursor-default overflow-hidden ${bodyFont.className}`}>
+      <div className="bg-layer bg-gradient" />
+      <div className="bg-layer bg-grid" />
+      <div className="bg-layer bg-scanlines" />
+      <div className="orb orb-left" />
+      <div className="orb orb-right" />
 
-        {/* Title Bar */}
-        <div className="flex items-center justify-between px-4 py-2 bg-[#111] border-b border-gray-700 rounded-t-lg">
-          <span className="text-gray-300 text-sm">
-            C:\Windows\System32\cmd.exe
-          </span>
-          <div className="flex gap-2 text-gray-300 text-sm">
-            <FiMinus />
-            <MdOutlineCheckBoxOutlineBlank />
-            <RxCross2 />
-          </div>
-        </div>
+      <div className="relative z-10 w-full flex justify-center">
+        <div className="w-[60%] max-w-5xl rounded-lg shadow-2xl border border-gray-700 bg-black">
 
-        {/* CMD Body */}
-        <div
-          ref={containerRef}
-          className="p-4 font-mono text-sm md:text-base h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black"
-        >
-          <div className="text-gray-300">
-            Microsoft Windows [Version 10.0.22000.2538]
-          </div>
-          <div className="text-gray-300">
-            (c) Microsoft Corporation. All rights reserved.
-          </div>
-          <br />
-
-          {/* Live typing line */}
-          {lines.length === 0 && (
-            <div className="whitespace-pre-wrap text-gray-200">
-              PS C:\Users\Sean\sean-portfolio&gt;
-              <span className="text-gray-200 ml-2">
-                <span className="text-yellow-400">{current.slice(0, 3)}</span>
-                <span className="text-white">{current.slice(3)}</span>
-                {cursor ? "▋" : " "}
-              </span>
+          {/* Title Bar */}
+          <div className="flex items-center justify-between px-4 py-2 bg-[#111] border-b border-gray-700 rounded-t-lg">
+            <span className="text-gray-300 text-xs">
+              C:\Windows\System32\cmd.exe
+            </span>
+            <div className="flex gap-2 text-gray-300 text-xs">
+              <FiMinus />
+              <MdOutlineCheckBoxOutlineBlank />
+              <RxCross2 />
             </div>
-          )}
+          </div>
 
-          {/* Output Lines */}
-          {lines.map((line, i) => {
-            const content = line.parts?.map((p, idx) => (
-              <span key={idx} className={p.color || "text-white"}>
-                {p.text}
-              </span>
-            ));
+          {/* CMD Body */}
+          <div
+            ref={containerRef}
+            className="p-4 font-mono text-xs md:text-sm h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black"
+          >
+            <div className="text-gray-300">
+              Microsoft Windows [Version 10.0.22000.2538]
+            </div>
+            <div className="text-gray-300">
+              (c) Microsoft Corporation. All rights reserved.
+            </div>
+            <br />
 
-            return (
-              <div
-                key={i}
-                className={`whitespace-pre ${line.indent ? "pl-4" : ""}`}
-              >
-                {content || line.text}
+            {/* Live typing line */}
+            {lines.length === 0 && (
+              <div className="whitespace-pre-wrap text-gray-200">
+                PS C:\Users\Sean\sean-portfolio&gt;
+                <span className="text-gray-200 ml-2">
+                  <span className="text-yellow-400">{current.slice(0, 3)}</span>
+                  <span className="text-white">{current.slice(3)}</span>
+                  {cursor ? "▋" : " "}
+                </span>
               </div>
-            );
-          })}
+            )}
+
+            {/* Output Lines */}
+            {lines.map((line, i) => {
+              const content = line.parts?.map((p, idx) => (
+                <span key={idx} className={p.color || "text-white"}>
+                  {p.text}
+                </span>
+              ));
+
+              return (
+                <div
+                  key={i}
+                  className={`whitespace-pre ${line.indent ? "pl-4" : ""}`}
+                >
+                  {content || line.text}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </main>
   );
 }
