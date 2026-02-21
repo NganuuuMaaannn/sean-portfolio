@@ -52,7 +52,7 @@ export default function TechStack() {
 
   return (
     <section id="tech-stack" className="w-full py-11">
-      <div className="max-w-6xl mx-auto px-4 sm:px-1 mt-16 mb-36">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 mt-16 mb-20 sm:mb-36">
 
         {/* Title */}
         <motion.h2

@@ -29,18 +29,18 @@ export default function ProjectCard({
         <motion.div
             whileHover={{ y: "-1%", scale: 1.01 }}
             transition={{ type: "spring", duration: 1 }}
-            className="flex flex-col z-10 h-[420px] lg:h-[550px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
+            className="flex flex-col z-10 h-full min-h-[420px] lg:min-h-[520px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
         >
-            <div className="relative h-60 sm:h-64 md:h-72 overflow-hidden">
+            <div className="relative h-52 sm:h-60 md:h-64 overflow-hidden">
                 <img src={image} alt={title} className="w-full h-full object-cover" />
             </div>
 
             <div className="p-4 sm:p-6 flex flex-col grow">
                 <h3 className="text-xl sm:text-2xl font-bold mb-2">{title}</h3>
-                <p className="text-sm sm:text-base mb-2">{description}</p>
+                <p className="text-sm sm:text-base mb-2 leading-relaxed">{description}</p>
 
                 <div className="mt-auto">
-                    <div className="flex gap-3 mb-4 text-indigo-400">
+                    <div className="flex flex-wrap gap-2 sm:gap-3 mb-4 text-indigo-400">
                         {tech.map((t, i) => (
                             <span key={i} className="bg-white/10 px-2 py-1 rounded text-xs">
                                 {t}

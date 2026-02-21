@@ -17,13 +17,13 @@ export default function Figma() {
   return (
     <section
       id="figma-projects"
-      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 mt-16"
+      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 py-16 sm:py-20 mt-8 sm:mt-16"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full min-h-screen flex flex-col items-center justify-center p-4"
+        className="w-full flex flex-col items-center justify-center p-2 sm:p-4"
       >
         <div className="w-full max-w-6xl">
           <motion.h2
@@ -35,7 +35,7 @@ export default function Figma() {
           >
             Figma Projects
           </motion.h2>
-          <div className="grid grid-cols-1 gap-8">
+          <div className="grid grid-cols-1 gap-6 sm:gap-8">
             {figmaProjects.map((project, index) => (
               <motion.div
                 key={project.title}
@@ -48,7 +48,7 @@ export default function Figma() {
                 <div className="p-4">
                   <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
                 </div>
-                <div className="relative w-full min-h-[400px] sm:min-h-[500px]" style={{ aspectRatio: '4 / 3' }}>
+                <div className="relative w-full aspect-[4/3] min-h-[260px] sm:min-h-[380px]">
                   <iframe
                     style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}
                     width="100%"

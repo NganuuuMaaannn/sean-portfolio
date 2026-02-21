@@ -275,6 +275,15 @@ html {
   scroll-behavior: smooth;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 
 
 /* CMD exit animation */

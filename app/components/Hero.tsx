@@ -83,7 +83,7 @@ export default function Hero({ onAbout, onContact }: Props) {
   return (
     <section
       id="topMain"
-      className="relative h-screen flex flex-col justify-center items-center bg-transparent px-4 text-center"
+      className="relative min-h-[100svh] flex flex-col justify-center items-center bg-transparent px-4 sm:px-6 text-center"
     >
       <h1
         className={`
@@ -131,7 +131,7 @@ export default function Hero({ onAbout, onContact }: Props) {
         )}
       </h1>
 
-      <p className="mt-2 lg:mt-4 text-sm sm:text-lg md:text-xl font-light">
+      <p className="mt-2 lg:mt-4 max-w-2xl text-sm sm:text-lg md:text-xl font-light px-2">
         {text}
         <span className="animate-ping ml-1">|</span>
       </p>
@@ -142,13 +142,13 @@ export default function Hero({ onAbout, onContact }: Props) {
         initial={false}
         animate={showButtons ? "show" : "hidden"}
         transition={{ duration: 0.6, ease: "easeOut", staggerChildren: 0.15 }}
-        className="mt-8 flex flex-col items-center gap-6"
+        className="mt-8 flex w-full max-w-2xl flex-col items-center gap-6 px-2"
       >
 
         <motion.div
           variants={item}
           transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-          className="flex flex-wrap justify-center gap-4"
+          className="flex w-full flex-wrap justify-center gap-3 sm:gap-4"
         >
           <a
             href="/Sean-CV.pdf"

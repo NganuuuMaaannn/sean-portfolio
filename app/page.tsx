@@ -220,11 +220,11 @@ export default function CmdIntro() {
       <div className="orb orb-right" />
 
       <div className="relative z-10 w-full flex justify-center">
-        <div className="w-[60%] max-w-5xl rounded-lg shadow-2xl border border-gray-700 bg-black">
+        <div className="w-full sm:w-[92%] lg:w-[60%] max-w-5xl rounded-lg shadow-2xl border border-gray-700 bg-black">
 
           {/* Title Bar */}
           <div className="flex items-center justify-between px-4 py-2 bg-[#111] border-b border-gray-700 rounded-t-lg">
-            <span className="text-gray-300 text-xs">
+            <span className="text-gray-300 text-[10px] sm:text-xs truncate max-w-[75%]">
               C:\Windows\System32\cmd.exe
             </span>
             <div className="flex gap-2 text-gray-300 text-xs">
@@ -237,7 +237,7 @@ export default function CmdIntro() {
           {/* CMD Body */}
           <div
             ref={containerRef}
-            className="p-4 font-mono text-xs md:text-sm h-[360px] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black"
+            className="p-4 font-mono text-[10px] sm:text-xs md:text-sm h-[320px] sm:h-[360px] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black"
           >
             <div className="text-gray-300">
               Microsoft Windows [Version 10.0.22000.2538]
@@ -249,7 +249,7 @@ export default function CmdIntro() {
 
             {/* Live typing line */}
             {lines.length === 0 && (
-              <div className="whitespace-pre-wrap text-gray-200">
+              <div className="whitespace-pre-wrap break-all text-gray-200">
                 PS C:\Users\Sean\sean-portfolio&gt;
                 <span className="text-gray-200 ml-2">
                   <span className="text-yellow-400">{current.slice(0, 3)}</span>
@@ -270,7 +270,7 @@ export default function CmdIntro() {
               return (
                 <div
                   key={i}
-                  className={`whitespace-pre ${line.indent ? "pl-4" : ""}`}
+                  className={`whitespace-pre-wrap break-all ${line.indent ? "pl-4" : ""}`}
                 >
                   {content || line.text}
                 </div>
