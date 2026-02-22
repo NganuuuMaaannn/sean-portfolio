@@ -48,7 +48,7 @@ export default function Figma() {
                 <div className="p-4">
                   <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
                 </div>
-                <div className="relative w-full aspect-[4/3] min-h-[260px] sm:min-h-[380px]">
+                <div className="relative w-full min-h-[400px] sm:min-h-[500px]" style={{ aspectRatio: '4 / 3' }}>
                   <iframe
                     style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}
                     width="100%"

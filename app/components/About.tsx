@@ -114,7 +114,7 @@ export default function About() {
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.3 }}
             viewport={{ once: true }}
-            className="text-sm sm:text-base md:text-lg leading-relaxed text-left sm:text-justify"
+            className="text-sm sm:text-base md:text-lg leading-relaxed text-justify"
           >
             {aboutText}
           </motion.p>
@@ -139,7 +139,7 @@ export default function About() {
           viewport={{ once: true }}
           className="w-full md:w-1/2 flex justify-center md:justify-end order-1 md:order-2"
         >
-          <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-[26rem] lg:h-[26rem] rounded-2xl shadow-xl overflow-hidden transition-shadow duration-700 group relative">
+          <div className="w-64 h-64 sm:w-80 sm:h-80 lg:w-104 lg:h-104 rounded-2xl shadow-xl overflow-hidden transition-shadow duration-700 group relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={aboutImage || defaultAboutImage}

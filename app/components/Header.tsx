@@ -13,10 +13,9 @@ type Props = {
 export default function Header({ showHeader, onAbout, onProjects, onFigma, onTech, onCertificates, onContact }: Props) {
   return (
     <header
-      className={`fixed left-1/2 top-3 -translate-x-1/2
-      w-[calc(100vw-1rem)] sm:w-auto max-w-[980px]
+      className={`fixed top-0 left-1/2 -translate-x-1/2 w-auto
       bg-white/10 backdrop-blur-md border border-white/10 shadow-md 
-      transition-transform duration-300 z-50
+      transition-transform duration-300 z-50 mt-6
       rounded-xl px-2 py-2 sm:px-4
       ${showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}
     >
