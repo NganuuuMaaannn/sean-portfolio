@@ -199,6 +199,7 @@ export default function CmdIntro() {
       }
 
       setTimeout(() => router.push("/sean-portfolio"), 500);
+      // setTimeout(() => router.push("/"), 500); // For Fixing
     };
 
     (async () => {
@@ -220,14 +221,14 @@ export default function CmdIntro() {
       <div className="orb orb-right" />
 
       <div className="relative z-10 w-full flex justify-center">
-        <div className="w-full sm:w-[92%] lg:w-[60%] max-w-5xl rounded-lg shadow-2xl border border-gray-700 bg-black">
+        <div className="w-full lg:w-[50%] max-w-5xl rounded-lg shadow-2xl border border-gray-700 bg-black">
 
           {/* Title Bar */}
           <div className="flex items-center justify-between px-4 py-2 bg-[#111] border-b border-gray-700 rounded-t-lg">
-            <span className="text-gray-300 text-[10px] sm:text-xs truncate max-w-[75%]">
+            <span className="text-gray-300 text-[10px] sm:text-[15px] truncate max-w-[75%]">
               C:\Windows\System32\cmd.exe
             </span>
-            <div className="flex gap-2 text-gray-300 text-xs">
+            <div className="flex gap-2 text-gray-300 text-[15px]">
               <FiMinus />
               <MdOutlineCheckBoxOutlineBlank />
               <RxCross2 />
@@ -237,7 +238,7 @@ export default function CmdIntro() {
           {/* CMD Body */}
           <div
             ref={containerRef}
-            className="p-4 font-mono text-[10px] sm:text-xs md:text-sm h-[320px] sm:h-[360px] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black"
+            className="p-4 font-mono text-[10px] sm:text-[15px] h-80 sm:h-[360px] overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-black"
           >
             <div className="text-gray-300">
               Microsoft Windows [Version 10.0.22000.2538]
