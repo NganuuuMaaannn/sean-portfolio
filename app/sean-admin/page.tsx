@@ -77,9 +77,9 @@ export default async function SeanAdminPage() {
         </header>
 
         <section className="space-y-4">
-          <div className="rounded-2xl border border-cyan-300/25 bg-[#050a16]/72 p-2 shadow-[0_0_0_1px_rgba(34,211,238,0.1),0_20px_50px_rgba(0,0,0,0.45)]">
+          {/* <div className="rounded-2xl border border-cyan-300/25 bg-[#050a16]/72 p-2 shadow-[0_0_0_1px_rgba(34,211,238,0.1),0_20px_50px_rgba(0,0,0,0.45)]"> */}
             <ContentEditor initialRow={contentRow ?? { id: "main", profile: {}, projects: [] }} />
-          </div>
+          {/* </div> */}
 
           <article className="rounded-2xl border border-fuchsia-300/25 bg-[#120818]/78 p-5 shadow-[0_0_0_1px_rgba(217,70,239,0.12),0_18px_45px_rgba(0,0,0,0.4)]">
             <h2 className={`text-lg font-semibold uppercase tracking-[0.08em] text-fuchsia-100 ${headingFont.className}`}>
