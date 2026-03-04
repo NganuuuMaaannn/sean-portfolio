@@ -1,13 +1,30 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { type ReactElement, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import {
+  SiReact,
+  SiNextdotjs,
+  SiTypescript,
+  SiTailwindcss,
+  SiNodedotjs,
+  SiFigma,
+  SiGit,
+  SiGithub,
+  SiVercel,
+  SiAdobephotoshop,
+  SiAdobepremierepro,
+} from "react-icons/si";
+import { IoLogoJavascript } from "react-icons/io5";
+import { FaHtml5, FaCss3Alt, FaBootstrap, FaCode, FaToolbox } from "react-icons/fa";
+import { VscVscode } from "react-icons/vsc";
 
 export type PortfolioContentRow = {
   id: string;
   profile: unknown;
   projects: unknown;
   figmaProjects?: unknown;
+  techStackItems?: unknown;
 };
 
 type ProfileShape = {
@@ -31,6 +48,14 @@ type FigmaProjectShape = {
   src: string;
 };
 
+type TechStackCategory = "tech" | "tool";
+
+type TechStackItemShape = {
+  name: string;
+  category: TechStackCategory;
+  logoUrl?: string;
+};
+
 type ProjectLinkMode = "live" | "repo" | "private";
 
 type NewProjectForm = {
@@ -44,6 +69,12 @@ type NewProjectForm = {
 type NewFigmaProjectForm = {
   title: string;
   src: string;
+};
+
+type TechStackForm = {
+  name: string;
+  category: TechStackCategory;
+  logoUrl: string;
 };
 
 type ModalState = {
@@ -77,6 +108,15 @@ type FigmaDecisionState = {
   action: FigmaDecisionAction | null;
 };
 
+type TechStackDecisionAction = { kind: "delete"; index: number };
+
+type TechStackDecisionState = {
+  open: boolean;
+  title: string;
+  message: string;
+  action: TechStackDecisionAction | null;
+};
+
 type PortfolioProfileDbRow = {
   id: string;
   about_text: string | null;
@@ -101,6 +141,15 @@ type PortfolioFigmaProjectDbRow = {
   owner_id: string;
   title: string;
   src: string;
+  sort_order: number;
+};
+
+type PortfolioTechStackDbRow = {
+  id: string;
+  owner_id: string;
+  name: string;
+  category: TechStackCategory;
+  logo_url: string | null;
   sort_order: number;
 };
 
@@ -194,6 +243,41 @@ function toFigmaProjectShapeList(value: unknown): FigmaProjectShape[] {
       };
     })
     .filter((entry): entry is FigmaProjectShape => entry !== null);
+}
+
+function toTechStackItemShapeList(value: unknown): TechStackItemShape[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry): TechStackItemShape | null => {
+      if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+        return null;
+      }
+
+      const record = entry as Record<string, unknown>;
+      const name = typeof record.name === "string" ? record.name.trim() : "";
+      const category =
+        record.category === "tech" || record.category === "tool"
+          ? record.category
+          : null;
+      const logoUrl =
+        typeof record.logoUrl === "string" && record.logoUrl.trim()
+          ? record.logoUrl.trim()
+          : undefined;
+
+      if (!name || !category) {
+        return null;
+      }
+
+      return {
+        name,
+        category,
+        ...(logoUrl ? { logoUrl } : {}),
+      };
+    })
+    .filter((entry): entry is TechStackItemShape => entry !== null);
 }
 
 function normalizeTechStack(value: string): string[] {
@@ -300,6 +384,89 @@ const defaultFigmaProjects: FigmaProjectShape[] = [
     src: "https://embed.figma.com/proto/YyMdjt2ij2eQVJtHT7KXH0/Doinog_ButtonDesignActivity?node-id=1-2&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=0&embed-host=share",
   },
 ];
+const defaultTechStackItems: TechStackItemShape[] = [
+  { name: "React Native", category: "tech" },
+  { name: "React JS", category: "tech" },
+  { name: "Next.js", category: "tech" },
+  { name: "TypeScript", category: "tech" },
+  { name: "JavaScript", category: "tech" },
+  { name: "Tailwind CSS", category: "tech" },
+  { name: "Node.js", category: "tech" },
+  { name: "HTML", category: "tech" },
+  { name: "CSS", category: "tech" },
+  { name: "Bootstrap", category: "tech" },
+  { name: "Visual Studio Code", category: "tool" },
+  { name: "Vercel", category: "tool" },
+  { name: "Figma", category: "tool" },
+  { name: "GitHub", category: "tool" },
+  { name: "Git", category: "tool" },
+  { name: "Photoshop", category: "tool" },
+  { name: "Premiere Pro", category: "tool" },
+];
+
+const techIconByName: Record<string, ReactElement> = {
+  "react native": <SiReact className="text-sky-400" />,
+  "react js": <SiReact className="text-sky-400" />,
+  "next.js": <SiNextdotjs />,
+  typescript: <SiTypescript className="text-blue-500" />,
+  javascript: <IoLogoJavascript className="text-yellow-500" />,
+  "tailwind css": <SiTailwindcss className="text-cyan-400" />,
+  "node.js": <SiNodedotjs className="text-green-500" />,
+  html: <FaHtml5 className="text-orange-500" />,
+  css: <FaCss3Alt className="text-blue-500" />,
+  bootstrap: <FaBootstrap className="text-purple-500" />,
+};
+
+const toolIconByName: Record<string, ReactElement> = {
+  "visual studio code": <VscVscode className="text-blue-500" />,
+  vercel: <SiVercel />,
+  figma: <SiFigma className="text-pink-500" />,
+  github: <SiGithub />,
+  git: <SiGit className="text-orange-500" />,
+  photoshop: <SiAdobephotoshop className="text-blue-500" />,
+  "premiere pro": <SiAdobepremierepro className="text-blue-500" />,
+};
+
+function getTechStackItemIconByName(name: string, category: TechStackCategory) {
+  const normalizedName = name.trim().toLowerCase();
+
+  if (category === "tool") {
+    return toolIconByName[normalizedName] ?? <FaToolbox className="text-amber-400" />;
+  }
+
+  return techIconByName[normalizedName] ?? <FaCode className="text-cyan-300" />;
+}
+
+function TechStackItemVisual({
+  item,
+  imageClassName,
+}: {
+  item: TechStackItemShape;
+  imageClassName: string;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  if (item.logoUrl && !imageFailed) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={item.logoUrl}
+        alt={`${item.name} logo`}
+        className={imageClassName}
+        onError={() => setImageFailed(true)}
+      />
+    );
+  }
+
+  return getTechStackItemIconByName(item.name, item.category);
+}
+
+const emptyTechStackForm: TechStackForm = {
+  name: "",
+  category: "tech",
+  logoUrl: "",
+};
+
 const profileId = "main";
 const ownerId = "main";
 const storageBucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET ?? "portfolio-images";
@@ -315,6 +482,10 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     const parsedFigmaProjects = toFigmaProjectShapeList(initialProfile.figmaProjects);
     return parsedFigmaProjects.length > 0 ? parsedFigmaProjects : defaultFigmaProjects;
   }, [initialProfile.figmaProjects]);
+  const initialTechStackItems = useMemo(() => {
+    const parsedTechStackItems = toTechStackItemShapeList(initialRow.techStackItems);
+    return parsedTechStackItems.length > 0 ? parsedTechStackItems : defaultTechStackItems;
+  }, [initialRow.techStackItems]);
   const [aboutText, setAboutText] = useState(
     typeof initialProfile.aboutText === "string" && initialProfile.aboutText.trim()
       ? initialProfile.aboutText
@@ -331,8 +502,15 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [projects, setProjects] = useState<ProjectShape[]>(initialProjects);
   const [figmaProjects, setFigmaProjects] = useState<FigmaProjectShape[]>(initialFigmaProjects);
+  const [techStackItems, setTechStackItems] = useState<TechStackItemShape[]>(initialTechStackItems);
   const [isSavingProjects, setIsSavingProjects] = useState(false);
   const [isSavingFigmaProjects, setIsSavingFigmaProjects] = useState(false);
+  const [isSavingTechStack, setIsSavingTechStack] = useState(false);
+  const [techStackLogoFile, setTechStackLogoFile] = useState<File | null>(null);
+  const [isTechStackModalOpen, setIsTechStackModalOpen] = useState(false);
+  const [techStackModalMode, setTechStackModalMode] = useState<"add" | "edit">("add");
+  const [editingTechStackIndex, setEditingTechStackIndex] = useState<number | null>(null);
+  const [techStackForm, setTechStackForm] = useState<TechStackForm>(emptyTechStackForm);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [projectModalMode, setProjectModalMode] = useState<"add" | "edit">("add");
   const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
@@ -351,6 +529,12 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     action: null,
   });
   const [figmaDecisionState, setFigmaDecisionState] = useState<FigmaDecisionState>({
+    open: false,
+    title: "",
+    message: "",
+    action: null,
+  });
+  const [techStackDecisionState, setTechStackDecisionState] = useState<TechStackDecisionState>({
     open: false,
     title: "",
     message: "",
@@ -380,6 +564,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
 
   useEffect(() => {
     let active = true;
+    let techStackReloadTimeout: number | null = null;
 
     const syncProfileFromDatabase = async () => {
       const { data, error } = await supabase
@@ -447,9 +632,50 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       setFigmaProjects(nextFigmaProjects.length > 0 ? nextFigmaProjects : defaultFigmaProjects);
     };
 
+    const syncTechStackFromDatabase = async () => {
+      const { data, error } = await supabase
+        .from("portfolio_tech_stack_items")
+        .select("id, owner_id, name, category, logo_url, sort_order")
+        .eq("owner_id", ownerId)
+        .order("sort_order", { ascending: true })
+        .returns<PortfolioTechStackDbRow[]>();
+
+      if (error || !active) {
+        return;
+      }
+
+      const techStackPayload = (data ?? []).map((row) => ({
+        name: row.name,
+        category: row.category,
+        logoUrl: row.logo_url ?? undefined,
+      }));
+      const nextTechStackItems = toTechStackItemShapeList(techStackPayload);
+      if (nextTechStackItems.length > 0) {
+        setTechStackItems(nextTechStackItems);
+        return;
+      }
+
+      // Avoid flashing defaults during multi-step saves (upsert/delete) while preserving first-load fallback.
+      setTechStackItems((current) =>
+        current.length > 0 ? current : defaultTechStackItems,
+      );
+    };
+
+    const scheduleTechStackSync = () => {
+      if (techStackReloadTimeout !== null) {
+        window.clearTimeout(techStackReloadTimeout);
+      }
+
+      techStackReloadTimeout = window.setTimeout(() => {
+        techStackReloadTimeout = null;
+        void syncTechStackFromDatabase();
+      }, 140);
+    };
+
     void syncProfileFromDatabase();
     void syncProjectsFromDatabase();
     void syncFigmaProjectsFromDatabase();
+    void syncTechStackFromDatabase();
 
     const profileChannel = supabase
       .channel("portfolio-profile-admin-live")
@@ -499,11 +725,31 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       )
       .subscribe();
 
+    const techStackChannel = supabase
+      .channel("portfolio-tech-stack-admin-live")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_tech_stack_items",
+          filter: `owner_id=eq.${ownerId}`,
+        },
+        () => {
+          scheduleTechStackSync();
+        },
+      )
+      .subscribe();
+
     return () => {
       active = false;
+      if (techStackReloadTimeout !== null) {
+        window.clearTimeout(techStackReloadTimeout);
+      }
       void supabase.removeChannel(profileChannel);
       void supabase.removeChannel(projectsChannel);
       void supabase.removeChannel(figmaChannel);
+      void supabase.removeChannel(techStackChannel);
     };
   }, [supabase]);
 
@@ -514,6 +760,25 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       title,
       message,
     });
+  };
+
+  const notifyTechStackUpdated = (items: TechStackItemShape[]) => {
+    const timestamp = Date.now().toString();
+
+    try {
+      window.localStorage.setItem("portfolio-tech-stack-items", JSON.stringify(items));
+      window.localStorage.setItem("portfolio-tech-stack-updated-at", timestamp);
+    } catch {
+      // Ignore storage write issues and continue with other channels.
+    }
+
+    try {
+      const channel = new BroadcastChannel("portfolio-tech-stack-updates");
+      channel.postMessage({ type: "updated", at: timestamp, items });
+      channel.close();
+    } catch {
+      // Ignore environments that do not support BroadcastChannel.
+    }
   };
 
   const saveProfilePatch = async (patch: Partial<ProfileShape>) => {
@@ -614,6 +879,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       profile: profilePayload,
       projects,
       figmaProjects: nextFigmaProjects,
+      techStackItems,
     };
 
     return {
@@ -696,6 +962,118 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       profile: profilePayload,
       projects: savedProjects,
       figmaProjects,
+      techStackItems,
+    };
+
+    return {
+      ok: true as const,
+      row,
+    };
+  };
+
+  const saveTechStackPatch = async (techStackPatch: TechStackItemShape[]) => {
+    let usedUpsertFlow = true;
+
+    if (techStackPatch.length > 0) {
+      const techStackUpsertPayload = techStackPatch.map((item, index) => ({
+        owner_id: ownerId,
+        name: item.name,
+        category: item.category,
+        logo_url: item.logoUrl ?? null,
+        sort_order: index,
+      }));
+      const { error: upsertTechStackError } = await supabase
+        .from("portfolio_tech_stack_items")
+        .upsert(techStackUpsertPayload, { onConflict: "owner_id,sort_order" });
+
+      if (upsertTechStackError) {
+        const shouldFallback =
+          upsertTechStackError.message.includes("no unique or exclusion constraint") ||
+          upsertTechStackError.message.includes("ON CONFLICT specification");
+
+        if (!shouldFallback) {
+          return {
+            ok: false as const,
+            message: `Save failed. ${upsertTechStackError.message}`,
+          };
+        }
+
+        usedUpsertFlow = false;
+
+        const { error: deleteTechStackError } = await supabase
+          .from("portfolio_tech_stack_items")
+          .delete()
+          .eq("owner_id", ownerId);
+
+        if (deleteTechStackError) {
+          return {
+            ok: false as const,
+            message: `Save failed. ${deleteTechStackError.message}`,
+          };
+        }
+
+        const { error: insertTechStackError } = await supabase
+          .from("portfolio_tech_stack_items")
+          .insert(techStackUpsertPayload);
+
+        if (insertTechStackError) {
+          return {
+            ok: false as const,
+            message: `Save failed. ${insertTechStackError.message}`,
+          };
+        }
+      }
+    }
+
+    let pruneTechStackError: { message: string } | null = null;
+    if (usedUpsertFlow) {
+      const { error } = await supabase
+        .from("portfolio_tech_stack_items")
+        .delete()
+        .eq("owner_id", ownerId)
+        .gte("sort_order", techStackPatch.length);
+      pruneTechStackError = error ? { message: error.message } : null;
+    }
+
+    if (pruneTechStackError) {
+      return {
+        ok: false as const,
+        message: `Save failed. ${pruneTechStackError.message}`,
+      };
+    }
+
+    const { data: savedTechStackRows, error: readTechStackError } = await supabase
+      .from("portfolio_tech_stack_items")
+      .select("id, owner_id, name, category, logo_url, sort_order")
+      .eq("owner_id", ownerId)
+      .order("sort_order", { ascending: true })
+      .returns<PortfolioTechStackDbRow[]>();
+
+    if (readTechStackError) {
+      return {
+        ok: false as const,
+        message: `Read failed. ${readTechStackError.message}`,
+      };
+    }
+
+    const techStackPayload = (savedTechStackRows ?? []).map((row) => ({
+      name: row.name,
+      category: row.category,
+      logoUrl: row.logo_url ?? undefined,
+    }));
+    const savedTechStackItems = toTechStackItemShapeList(techStackPayload);
+    const profilePayload: ProfileShape = {
+      aboutText,
+      aboutImage,
+      figmaProjects,
+    };
+
+    const row: PortfolioContentRow = {
+      id: profileId,
+      profile: profilePayload,
+      projects,
+      figmaProjects,
+      techStackItems: savedTechStackItems,
     };
 
     return {
@@ -1205,8 +1583,8 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     const nextFigmaProjects =
       isEditingFigmaProject && editingFigmaIndex !== null
         ? figmaProjects.map((project, index) =>
-            index === editingFigmaIndex ? nextFigmaProject : project,
-          )
+          index === editingFigmaIndex ? nextFigmaProject : project,
+        )
         : [...figmaProjects, nextFigmaProject];
 
     setIsSavingFigmaProjects(true);
@@ -1337,11 +1715,294 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
   };
 
+  const handleOpenAddTechStackModal = () => {
+    if (isSavingTechStack) {
+      return;
+    }
+
+    setTechStackModalMode("add");
+    setEditingTechStackIndex(null);
+    setTechStackForm(emptyTechStackForm);
+    setTechStackLogoFile(null);
+    setIsTechStackModalOpen(true);
+  };
+
+  const handleOpenEditTechStackModal = (indexToEdit: number) => {
+    if (isSavingTechStack) {
+      return;
+    }
+
+    const itemToEdit = techStackItems[indexToEdit];
+    if (!itemToEdit) {
+      return;
+    }
+
+    setTechStackModalMode("edit");
+    setEditingTechStackIndex(indexToEdit);
+    setTechStackForm({
+      name: itemToEdit.name,
+      category: itemToEdit.category,
+      logoUrl: itemToEdit.logoUrl ?? "",
+    });
+    setTechStackLogoFile(null);
+    setIsTechStackModalOpen(true);
+  };
+
+  const handleCloseTechStackModal = () => {
+    if (isSavingTechStack) {
+      return;
+    }
+
+    setTechStackModalMode("add");
+    setEditingTechStackIndex(null);
+    setTechStackForm(emptyTechStackForm);
+    setTechStackLogoFile(null);
+    setIsTechStackModalOpen(false);
+  };
+
+  const handleSaveTechStack = async () => {
+    const isEditing = techStackModalMode === "edit" && editingTechStackIndex !== null;
+    const currentEditingItem = isEditing ? techStackItems[editingTechStackIndex] : null;
+    const name = techStackForm.name.trim();
+    let logoUrl = techStackForm.logoUrl.trim();
+
+    if (isEditing && !currentEditingItem) {
+      const message = "Selected item no longer exists. Reopen the editor and try again.";
+      setStatusText(message);
+      showModal("error", "Edit Error", message);
+      return;
+    }
+
+    if (!name) {
+      const message = "Item name is required.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    const hasDuplicate = techStackItems.some(
+      (item, index) =>
+        (!isEditing || index !== editingTechStackIndex) &&
+        item.name.trim().toLowerCase() === name.toLowerCase() &&
+        item.category === techStackForm.category,
+    );
+
+    if (hasDuplicate) {
+      const message = "This item already exists in the selected category.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    setIsSavingTechStack(true);
+    setStatusText(
+      techStackLogoFile
+        ? "Uploading logo..."
+        : isEditing
+          ? "Updating tech stack item..."
+          : "Adding tech stack item...",
+    );
+
+    if (techStackLogoFile) {
+      const extension = techStackLogoFile.name.includes(".")
+        ? techStackLogoFile.name.split(".").pop()?.toLowerCase() ?? "png"
+        : "png";
+      const sanitizedExtension = extension.replace(/[^a-z0-9]/g, "") || "png";
+      const filePath = `tech-stack/${Date.now()}-${Math.random().toString(36).slice(2)}.${sanitizedExtension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(storageBucket)
+        .upload(filePath, techStackLogoFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        setIsSavingTechStack(false);
+        const message = `Logo upload failed. ${uploadError.message}`;
+        setStatusText(message);
+        showModal("error", "Upload Failed", message);
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from(storageBucket).getPublicUrl(filePath);
+      logoUrl = publicUrlData.publicUrl;
+    }
+
+    const nextItem: TechStackItemShape = {
+      name,
+      category: techStackForm.category,
+      ...(logoUrl ? { logoUrl } : {}),
+    };
+
+    const nextTechStackItems =
+      isEditing && editingTechStackIndex !== null
+        ? techStackItems.map((item, index) => (index === editingTechStackIndex ? nextItem : item))
+        : [...techStackItems, nextItem];
+
+    const result = await saveTechStackPatch(nextTechStackItems);
+    setIsSavingTechStack(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedTechStackItems = toTechStackItemShapeList(result.row.techStackItems);
+    const resolvedTechStackItems =
+      savedTechStackItems.length > 0 ? savedTechStackItems : defaultTechStackItems;
+
+    setTechStackItems(resolvedTechStackItems);
+    notifyTechStackUpdated(resolvedTechStackItems);
+    setIsTechStackModalOpen(false);
+    setTechStackModalMode("add");
+    setEditingTechStackIndex(null);
+    setTechStackForm(emptyTechStackForm);
+    setTechStackLogoFile(null);
+
+    if (isEditing) {
+      setStatusText("Tech stack item updated and saved.");
+      showModal("success", "Item Updated", "Tech stack item updated successfully.");
+      return;
+    }
+
+    setStatusText("Tech stack item added and saved.");
+    showModal("success", "Item Added", "Tech stack item added successfully.");
+  };
+
+  const askTechStackDecision = (
+    title: string,
+    message: string,
+    action: TechStackDecisionAction,
+  ) => {
+    if (isSavingTechStack) {
+      return;
+    }
+
+    setTechStackDecisionState({
+      open: true,
+      title,
+      message,
+      action,
+    });
+  };
+
+  const handleRequestDeleteTechStackItem = (indexToRemove: number) => {
+    const targetItem = techStackItems[indexToRemove];
+    if (!targetItem) {
+      return;
+    }
+
+    askTechStackDecision(
+      "Confirm Delete",
+      `Are you sure you want to remove \"${targetItem.name}\"?`,
+      { kind: "delete", index: indexToRemove },
+    );
+  };
+
+  const handleConfirmTechStackDecision = async () => {
+    const action = techStackDecisionState.action;
+    if (!action) {
+      return;
+    }
+
+    setTechStackDecisionState({
+      open: false,
+      title: "",
+      message: "",
+      action: null,
+    });
+
+    await handleRemoveTechStackItem(action.index);
+  };
+
+  const handleCancelTechStackDecision = () => {
+    if (isSavingTechStack) {
+      return;
+    }
+
+    setTechStackDecisionState({
+      open: false,
+      title: "",
+      message: "",
+      action: null,
+    });
+  };
+
+  const handleRemoveTechStackItem = async (indexToRemove: number) => {
+    const targetItem = techStackItems[indexToRemove];
+    if (!targetItem) {
+      return;
+    }
+
+    const nextTechStackItems = techStackItems.filter((_, index) => index !== indexToRemove);
+    setIsSavingTechStack(true);
+    setStatusText("Removing tech stack item...");
+    const result = await saveTechStackPatch(nextTechStackItems);
+    setIsSavingTechStack(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedTechStackItems = toTechStackItemShapeList(result.row.techStackItems);
+    const resolvedTechStackItems =
+      savedTechStackItems.length > 0 ? savedTechStackItems : defaultTechStackItems;
+
+    setTechStackItems(resolvedTechStackItems);
+    notifyTechStackUpdated(resolvedTechStackItems);
+    setStatusText("Tech stack item removed and saved.");
+    showModal("success", "Item Removed", `Removed "${targetItem.name}".`);
+  };
+
+  const handleResetTechStack = async () => {
+    setIsSavingTechStack(true);
+    setStatusText("Resetting tech stack to default...");
+    const result = await saveTechStackPatch(defaultTechStackItems);
+    setIsSavingTechStack(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedTechStackItems = toTechStackItemShapeList(result.row.techStackItems);
+    const resolvedTechStackItems =
+      savedTechStackItems.length > 0 ? savedTechStackItems : defaultTechStackItems;
+
+    setTechStackItems(resolvedTechStackItems);
+    notifyTechStackUpdated(resolvedTechStackItems);
+    setIsTechStackModalOpen(false);
+    setTechStackModalMode("add");
+    setEditingTechStackIndex(null);
+    setTechStackForm(emptyTechStackForm);
+    setTechStackLogoFile(null);
+    setStatusText("Tech stack reset to default and saved.");
+    showModal("success", "Tech Stack Reset", "Default tech stack restored.");
+  };
+
   const isProjectActionBusy = isAddingProject || isSavingProjects;
   const isFigmaActionBusy = isSavingFigmaProject || isSavingFigmaProjects;
+  const isTechStackActionBusy = isSavingTechStack;
+  const techItemsPreview = techStackItems
+    .map((item, index) => ({ ...item, index }))
+    .filter((item) => item.category === "tech");
+  const toolItemsPreview = techStackItems
+    .map((item, index) => ({ ...item, index }))
+    .filter((item) => item.category === "tool");
 
   return (
     <div className="space-y-4 ">
+
+
+
+
+
+      {/* About Me */}
       <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
         About Me
       </h1>
@@ -1437,6 +2098,12 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
             </section>
           </div>
         </section>
+
+
+
+
+
+        {/* My Projects */}
         <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
           My Project
         </h1>
@@ -1541,10 +2208,14 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
           </section>
         </section>
 
+
+
+
+        {/* Figma Projects */}
         <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
           Figma Project
         </h1>
-        <section className="rounded-2xl border border-fuchsia-300/25 bg-[#160a1f]/74 p-4 sm:p-5">
+        <section className="rounded-2xl border border-indigo-300/25 bg-[#0c1226]/74 p-4 sm:p-5">
           <section className="rounded-xl border border-fuchsia-300/20 bg-[#1b0f2a]/78 p-4 sm:p-5">
             <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -1627,6 +2298,137 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
             )}
           </section>
         </section>
+
+
+
+
+
+        {/* Tech Stack & Dev Tools */}
+        <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
+          Tech Stack
+        </h1>
+        <section className="rounded-2xl border border-indigo-300/25 bg-[#0c1226]/74 p-4 sm:p-5">
+          <section className="rounded-xl border border-indigo-300/20 bg-[#101327]/78 p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xl font-semibold uppercase tracking-[0.18em] text-emerald-200/90">
+                  Tech Stack Tiles
+                </p>
+                <p className="mt-1 text-sm text-emerald-100/70">
+                  Same as your main portfolio, with add, edit, remove, and restore-to-default controls.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleResetTechStack}
+                  disabled={isTechStackActionBusy}
+                  className="rounded-lg border border-emerald-300/45 bg-emerald-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100 transition hover:bg-emerald-500/25 hover:shadow-[0_0_18px_rgba(16,185,129,0.28)] disabled:cursor-wait disabled:opacity-70"
+                >
+                  Reset to Default
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenAddTechStackModal}
+                  disabled={isTechStackActionBusy}
+                  className="rounded-lg border border-cyan-300/45 bg-cyan-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100 transition hover:bg-cyan-500/25 hover:shadow-[0_0_18px_rgba(34,211,238,0.28)] disabled:cursor-wait disabled:opacity-70"
+                >
+                  + Add Item
+                </button>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-cyan-300/20 bg-[#08121a]/85 p-3">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-emerald-200/85">
+                Tech Stack
+              </p>
+              {techItemsPreview.length > 0 ? (
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+                  {techItemsPreview.map((item) => (
+                    <article
+                      key={`${item.name}-${item.index}`}
+                      className="flex flex-col rounded-xl border border-white/10 bg-white/5 p-3 shadow-lg backdrop-blur-md"
+                    >
+                      <div className="flex items-center justify-center text-4xl">
+                        <TechStackItemVisual item={item} imageClassName="h-10 w-10 object-contain" />
+                      </div>
+                      <p className="mt-3 text-center text-xs font-semibold tracking-[0.04em] text-emerald-100">
+                        {item.name}
+                      </p>
+                      <div className="mt-3 flex justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditTechStackModal(item.index)}
+                          disabled={isTechStackActionBusy}
+                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDeleteTechStackItem(item.index)}
+                          disabled={isTechStackActionBusy}
+                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-emerald-100/65">No tech stack items yet.</p>
+              )}
+            </div>
+
+            <div className="mt-4 rounded-lg border border-cyan-300/20 bg-[#08121a]/85 p-3">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-200/85">
+                Development & Design Tools
+              </p>
+              {toolItemsPreview.length > 0 ? (
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+                  {toolItemsPreview.map((item) => (
+                    <article
+                      key={`${item.name}-${item.index}`}
+                      className="flex flex-col rounded-xl border border-white/10 bg-white/5 p-3 shadow-lg backdrop-blur-md"
+                    >
+                      <div className="flex items-center justify-center text-3xl">
+                        <TechStackItemVisual item={item} imageClassName="h-8 w-8 object-contain" />
+                      </div>
+                      <p className="mt-3 text-center text-xs font-semibold tracking-[0.04em] text-cyan-100">
+                        {item.name}
+                      </p>
+                      <div className="mt-3 flex justify-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditTechStackModal(item.index)}
+                          disabled={isTechStackActionBusy}
+                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDeleteTechStackItem(item.index)}
+                          disabled={isTechStackActionBusy}
+                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              ) : (
+                <p className="mt-2 text-xs text-cyan-100/65">No tool items yet.</p>
+              )}
+            </div>
+          </section>
+        </section>
+
+
+
+
 
       </div>
 
@@ -1865,6 +2667,122 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
         </div>
       ) : null}
 
+      {isTechStackModalOpen ? (
+        <div className="fixed inset-0 z-97 flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm">
+          <div className="w-full max-w-xl rounded-2xl border border-emerald-300/40 bg-[#071b12] p-5 shadow-[0_0_45px_rgba(16,185,129,0.24)] sm:p-6">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-emerald-200/85">
+                  {techStackModalMode === "edit" ? "Edit Tech Stack Item" : "New Tech Stack Item"}
+                </p>
+                <h3 className="mt-1 text-lg font-semibold uppercase tracking-[0.06em] text-emerald-100">
+                  {techStackModalMode === "edit" ? "Edit Item" : "Add Item"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseTechStackModal}
+                disabled={isTechStackActionBusy}
+                className="rounded-md border border-emerald-300/45 bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100 transition hover:bg-emerald-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-emerald-200/80">
+                  Item Name
+                </label>
+                <input
+                  type="text"
+                  value={techStackForm.name}
+                  onChange={(event) =>
+                    setTechStackForm((current) => ({ ...current, name: event.target.value }))
+                  }
+                  placeholder="Next.js"
+                  className="w-full rounded-lg border border-emerald-300/25 bg-[#102a1e] p-3 text-sm text-emerald-50 outline-none placeholder:text-emerald-100/35 focus:border-emerald-300/55 focus:shadow-[0_0_0_2px_rgba(16,185,129,0.16)]"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-emerald-200/80">
+                  Category
+                </label>
+                <select
+                  value={techStackForm.category}
+                  onChange={(event) =>
+                    setTechStackForm((current) => ({
+                      ...current,
+                      category: event.target.value as TechStackCategory,
+                    }))
+                  }
+                  className="w-full rounded-lg border border-emerald-300/25 bg-[#102a1e] p-3 text-sm text-emerald-50 outline-none focus:border-emerald-300/55 focus:shadow-[0_0_0_2px_rgba(16,185,129,0.16)]"
+                >
+                  <option value="tech">Tech Stack</option>
+                  <option value="tool">Development & Design Tools</option>
+                </select>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-emerald-200/80">
+                  Logo URL or Path
+                </label>
+                <input
+                  type="text"
+                  value={techStackForm.logoUrl}
+                  onChange={(event) =>
+                    setTechStackForm((current) => ({ ...current, logoUrl: event.target.value }))
+                  }
+                  placeholder="/image/github.png or https://..."
+                  className="w-full rounded-lg border border-emerald-300/25 bg-[#102a1e] p-3 text-sm text-emerald-50 outline-none placeholder:text-emerald-100/35 focus:border-emerald-300/55 focus:shadow-[0_0_0_2px_rgba(16,185,129,0.16)]"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-emerald-200/80">
+                  Upload Logo File
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setTechStackLogoFile(event.target.files?.[0] ?? null)}
+                  className="block w-full rounded-lg border border-emerald-300/25 bg-[#102a1e] p-2 text-sm text-emerald-50 file:mr-3 file:rounded file:border-0 file:bg-emerald-500/30 file:px-3 file:py-2 file:text-[0.68rem] file:font-semibold file:uppercase file:tracking-[0.12em] file:text-emerald-100 hover:file:bg-emerald-500/40"
+                />
+                <p className="mt-1 text-[0.66rem] text-emerald-100/65">
+                  Optional. If selected, upload will be used as logo.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleSaveTechStack}
+                disabled={isTechStackActionBusy}
+                className="rounded-md border border-emerald-300/40 bg-emerald-500/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/30 disabled:cursor-wait disabled:opacity-70"
+              >
+                {isSavingTechStack
+                  ? techStackModalMode === "edit"
+                    ? "Updating..."
+                    : "Adding..."
+                  : techStackModalMode === "edit"
+                    ? "Save Changes"
+                    : "Add Item"}
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseTechStackModal}
+                disabled={isTechStackActionBusy}
+                className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {projectDecisionState.open ? (
         <div className="fixed inset-0 z-98 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-orange-300/45 bg-[#140d08] p-5 shadow-[0_0_35px_rgba(251,146,60,0.2)]">
@@ -1920,6 +2838,38 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
                 type="button"
                 onClick={handleCancelFigmaDecision}
                 disabled={isFigmaActionBusy}
+                className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {techStackDecisionState.open ? (
+        <div className="fixed inset-0 z-98 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-emerald-300/45 bg-[#071b12] p-5 shadow-[0_0_35px_rgba(16,185,129,0.2)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-300">
+              Confirm Action
+            </p>
+            <h3 className="mt-2 text-lg font-semibold uppercase tracking-[0.06em] text-emerald-100">
+              {techStackDecisionState.title}
+            </h3>
+            <p className="mt-2 text-sm text-emerald-100/85">{techStackDecisionState.message}</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmTechStackDecision}
+                disabled={isTechStackActionBusy}
+                className="rounded-md border border-emerald-300/40 bg-emerald-500/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/30 disabled:cursor-wait disabled:opacity-70"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelTechStackDecision}
+                disabled={isTechStackActionBusy}
                 className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
               >
                 No

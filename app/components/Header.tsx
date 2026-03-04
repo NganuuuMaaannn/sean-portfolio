@@ -16,7 +16,7 @@ export default function Header({ showHeader, onAbout, onProjects, onFigma, onTec
       className={`fixed top-0 left-1/2 -translate-x-1/2 w-auto
       bg-white/10 backdrop-blur-md border border-white/10 shadow-md 
       transition-transform duration-300 z-50 mt-6
-      rounded-xl px-2 py-2 sm:px-4
+      rounded-xl px-2 py-2 md:px-6 md:py-3
       ${showHeader ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"}`}
     >
       <nav className="hide-scrollbar flex items-center justify-start sm:justify-center gap-2 sm:gap-4 md:gap-6 overflow-x-auto whitespace-nowrap text-[11px] sm:text-sm md:text-base font-medium tracking-wide">

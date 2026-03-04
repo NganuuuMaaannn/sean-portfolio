@@ -32,6 +32,15 @@ type PortfolioFigmaProjectDbRow = {
   sort_order: number;
 };
 
+type PortfolioTechStackDbRow = {
+  id: string;
+  owner_id: string;
+  name: string;
+  category: "tech" | "tool";
+  logo_url: string | null;
+  sort_order: number;
+};
+
 const headingFont = Orbitron({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
@@ -70,6 +79,13 @@ export default async function SeanAdminPage() {
     .order("sort_order", { ascending: true })
     .returns<PortfolioFigmaProjectDbRow[]>();
 
+  const { data: techStackRows } = await supabase
+    .from("portfolio_tech_stack_items")
+    .select("id, owner_id, name, category, logo_url, sort_order")
+    .eq("owner_id", "main")
+    .order("sort_order", { ascending: true })
+    .returns<PortfolioTechStackDbRow[]>();
+
   const initialProfile = {
     aboutText: profileRow?.about_text ?? "",
     aboutImage: profileRow?.about_image ?? "",
@@ -94,6 +110,11 @@ export default async function SeanAdminPage() {
     profile: initialProfile,
     projects: initialProjects,
     figmaProjects: initialProfile.figmaProjects,
+    techStackItems: (techStackRows ?? []).map((row) => ({
+      name: row.name,
+      category: row.category,
+      logoUrl: row.logo_url ?? undefined,
+    })),
   };
 
   const userEmail = userData.user.email ?? "unknown";

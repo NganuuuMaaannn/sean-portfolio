@@ -2,7 +2,7 @@
 -- Sean Portfolio: Recommended Supabase Schema (Split Tables)
 -- ============================================================
 -- What this does:
--- 1) Creates separate tables for profile, projects, and figma projects
+-- 1) Creates separate tables for profile, projects, figma projects, and tech stack items
 -- 2) Migrates existing data from public.portfolio_content (if it exists)
 -- 3) Enables RLS + policies
 -- 4) Adds realtime publication entries
@@ -64,11 +64,31 @@ create table if not exists public.portfolio_figma_projects (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.portfolio_tech_stack_items (
+  id uuid primary key default gen_random_uuid(),
+  owner_id text not null default 'main',
+  name text not null,
+  category text not null check (category in ('tech', 'tool')),
+  logo_url text,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+alter table if exists public.portfolio_tech_stack_items
+  add column if not exists logo_url text;
+
 create index if not exists portfolio_projects_owner_sort_idx
   on public.portfolio_projects(owner_id, sort_order);
 
 create index if not exists portfolio_figma_projects_owner_sort_idx
   on public.portfolio_figma_projects(owner_id, sort_order);
+
+create index if not exists portfolio_tech_stack_owner_sort_idx
+  on public.portfolio_tech_stack_items(owner_id, sort_order);
+
+create unique index if not exists portfolio_tech_stack_owner_sort_uidx
+  on public.portfolio_tech_stack_items(owner_id, sort_order);
 
 -- ------------------------------------------------------------
 -- 2) Seed main profile row (safe default)
@@ -80,6 +100,36 @@ values (
   '/image/Sean.jpg'
 )
 on conflict (id) do nothing;
+
+insert into public.portfolio_tech_stack_items (
+  owner_id, name, category, logo_url, sort_order
+)
+select owner_id, name, category, logo_url, sort_order
+from (
+  values
+    ('main', 'React Native', 'tech', null, 0),
+    ('main', 'React JS', 'tech', null, 1),
+    ('main', 'Next.js', 'tech', null, 2),
+    ('main', 'TypeScript', 'tech', null, 3),
+    ('main', 'JavaScript', 'tech', null, 4),
+    ('main', 'Tailwind CSS', 'tech', null, 5),
+    ('main', 'Node.js', 'tech', null, 6),
+    ('main', 'HTML', 'tech', null, 7),
+    ('main', 'CSS', 'tech', null, 8),
+    ('main', 'Bootstrap', 'tech', null, 9),
+    ('main', 'Visual Studio Code', 'tool', null, 10),
+    ('main', 'Vercel', 'tool', null, 11),
+    ('main', 'Figma', 'tool', null, 12),
+    ('main', 'GitHub', 'tool', null, 13),
+    ('main', 'Git', 'tool', null, 14),
+    ('main', 'Photoshop', 'tool', null, 15),
+    ('main', 'Premiere Pro', 'tool', null, 16)
+) as defaults(owner_id, name, category, logo_url, sort_order)
+where not exists (
+  select 1
+  from public.portfolio_tech_stack_items
+  where owner_id = 'main'
+);
 
 -- ------------------------------------------------------------
 -- 3) Migrate from legacy public.portfolio_content (if present)
@@ -169,6 +219,7 @@ end $$;
 alter table public.portfolio_profile enable row level security;
 alter table public.portfolio_projects enable row level security;
 alter table public.portfolio_figma_projects enable row level security;
+alter table public.portfolio_tech_stack_items enable row level security;
 
 -- Profile policies
 drop policy if exists "portfolio_profile_select_all" on public.portfolio_profile;
@@ -218,6 +269,22 @@ to authenticated
 using (true)
 with check (true);
 
+-- Tech stack policies
+drop policy if exists "portfolio_tech_stack_select_all" on public.portfolio_tech_stack_items;
+create policy "portfolio_tech_stack_select_all"
+on public.portfolio_tech_stack_items
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "portfolio_tech_stack_write_auth" on public.portfolio_tech_stack_items;
+create policy "portfolio_tech_stack_write_auth"
+on public.portfolio_tech_stack_items
+for all
+to authenticated
+using (true)
+with check (true);
+
 -- ------------------------------------------------------------
 -- 5) Realtime setup
 -- ------------------------------------------------------------
@@ -236,6 +303,12 @@ end $$;
 do $$
 begin
   alter publication supabase_realtime add table public.portfolio_figma_projects;
+exception when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.portfolio_tech_stack_items;
 exception when duplicate_object then null;
 end $$;
 
@@ -289,6 +362,11 @@ order by sort_order;
 
 select owner_id, sort_order, title, src
 from public.portfolio_figma_projects
+where owner_id = 'main'
+order by sort_order;
+
+select owner_id, sort_order, name, category, logo_url
+from public.portfolio_tech_stack_items
 where owner_id = 'main'
 order by sort_order;
 
