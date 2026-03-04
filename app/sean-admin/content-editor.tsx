@@ -25,11 +25,17 @@ export type PortfolioContentRow = {
   projects: unknown;
   figmaProjects?: unknown;
   techStackItems?: unknown;
+  certificates?: unknown;
 };
 
 type ProfileShape = {
   aboutText?: string;
   aboutImage?: string;
+  contactTagline?: string;
+  contactEmails?: string[];
+  contactPhones?: string[];
+  contactEmail?: string;
+  contactPhone?: string;
   [key: string]: unknown;
 };
 
@@ -46,6 +52,13 @@ type ProjectShape = {
 type FigmaProjectShape = {
   title: string;
   src: string;
+};
+
+type CertificateShape = {
+  title: string;
+  issuer: string;
+  image: string;
+  verifyUrl?: string;
 };
 
 type TechStackCategory = "tech" | "tool";
@@ -69,6 +82,12 @@ type NewProjectForm = {
 type NewFigmaProjectForm = {
   title: string;
   src: string;
+};
+
+type NewCertificateForm = {
+  title: string;
+  issuer: string;
+  verifyUrl: string;
 };
 
 type TechStackForm = {
@@ -108,6 +127,18 @@ type FigmaDecisionState = {
   action: FigmaDecisionAction | null;
 };
 
+type CertificateDecisionAction =
+  | { kind: "submit" }
+  | { kind: "delete"; index: number }
+  | { kind: "reset" };
+
+type CertificateDecisionState = {
+  open: boolean;
+  title: string;
+  message: string;
+  action: CertificateDecisionAction | null;
+};
+
 type TechStackDecisionAction = { kind: "delete"; index: number };
 
 type TechStackDecisionState = {
@@ -121,6 +152,9 @@ type PortfolioProfileDbRow = {
   id: string;
   about_text: string | null;
   about_image: string | null;
+  contact_tagline: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
 };
 
 type PortfolioProjectDbRow = {
@@ -150,6 +184,16 @@ type PortfolioTechStackDbRow = {
   name: string;
   category: TechStackCategory;
   logo_url: string | null;
+  sort_order: number;
+};
+
+type PortfolioCertificateDbRow = {
+  id: string;
+  owner_id: string;
+  title: string;
+  issuer: string;
+  image: string;
+  verify_url: string | null;
   sort_order: number;
 };
 
@@ -245,6 +289,40 @@ function toFigmaProjectShapeList(value: unknown): FigmaProjectShape[] {
     .filter((entry): entry is FigmaProjectShape => entry !== null);
 }
 
+function toCertificateShapeList(value: unknown): CertificateShape[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry): CertificateShape | null => {
+      if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+        return null;
+      }
+
+      const record = entry as Record<string, unknown>;
+      const title = typeof record.title === "string" ? record.title.trim() : "";
+      const issuer = typeof record.issuer === "string" ? record.issuer.trim() : "";
+      const image = typeof record.image === "string" ? record.image.trim() : "";
+      const verifyUrl =
+        typeof record.verifyUrl === "string" && record.verifyUrl.trim()
+          ? record.verifyUrl.trim()
+          : undefined;
+
+      if (!title || !issuer || !image) {
+        return null;
+      }
+
+      return {
+        title,
+        issuer,
+        image,
+        ...(verifyUrl ? { verifyUrl } : {}),
+      };
+    })
+    .filter((entry): entry is CertificateShape => entry !== null);
+}
+
 function toTechStackItemShapeList(value: unknown): TechStackItemShape[] {
   if (!Array.isArray(value)) {
     return [];
@@ -287,6 +365,29 @@ function normalizeTechStack(value: string): string[] {
     .filter((item) => item.length > 0);
 }
 
+function normalizeContactEntries(value: unknown): string[] {
+  if (Array.isArray(value)) {
+    return value
+      .filter((entry): entry is string => typeof entry === "string")
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+  }
+
+  if (typeof value === "string") {
+    return value
+      .split(/\r?\n/g)
+      .map((entry) => entry.trim())
+      .filter((entry) => entry.length > 0);
+  }
+
+  return [];
+}
+
+function resolveContactEntries(value: unknown, fallback: string): string[] {
+  const entries = normalizeContactEntries(value);
+  return entries.length > 0 ? entries : [fallback];
+}
+
 function getProjectLinkLabel(project: ProjectShape): string {
   if (project.private) {
     return "Private Repository";
@@ -316,10 +417,20 @@ const emptyFigmaForm: NewFigmaProjectForm = {
   src: "",
 };
 
+const emptyCertificateForm: NewCertificateForm = {
+  title: "",
+  issuer: "",
+  verifyUrl: "",
+};
+
 const defaultAboutText =
   "Hi! I'm Sean, a 23-year-old Front-End Developer passionate about modern design, smooth interactions, and responsive user interfaces.";
 const defaultAboutImage = "/image/Sean.jpg";
+const defaultContactTagline = "Let's build something together!";
+const defaultContactEmail = "ronniedoinog12@gmail.com";
+const defaultContactPhone = "+63 938 646 7629";
 const fallbackProjectImage = "/image/portfolio.png";
+const fallbackCertificateImage = "/image/c4.png";
 const defaultProjects: ProjectShape[] = [
   {
     title: "BayadBox",
@@ -382,6 +493,32 @@ const defaultFigmaProjects: FigmaProjectShape[] = [
   {
     title: "Riane's Violet Studio Cafe",
     src: "https://embed.figma.com/proto/YyMdjt2ij2eQVJtHT7KXH0/Doinog_ButtonDesignActivity?node-id=1-2&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=0&embed-host=share",
+  },
+];
+const defaultCertificates: CertificateShape[] = [
+  {
+    title: "Introduction to SQL",
+    issuer: "Simplilearn.com",
+    image: "/image/c4.png",
+    verifyUrl: "https://simpli-web.app.link/e/to8hHyEEUYb",
+  },
+  {
+    title: "Learn PHP and MySQL for Web Application and Web Development",
+    issuer: "Udemy.com",
+    image: "/image/c1.png",
+    verifyUrl: "https://www.udemy.com/certificate/UC-f76db58f-516f-4f99-8f3c-d2576d67e376/",
+  },
+  {
+    title: "Build Complete CMS Blog in PHP MySQL Bootstrap & PDO",
+    issuer: "Udemy.com",
+    image: "/image/c2.png",
+    verifyUrl: "https://www.udemy.com/certificate/UC-91aa504c-ec8b-4db6-be7c-874db03ca056/",
+  },
+  {
+    title: "PHP with MySQL: Build 8 PHP and MySQL Projects",
+    issuer: "Udemy.com",
+    image: "/image/c3.png",
+    verifyUrl: "https://www.udemy.com/certificate/UC-3abfc85e-4724-4f5f-90b9-7548919bfd32/",
   },
 ];
 const defaultTechStackItems: TechStackItemShape[] = [
@@ -482,6 +619,10 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     const parsedFigmaProjects = toFigmaProjectShapeList(initialProfile.figmaProjects);
     return parsedFigmaProjects.length > 0 ? parsedFigmaProjects : defaultFigmaProjects;
   }, [initialProfile.figmaProjects]);
+  const initialCertificates = useMemo(() => {
+    const parsedCertificates = toCertificateShapeList(initialRow.certificates);
+    return parsedCertificates.length > 0 ? parsedCertificates : defaultCertificates;
+  }, [initialRow.certificates]);
   const initialTechStackItems = useMemo(() => {
     const parsedTechStackItems = toTechStackItemShapeList(initialRow.techStackItems);
     return parsedTechStackItems.length > 0 ? parsedTechStackItems : defaultTechStackItems;
@@ -496,16 +637,42 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       ? initialProfile.aboutImage
       : defaultAboutImage,
   );
+  const [contactTagline, setContactTagline] = useState(
+    typeof initialProfile.contactTagline === "string" && initialProfile.contactTagline.trim()
+      ? initialProfile.contactTagline
+      : defaultContactTagline,
+  );
+  const [contactEmails, setContactEmails] = useState(() =>
+    resolveContactEntries(
+      initialProfile.contactEmails ?? initialProfile.contactEmail,
+      defaultContactEmail,
+    ),
+  );
+  const [contactPhones, setContactPhones] = useState(() =>
+    resolveContactEntries(
+      initialProfile.contactPhones ?? initialProfile.contactPhone,
+      defaultContactPhone,
+    ),
+  );
   const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
   const [isSavingText, setIsSavingText] = useState(false);
   const [isSavingImageUrl, setIsSavingImageUrl] = useState(false);
+  const [isSavingContact, setIsSavingContact] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [projects, setProjects] = useState<ProjectShape[]>(initialProjects);
   const [figmaProjects, setFigmaProjects] = useState<FigmaProjectShape[]>(initialFigmaProjects);
+  const [certificates, setCertificates] = useState<CertificateShape[]>(initialCertificates);
   const [techStackItems, setTechStackItems] = useState<TechStackItemShape[]>(initialTechStackItems);
   const [isSavingProjects, setIsSavingProjects] = useState(false);
   const [isSavingFigmaProjects, setIsSavingFigmaProjects] = useState(false);
+  const [isSavingCertificates, setIsSavingCertificates] = useState(false);
   const [isSavingTechStack, setIsSavingTechStack] = useState(false);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
+  const [certificateModalMode, setCertificateModalMode] = useState<"add" | "edit">("add");
+  const [editingCertificateIndex, setEditingCertificateIndex] = useState<number | null>(null);
+  const [newCertificateForm, setNewCertificateForm] = useState<NewCertificateForm>(emptyCertificateForm);
+  const [newCertificateImageFile, setNewCertificateImageFile] = useState<File | null>(null);
+  const [isSavingCertificate, setIsSavingCertificate] = useState(false);
   const [techStackLogoFile, setTechStackLogoFile] = useState<File | null>(null);
   const [isTechStackModalOpen, setIsTechStackModalOpen] = useState(false);
   const [techStackModalMode, setTechStackModalMode] = useState<"add" | "edit">("add");
@@ -529,6 +696,12 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     action: null,
   });
   const [figmaDecisionState, setFigmaDecisionState] = useState<FigmaDecisionState>({
+    open: false,
+    title: "",
+    message: "",
+    action: null,
+  });
+  const [certificateDecisionState, setCertificateDecisionState] = useState<CertificateDecisionState>({
     open: false,
     title: "",
     message: "",
@@ -569,7 +742,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     const syncProfileFromDatabase = async () => {
       const { data, error } = await supabase
         .from("portfolio_profile")
-        .select("id, about_text, about_image")
+        .select("id, about_text, about_image, contact_tagline, contact_email, contact_phone")
         .eq("id", profileId)
         .maybeSingle<PortfolioProfileDbRow>();
 
@@ -587,6 +760,13 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
           ? data.about_image
           : defaultAboutImage,
       );
+      setContactTagline(
+        typeof data?.contact_tagline === "string" && data.contact_tagline.trim()
+          ? data.contact_tagline
+          : defaultContactTagline,
+      );
+      setContactEmails(resolveContactEntries(data?.contact_email, defaultContactEmail));
+      setContactPhones(resolveContactEntries(data?.contact_phone, defaultContactPhone));
     };
 
     const syncProjectsFromDatabase = async () => {
@@ -632,6 +812,28 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       setFigmaProjects(nextFigmaProjects.length > 0 ? nextFigmaProjects : defaultFigmaProjects);
     };
 
+    const syncCertificatesFromDatabase = async () => {
+      const { data, error } = await supabase
+        .from("portfolio_certificates")
+        .select("id, owner_id, title, issuer, image, verify_url, sort_order")
+        .eq("owner_id", ownerId)
+        .order("sort_order", { ascending: true })
+        .returns<PortfolioCertificateDbRow[]>();
+
+      if (error || !active) {
+        return;
+      }
+
+      const certificatesPayload = (data ?? []).map((row) => ({
+        title: row.title,
+        issuer: row.issuer,
+        image: row.image,
+        verifyUrl: row.verify_url ?? undefined,
+      }));
+      const nextCertificates = toCertificateShapeList(certificatesPayload);
+      setCertificates(nextCertificates.length > 0 ? nextCertificates : defaultCertificates);
+    };
+
     const syncTechStackFromDatabase = async () => {
       const { data, error } = await supabase
         .from("portfolio_tech_stack_items")
@@ -675,6 +877,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     void syncProfileFromDatabase();
     void syncProjectsFromDatabase();
     void syncFigmaProjectsFromDatabase();
+    void syncCertificatesFromDatabase();
     void syncTechStackFromDatabase();
 
     const profileChannel = supabase
@@ -725,6 +928,22 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       )
       .subscribe();
 
+    const certificatesChannel = supabase
+      .channel("portfolio-certificates-admin-live")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_certificates",
+          filter: `owner_id=eq.${ownerId}`,
+        },
+        () => {
+          void syncCertificatesFromDatabase();
+        },
+      )
+      .subscribe();
+
     const techStackChannel = supabase
       .channel("portfolio-tech-stack-admin-live")
       .on(
@@ -749,6 +968,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       void supabase.removeChannel(profileChannel);
       void supabase.removeChannel(projectsChannel);
       void supabase.removeChannel(figmaChannel);
+      void supabase.removeChannel(certificatesChannel);
       void supabase.removeChannel(techStackChannel);
     };
   }, [supabase]);
@@ -781,10 +1001,70 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     }
   };
 
+  const notifyCertificatesUpdated = (items: CertificateShape[]) => {
+    const timestamp = Date.now().toString();
+
+    try {
+      window.localStorage.setItem("portfolio-certificates-items", JSON.stringify(items));
+      window.localStorage.setItem("portfolio-certificates-updated-at", timestamp);
+    } catch {
+      // Ignore storage write issues and continue with other channels.
+    }
+
+    try {
+      const channel = new BroadcastChannel("portfolio-certificates-updates");
+      channel.postMessage({ type: "updated", at: timestamp, items });
+      channel.close();
+    } catch {
+      // Ignore environments that do not support BroadcastChannel.
+    }
+  };
+
+  const notifyContactUpdated = (tagline: string, emails: string[], phones: string[]) => {
+    const timestamp = Date.now().toString();
+    const resolvedEmails = resolveContactEntries(emails, defaultContactEmail);
+    const resolvedPhones = resolveContactEntries(phones, defaultContactPhone);
+    const resolvedTagline = tagline.trim() || defaultContactTagline;
+
+    try {
+      window.localStorage.setItem(
+        "portfolio-contact-info",
+        JSON.stringify({
+          contactTagline: resolvedTagline,
+          contactEmails: resolvedEmails,
+          contactPhones: resolvedPhones,
+          contactEmail: resolvedEmails[0] ?? defaultContactEmail,
+          contactPhone: resolvedPhones[0] ?? defaultContactPhone,
+        }),
+      );
+      window.localStorage.setItem("portfolio-contact-updated-at", timestamp);
+    } catch {
+      // Ignore storage write issues and continue with other channels.
+    }
+
+    try {
+      const channel = new BroadcastChannel("portfolio-contact-updates");
+      channel.postMessage({
+        type: "updated",
+        at: timestamp,
+        contact: {
+          contactTagline: resolvedTagline,
+          contactEmails: resolvedEmails,
+          contactPhones: resolvedPhones,
+          contactEmail: resolvedEmails[0] ?? defaultContactEmail,
+          contactPhone: resolvedPhones[0] ?? defaultContactPhone,
+        },
+      });
+      channel.close();
+    } catch {
+      // Ignore environments that do not support BroadcastChannel.
+    }
+  };
+
   const saveProfilePatch = async (patch: Partial<ProfileShape>) => {
     const { data: latestProfile, error: profileReadError } = await supabase
       .from("portfolio_profile")
-      .select("id, about_text, about_image")
+      .select("id, about_text, about_image, contact_tagline, contact_email, contact_phone")
       .eq("id", profileId)
       .maybeSingle<PortfolioProfileDbRow>();
 
@@ -803,6 +1083,40 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       typeof patch.aboutImage === "string"
         ? patch.aboutImage
         : latestProfile?.about_image ?? aboutImage;
+    const nextContactTagline =
+      typeof patch.contactTagline === "string"
+        ? patch.contactTagline.trim() || defaultContactTagline
+        : typeof latestProfile?.contact_tagline === "string" && latestProfile.contact_tagline.trim()
+          ? latestProfile.contact_tagline
+          : contactTagline;
+    const nextContactEmails = Object.prototype.hasOwnProperty.call(patch, "contactEmails")
+      ? resolveContactEntries(
+        (patch as { contactEmails?: unknown }).contactEmails,
+        defaultContactEmail,
+      )
+      : Object.prototype.hasOwnProperty.call(patch, "contactEmail")
+        ? resolveContactEntries(
+          (patch as { contactEmail?: unknown }).contactEmail,
+          defaultContactEmail,
+        )
+        : latestProfile
+          ? resolveContactEntries(latestProfile.contact_email, defaultContactEmail)
+          : resolveContactEntries(contactEmails, defaultContactEmail);
+    const nextContactPhones = Object.prototype.hasOwnProperty.call(patch, "contactPhones")
+      ? resolveContactEntries(
+        (patch as { contactPhones?: unknown }).contactPhones,
+        defaultContactPhone,
+      )
+      : Object.prototype.hasOwnProperty.call(patch, "contactPhone")
+        ? resolveContactEntries(
+          (patch as { contactPhone?: unknown }).contactPhone,
+          defaultContactPhone,
+        )
+        : latestProfile
+          ? resolveContactEntries(latestProfile.contact_phone, defaultContactPhone)
+          : resolveContactEntries(contactPhones, defaultContactPhone);
+    const nextContactEmail = nextContactEmails.join("\n");
+    const nextContactPhone = nextContactPhones.join("\n");
 
     const { data: savedProfile, error: profileSaveError } = await supabase
       .from("portfolio_profile")
@@ -811,10 +1125,13 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
           id: profileId,
           about_text: nextAboutText,
           about_image: nextAboutImage,
+          contact_tagline: nextContactTagline,
+          contact_email: nextContactEmail,
+          contact_phone: nextContactPhone,
         },
         { onConflict: "id" },
       )
-      .select("id, about_text, about_image")
+      .select("id, about_text, about_image, contact_tagline, contact_email, contact_phone")
       .single<PortfolioProfileDbRow>();
 
     if (profileSaveError || !savedProfile) {
@@ -871,6 +1188,18 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
         typeof savedProfile.about_image === "string" && savedProfile.about_image.trim()
           ? savedProfile.about_image
           : defaultAboutImage,
+      contactTagline:
+        typeof savedProfile.contact_tagline === "string" && savedProfile.contact_tagline.trim()
+          ? savedProfile.contact_tagline
+          : defaultContactTagline,
+      contactEmails: resolveContactEntries(savedProfile.contact_email, defaultContactEmail),
+      contactPhones: resolveContactEntries(savedProfile.contact_phone, defaultContactPhone),
+      contactEmail:
+        resolveContactEntries(savedProfile.contact_email, defaultContactEmail)[0] ??
+        defaultContactEmail,
+      contactPhone:
+        resolveContactEntries(savedProfile.contact_phone, defaultContactPhone)[0] ??
+        defaultContactPhone,
       figmaProjects: nextFigmaProjects,
     };
 
@@ -880,6 +1209,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       projects,
       figmaProjects: nextFigmaProjects,
       techStackItems,
+      certificates,
     };
 
     return {
@@ -954,6 +1284,11 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     const profilePayload: ProfileShape = {
       aboutText,
       aboutImage,
+      contactTagline,
+      contactEmails,
+      contactPhones,
+      contactEmail: contactEmails[0] ?? defaultContactEmail,
+      contactPhone: contactPhones[0] ?? defaultContactPhone,
       figmaProjects,
     };
 
@@ -963,6 +1298,88 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       projects: savedProjects,
       figmaProjects,
       techStackItems,
+      certificates,
+    };
+
+    return {
+      ok: true as const,
+      row,
+    };
+  };
+
+  const saveCertificatesPatch = async (certificatesPatch: CertificateShape[]) => {
+    const { error: deleteCertificatesError } = await supabase
+      .from("portfolio_certificates")
+      .delete()
+      .eq("owner_id", ownerId);
+
+    if (deleteCertificatesError) {
+      return {
+        ok: false as const,
+        message: `Save failed. ${deleteCertificatesError.message}`,
+      };
+    }
+
+    if (certificatesPatch.length > 0) {
+      const certificatesInsertPayload = certificatesPatch.map((certificate, index) => ({
+        owner_id: ownerId,
+        title: certificate.title,
+        issuer: certificate.issuer,
+        image: certificate.image,
+        verify_url: certificate.verifyUrl ?? null,
+        sort_order: index,
+      }));
+      const { error: insertCertificatesError } = await supabase
+        .from("portfolio_certificates")
+        .insert(certificatesInsertPayload);
+
+      if (insertCertificatesError) {
+        return {
+          ok: false as const,
+          message: `Save failed. ${insertCertificatesError.message}`,
+        };
+      }
+    }
+
+    const { data: savedCertificateRows, error: readCertificatesError } = await supabase
+      .from("portfolio_certificates")
+      .select("id, owner_id, title, issuer, image, verify_url, sort_order")
+      .eq("owner_id", ownerId)
+      .order("sort_order", { ascending: true })
+      .returns<PortfolioCertificateDbRow[]>();
+
+    if (readCertificatesError) {
+      return {
+        ok: false as const,
+        message: `Read failed. ${readCertificatesError.message}`,
+      };
+    }
+
+    const certificatesPayload = (savedCertificateRows ?? []).map((row) => ({
+      title: row.title,
+      issuer: row.issuer,
+      image: row.image,
+      verifyUrl: row.verify_url ?? undefined,
+    }));
+    const savedCertificates = toCertificateShapeList(certificatesPayload);
+    const profilePayload: ProfileShape = {
+      aboutText,
+      aboutImage,
+      contactTagline,
+      contactEmails,
+      contactPhones,
+      contactEmail: contactEmails[0] ?? defaultContactEmail,
+      contactPhone: contactPhones[0] ?? defaultContactPhone,
+      figmaProjects,
+    };
+
+    const row: PortfolioContentRow = {
+      id: profileId,
+      profile: profilePayload,
+      projects,
+      figmaProjects,
+      techStackItems,
+      certificates: savedCertificates,
     };
 
     return {
@@ -1065,6 +1482,11 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     const profilePayload: ProfileShape = {
       aboutText,
       aboutImage,
+      contactTagline,
+      contactEmails,
+      contactPhones,
+      contactEmail: contactEmails[0] ?? defaultContactEmail,
+      contactPhone: contactPhones[0] ?? defaultContactPhone,
       figmaProjects,
     };
 
@@ -1074,6 +1496,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       projects,
       figmaProjects,
       techStackItems: savedTechStackItems,
+      certificates,
     };
 
     return {
@@ -1189,6 +1612,111 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     setStatusText("Image uploaded and saved.");
     setSelectedImageFile(null);
     showModal("success", "Upload Complete", "Image uploaded and About picture updated.");
+  };
+
+  const handleContactEmailChange = (index: number, value: string) => {
+    setContactEmails((current) =>
+      current.map((entry, entryIndex) => (entryIndex === index ? value : entry)),
+    );
+  };
+
+  const handleContactPhoneChange = (index: number, value: string) => {
+    setContactPhones((current) =>
+      current.map((entry, entryIndex) => (entryIndex === index ? value : entry)),
+    );
+  };
+
+  const handleAddContactEmailField = () => {
+    setContactEmails((current) => [...current, ""]);
+  };
+
+  const handleAddContactPhoneField = () => {
+    setContactPhones((current) => [...current, ""]);
+  };
+
+  const handleRemoveContactEmailField = (index: number) => {
+    setContactEmails((current) => {
+      const next = current.filter((_, entryIndex) => entryIndex !== index);
+      return next.length > 0 ? next : [""];
+    });
+  };
+
+  const handleRemoveContactPhoneField = (index: number) => {
+    setContactPhones((current) => {
+      const next = current.filter((_, entryIndex) => entryIndex !== index);
+      return next.length > 0 ? next : [""];
+    });
+  };
+
+  const handleSaveContactInfo = async () => {
+    const trimmedTagline = contactTagline.trim();
+    const trimmedEmails = normalizeContactEntries(contactEmails);
+    const trimmedPhones = normalizeContactEntries(contactPhones);
+
+    if (!trimmedTagline) {
+      const message = "Contact intro text is required.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    if (trimmedEmails.length === 0 || trimmedPhones.length === 0) {
+      const message = "At least one contact email and one contact phone are required.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    if (trimmedEmails.length !== trimmedPhones.length) {
+      const message = "Emails and phones count must match so each row has one email and one number.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    const invalidEmail = trimmedEmails.find((email) => !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+    if (invalidEmail) {
+      const message = `Invalid contact email: ${invalidEmail}`;
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    setIsSavingContact(true);
+    setStatusText("Saving contact info...");
+    const result = await saveProfilePatch({
+      contactTagline: trimmedTagline,
+      contactEmails: trimmedEmails,
+      contactPhones: trimmedPhones,
+    });
+    setIsSavingContact(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedProfile = toProfileShape(result.row.profile);
+    const resolvedEmails = resolveContactEntries(
+      savedProfile.contactEmails ?? savedProfile.contactEmail,
+      defaultContactEmail,
+    );
+    const resolvedPhones = resolveContactEntries(
+      savedProfile.contactPhones ?? savedProfile.contactPhone,
+      defaultContactPhone,
+    );
+    const resolvedTagline =
+      typeof savedProfile.contactTagline === "string" && savedProfile.contactTagline.trim()
+        ? savedProfile.contactTagline
+        : defaultContactTagline;
+
+    setContactTagline(resolvedTagline);
+    setContactEmails(resolvedEmails);
+    setContactPhones(resolvedPhones);
+    notifyContactUpdated(resolvedTagline, resolvedEmails, resolvedPhones);
+    setStatusText("Contact info saved.");
+    showModal("success", "Saved", "Contact details updated successfully.");
   };
 
   const askProjectDecision = (
@@ -1715,6 +2243,306 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
   };
 
+  const askCertificateDecision = (
+    title: string,
+    message: string,
+    action: CertificateDecisionAction,
+  ) => {
+    if (isSavingCertificate || isSavingCertificates) {
+      return;
+    }
+
+    setCertificateDecisionState({
+      open: true,
+      title,
+      message,
+      action,
+    });
+  };
+
+  const handleOpenAddCertificateModal = () => {
+    setCertificateModalMode("add");
+    setEditingCertificateIndex(null);
+    setNewCertificateForm(emptyCertificateForm);
+    setNewCertificateImageFile(null);
+    setIsCertificateModalOpen(true);
+  };
+
+  const handleOpenEditCertificateModal = (certificateIndex: number) => {
+    const certificateToEdit = certificates[certificateIndex];
+    if (!certificateToEdit) {
+      return;
+    }
+
+    setCertificateModalMode("edit");
+    setEditingCertificateIndex(certificateIndex);
+    setNewCertificateForm({
+      title: certificateToEdit.title,
+      issuer: certificateToEdit.issuer,
+      verifyUrl: certificateToEdit.verifyUrl ?? "",
+    });
+    setNewCertificateImageFile(null);
+    setIsCertificateModalOpen(true);
+  };
+
+  const handleCloseCertificateModal = () => {
+    if (isSavingCertificate || isSavingCertificates) {
+      return;
+    }
+
+    setCertificateModalMode("add");
+    setEditingCertificateIndex(null);
+    setNewCertificateForm(emptyCertificateForm);
+    setNewCertificateImageFile(null);
+    setIsCertificateModalOpen(false);
+  };
+
+  const handleRequestCertificateSubmit = () => {
+    askCertificateDecision(
+      certificateModalMode === "edit" ? "Confirm Edit" : "Confirm Add",
+      certificateModalMode === "edit"
+        ? "Are you sure you want to save changes to this certificate?"
+        : "Are you sure you want to add this certificate?",
+      { kind: "submit" },
+    );
+  };
+
+  const handleSaveCertificate = async () => {
+    const isEditingCertificate =
+      certificateModalMode === "edit" && editingCertificateIndex !== null;
+    const currentEditingCertificate = isEditingCertificate
+      ? certificates[editingCertificateIndex]
+      : null;
+    const title = newCertificateForm.title.trim();
+    const issuer = newCertificateForm.issuer.trim();
+    const verifyUrl = newCertificateForm.verifyUrl.trim();
+
+    if (isEditingCertificate && !currentEditingCertificate) {
+      const message = "Selected certificate no longer exists. Reopen the editor and try again.";
+      setStatusText(message);
+      showModal("error", "Edit Error", message);
+      return;
+    }
+
+    if (!newCertificateImageFile && !currentEditingCertificate) {
+      const message = "Select a certificate image before adding the tile.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    if (!title || !issuer) {
+      const message = "Certificate title and issuer are required.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    if (verifyUrl) {
+      try {
+        new URL(verifyUrl);
+      } catch {
+        const message = "Certificate verify URL is invalid.";
+        setStatusText(message);
+        showModal("error", "Validation Error", message);
+        return;
+      }
+    }
+
+    setIsSavingCertificate(true);
+    setStatusText(
+      newCertificateImageFile
+        ? "Uploading certificate image..."
+        : isEditingCertificate
+          ? "Updating certificate tile..."
+          : "Adding certificate tile...",
+    );
+
+    let imageUrl = currentEditingCertificate?.image ?? "";
+    if (newCertificateImageFile) {
+      const extension = newCertificateImageFile.name.includes(".")
+        ? newCertificateImageFile.name.split(".").pop()?.toLowerCase() ?? "jpg"
+        : "jpg";
+      const sanitizedExtension = extension.replace(/[^a-z0-9]/g, "") || "jpg";
+      const filePath = `certificates/${Date.now()}-${Math.random().toString(36).slice(2)}.${sanitizedExtension}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from(storageBucket)
+        .upload(filePath, newCertificateImageFile, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (uploadError) {
+        setIsSavingCertificate(false);
+        const message = `Upload failed. ${uploadError.message}`;
+        setStatusText(message);
+        showModal("error", "Upload Failed", message);
+        return;
+      }
+
+      const { data: publicUrlData } = supabase.storage.from(storageBucket).getPublicUrl(filePath);
+      imageUrl = publicUrlData.publicUrl;
+    }
+
+    if (!imageUrl) {
+      setIsSavingCertificate(false);
+      const message = "Certificate image is required.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    const nextCertificate: CertificateShape = {
+      title,
+      issuer,
+      image: imageUrl,
+      ...(verifyUrl ? { verifyUrl } : {}),
+    };
+
+    const nextCertificates =
+      isEditingCertificate && editingCertificateIndex !== null
+        ? certificates.map((certificate, index) =>
+          index === editingCertificateIndex ? nextCertificate : certificate,
+        )
+        : [...certificates, nextCertificate];
+
+    setIsSavingCertificates(true);
+    setStatusText(isEditingCertificate ? "Saving certificate changes..." : "Saving new certificate...");
+    const saveResult = await saveCertificatesPatch(nextCertificates);
+    setIsSavingCertificates(false);
+    setIsSavingCertificate(false);
+
+    if (!saveResult.ok) {
+      setStatusText(saveResult.message);
+      showModal("error", "Save Failed", saveResult.message);
+      return;
+    }
+
+    const savedCertificates = toCertificateShapeList(saveResult.row.certificates);
+    const resolvedCertificates =
+      savedCertificates.length > 0 ? savedCertificates : defaultCertificates;
+    setCertificates(resolvedCertificates);
+    notifyCertificatesUpdated(resolvedCertificates);
+    setIsCertificateModalOpen(false);
+    setCertificateModalMode("add");
+    setEditingCertificateIndex(null);
+    setNewCertificateForm(emptyCertificateForm);
+    setNewCertificateImageFile(null);
+
+    if (isEditingCertificate) {
+      setStatusText("Certificate tile updated and saved.");
+      showModal("success", "Certificate Updated", "Certificate tile updated successfully.");
+      return;
+    }
+
+    setStatusText("Certificate tile added and saved.");
+    showModal("success", "Certificate Added", "Certificate tile added successfully.");
+  };
+
+  const handleRequestDeleteCertificate = (indexToRemove: number) => {
+    const targetCertificate = certificates[indexToRemove];
+    if (!targetCertificate) {
+      return;
+    }
+
+    askCertificateDecision(
+      "Confirm Delete",
+      `Are you sure you want to remove \"${targetCertificate.title}\"?`,
+      { kind: "delete", index: indexToRemove },
+    );
+  };
+
+  const handleRemoveCertificate = async (indexToRemove: number) => {
+    const nextCertificates = certificates.filter((_, index) => index !== indexToRemove);
+    setIsSavingCertificates(true);
+    setStatusText("Removing certificate tile...");
+    const result = await saveCertificatesPatch(nextCertificates);
+    setIsSavingCertificates(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedCertificates = toCertificateShapeList(result.row.certificates);
+    const resolvedCertificates =
+      savedCertificates.length > 0 ? savedCertificates : defaultCertificates;
+    setCertificates(resolvedCertificates);
+    notifyCertificatesUpdated(resolvedCertificates);
+    setStatusText("Certificate tile removed and saved.");
+    showModal("success", "Certificate Removed", "Certificate tile removed successfully.");
+  };
+
+  const handleRequestResetCertificates = () => {
+    askCertificateDecision(
+      "Confirm Reset",
+      "Are you sure you want to reset all certificate tiles to default?",
+      { kind: "reset" },
+    );
+  };
+
+  const handleResetCertificatesToDefault = async () => {
+    setIsSavingCertificates(true);
+    setStatusText("Resetting certificates to default...");
+    const result = await saveCertificatesPatch(defaultCertificates);
+    setIsSavingCertificates(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedCertificates = toCertificateShapeList(result.row.certificates);
+    const resolvedCertificates =
+      savedCertificates.length > 0 ? savedCertificates : defaultCertificates;
+    setCertificates(resolvedCertificates);
+    notifyCertificatesUpdated(resolvedCertificates);
+    setStatusText("Certificates reset to default and saved.");
+    showModal("success", "Certificates Reset", "Default certificate tiles restored.");
+  };
+
+  const handleConfirmCertificateDecision = async () => {
+    const action = certificateDecisionState.action;
+    if (!action) {
+      return;
+    }
+
+    setCertificateDecisionState({
+      open: false,
+      title: "",
+      message: "",
+      action: null,
+    });
+
+    if (action.kind === "submit") {
+      await handleSaveCertificate();
+      return;
+    }
+
+    if (action.kind === "delete") {
+      await handleRemoveCertificate(action.index);
+      return;
+    }
+
+    await handleResetCertificatesToDefault();
+  };
+
+  const handleCancelCertificateDecision = () => {
+    if (isSavingCertificate || isSavingCertificates) {
+      return;
+    }
+
+    setCertificateDecisionState({
+      open: false,
+      title: "",
+      message: "",
+      action: null,
+    });
+  };
+
   const handleOpenAddTechStackModal = () => {
     if (isSavingTechStack) {
       return;
@@ -1987,6 +2815,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
 
   const isProjectActionBusy = isAddingProject || isSavingProjects;
   const isFigmaActionBusy = isSavingFigmaProject || isSavingFigmaProjects;
+  const isCertificateActionBusy = isSavingCertificate || isSavingCertificates;
   const isTechStackActionBusy = isSavingTechStack;
   const techItemsPreview = techStackItems
     .map((item, index) => ({ ...item, index }))
@@ -1997,6 +2826,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
 
   return (
     <div className="space-y-4 ">
+
 
 
 
@@ -2072,6 +2902,104 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
                 className="mt-3 rounded-lg border border-fuchsia-300/45 bg-fuchsia-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-100 transition hover:bg-fuchsia-500/25 hover:shadow-[0_0_18px_rgba(217,70,239,0.3)] disabled:cursor-wait disabled:opacity-75"
               >
                 {isUploadingImage ? "Uploading..." : "Upload + Save Picture"}
+              </button>
+            </section>
+
+            <section className="rounded-xl border border-sky-300/20 bg-[#071322]/75 p-4 sm:p-5">
+              <p className="mb-2 text-md font-semibold uppercase tracking-[0.18em] text-sky-200/85">
+                Contact Details
+              </p>
+              <div className="mb-3">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-sky-200/80">
+                  Contact Intro Text
+                </label>
+                <input
+                  type="text"
+                  value={contactTagline}
+                  onChange={(event) => setContactTagline(event.target.value)}
+                  placeholder="Let's build something together!"
+                  className="w-full rounded-lg border border-sky-300/25 bg-[#071426] p-3 text-sm text-sky-50 outline-none placeholder:text-sky-100/35 focus:border-sky-300/55 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.16)]"
+                />
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-sky-200/80">
+                    Contact Emails
+                  </label>
+                  <div className="space-y-2">
+                    {contactEmails.map((email, index) => (
+                      <div key={`contact-email-${index}`} className="flex items-center gap-2">
+                        <input
+                          type="email"
+                          value={email}
+                          onChange={(event) =>
+                            handleContactEmailChange(index, event.target.value)
+                          }
+                          placeholder="you@example.com"
+                          className="w-full rounded-lg border border-sky-300/25 bg-[#071426] p-3 text-sm text-sky-50 outline-none placeholder:text-sky-100/35 focus:border-sky-300/55 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.16)]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveContactEmailField(index)}
+                          disabled={contactEmails.length <= 1}
+                          className="rounded-lg border border-sky-300/30 bg-sky-500/15 px-2 py-2 text-[0.62rem] font-semibold uppercase tracking-widest text-sky-100 transition hover:bg-sky-500/25 disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddContactEmailField}
+                    className="mt-2 rounded-lg border border-sky-300/35 bg-sky-500/10 px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-sky-100 transition hover:bg-sky-500/20"
+                  >
+                    + Add Email
+                  </button>
+                </div>
+                <div>
+                  <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-sky-200/80">
+                    Contact Phones
+                  </label>
+                  <div className="space-y-2">
+                    {contactPhones.map((phone, index) => (
+                      <div key={`contact-phone-${index}`} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={phone}
+                          onChange={(event) =>
+                            handleContactPhoneChange(index, event.target.value)
+                          }
+                          placeholder="+63 900 000 0000"
+                          className="w-full rounded-lg border border-sky-300/25 bg-[#071426] p-3 text-sm text-sky-50 outline-none placeholder:text-sky-100/35 focus:border-sky-300/55 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.16)]"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveContactPhoneField(index)}
+                          disabled={contactPhones.length <= 1}
+                          className="rounded-lg border border-sky-300/30 bg-sky-500/15 px-2 py-2 text-[0.62rem] font-semibold uppercase tracking-widest text-sky-100 transition hover:bg-sky-500/25 disabled:cursor-not-allowed disabled:opacity-45"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleAddContactPhoneField}
+                    className="mt-2 rounded-lg border border-sky-300/35 bg-sky-500/10 px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-sky-100 transition hover:bg-sky-500/20"
+                  >
+                    + Add Phone
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleSaveContactInfo}
+                disabled={isSavingContact}
+                className="mt-3 rounded-lg border border-sky-300/45 bg-sky-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-sky-100 transition hover:bg-sky-500/25 hover:shadow-[0_0_18px_rgba(56,189,248,0.26)] disabled:cursor-wait disabled:opacity-75"
+              >
+                {isSavingContact ? "Saving..." : "Save Contact Info"}
               </button>
             </section>
 
@@ -2430,6 +3358,213 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
 
 
 
+        {/* Certificates */}
+        <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
+          Certificates
+        </h1>
+        <section className="rounded-2xl border border-indigo-300/25 bg-[#0c1226]/74 p-4 sm:p-5">
+          <section className="rounded-xl border border-orange-300/20 bg-[#111019]/75 p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xl font-semibold uppercase tracking-[0.18em] text-amber-200/90">
+                  Certificate Tiles
+                </p>
+                <p className="mt-1 text-sm text-amber-100/70">
+                  Manage every tile shown in `My Certificates`.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleRequestResetCertificates}
+                  disabled={isCertificateActionBusy}
+                  className="rounded-lg border border-amber-300/45 bg-amber-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-amber-100 transition hover:bg-amber-500/25 hover:shadow-[0_0_18px_rgba(245,158,11,0.28)] disabled:cursor-wait disabled:opacity-70"
+                >
+                  Reset to Default
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenAddCertificateModal}
+                  disabled={isCertificateActionBusy}
+                  className="rounded-lg border border-cyan-300/45 bg-cyan-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100 transition hover:bg-cyan-500/25 hover:shadow-[0_0_18px_rgba(34,211,238,0.28)] disabled:cursor-wait disabled:opacity-70"
+                >
+                  + Add Certificate
+                </button>
+              </div>
+            </div>
+
+            {certificates.length > 0 ? (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {certificates.map((certificate, index) => (
+                  <article
+                    key={`${certificate.title}-${index}`}
+                    className="overflow-hidden rounded-xl border border-amber-300/25 bg-[#251a07]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+                  >
+                    <div className="relative h-36 w-full overflow-hidden border-b border-amber-300/20">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={certificate.image}
+                        alt={certificate.title}
+                        className="h-full w-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.src = fallbackCertificateImage;
+                        }}
+                      />
+                      <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditCertificateModal(index)}
+                          disabled={isCertificateActionBusy}
+                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDeleteCertificate(index)}
+                          disabled={isCertificateActionBusy}
+                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2 p-3">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-amber-100">
+                        {certificate.title}
+                      </h3>
+                      <p className="text-xs text-amber-100/80">{certificate.issuer}</p>
+                      <p className="break-all text-[0.66rem] leading-relaxed text-amber-100/70">
+                        {certificate.verifyUrl ?? "No verify URL provided."}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-lg border border-amber-300/20 bg-[#1c1205]/80 px-3 py-4 text-xs text-amber-100/70">
+                No certificate tiles yet. Click `+ Add Certificate` to create one.
+              </p>
+            )}
+          </section>
+        </section>
+
+
+
+
+
+
+        {/* Contact Information */}
+        <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
+          Contact Me
+        </h1>
+        <section className="mb-20 rounded-2xl border border-indigo-300/25 bg-[#0c1226]/74 p-4 sm:p-5">
+          <section className="rounded-xl border border-sky-300/20 bg-[#071322]/75 p-4 sm:p-5">
+            <p className="mb-2 text-md font-semibold uppercase tracking-[0.18em] text-sky-200/85">
+              Contact Details
+            </p>
+            <div className="mb-3">
+              <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-sky-200/80">
+                Contact Intro Text
+              </label>
+              <input
+                type="text"
+                value={contactTagline}
+                onChange={(event) => setContactTagline(event.target.value)}
+                placeholder="Let's build something together!"
+                className="w-full rounded-lg border border-sky-300/25 bg-[#071426] p-3 text-sm text-sky-50 outline-none placeholder:text-sky-100/35 focus:border-sky-300/55 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.16)]"
+              />
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-sky-200/80">
+                  Contact Emails
+                </label>
+                <div className="space-y-2">
+                  {contactEmails.map((email, index) => (
+                    <div key={`contact-email-${index}`} className="flex items-center gap-2">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(event) =>
+                          handleContactEmailChange(index, event.target.value)
+                        }
+                        placeholder="you@example.com"
+                        className="w-full rounded-lg border border-sky-300/25 bg-[#071426] p-3 text-sm text-sky-50 outline-none placeholder:text-sky-100/35 focus:border-sky-300/55 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.16)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveContactEmailField(index)}
+                        disabled={contactEmails.length <= 1}
+                        className="rounded-lg border border-sky-300/30 bg-sky-500/15 px-2 py-2 text-[0.62rem] font-semibold uppercase tracking-widest text-sky-100 transition hover:bg-sky-500/25 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddContactEmailField}
+                  className="mt-2 rounded-lg border border-sky-300/35 bg-sky-500/10 px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-sky-100 transition hover:bg-sky-500/20"
+                >
+                  + Add Email
+                </button>
+              </div>
+              <div>
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-sky-200/80">
+                  Contact Phones
+                </label>
+                <div className="space-y-2">
+                  {contactPhones.map((phone, index) => (
+                    <div key={`contact-phone-${index}`} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={phone}
+                        onChange={(event) =>
+                          handleContactPhoneChange(index, event.target.value)
+                        }
+                        placeholder="+63 900 000 0000"
+                        className="w-full rounded-lg border border-sky-300/25 bg-[#071426] p-3 text-sm text-sky-50 outline-none placeholder:text-sky-100/35 focus:border-sky-300/55 focus:shadow-[0_0_0_2px_rgba(56,189,248,0.16)]"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveContactPhoneField(index)}
+                        disabled={contactPhones.length <= 1}
+                        className="rounded-lg border border-sky-300/30 bg-sky-500/15 px-2 py-2 text-[0.62rem] font-semibold uppercase tracking-widest text-sky-100 transition hover:bg-sky-500/25 disabled:cursor-not-allowed disabled:opacity-45"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleAddContactPhoneField}
+                  className="mt-2 rounded-lg border border-sky-300/35 bg-sky-500/10 px-3 py-1.5 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-sky-100 transition hover:bg-sky-500/20"
+                >
+                  + Add Phone
+                </button>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleSaveContactInfo}
+              disabled={isSavingContact}
+              className="mt-3 rounded-lg border border-sky-300/45 bg-sky-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-sky-100 transition hover:bg-sky-500/25 hover:shadow-[0_0_18px_rgba(56,189,248,0.26)] disabled:cursor-wait disabled:opacity-75"
+            >
+              {isSavingContact ? "Saving..." : "Save Contact Info"}
+            </button>
+          </section>
+        </section>
+
+
+
+
+        <p className="rounded-lg border border-orange-300/20 bg-[#111019]/75 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100/90">
+          {statusText}
+        </p>
+        {/* End Section */}
       </div>
 
       {isProjectModalOpen ? (
@@ -2667,6 +3802,120 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
         </div>
       ) : null}
 
+      {isCertificateModalOpen ? (
+        <div className="fixed inset-0 z-97 flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-amber-300/40 bg-[#1f1406] p-5 shadow-[0_0_45px_rgba(245,158,11,0.25)] sm:p-6">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-amber-200/85">
+                  {certificateModalMode === "edit" ? "Edit Certificate Tile" : "New Certificate Tile"}
+                </p>
+                <h3 className="mt-1 text-lg font-semibold uppercase tracking-[0.06em] text-amber-100">
+                  {certificateModalMode === "edit" ? "Edit Certificate" : "Add Certificate"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseCertificateModal}
+                disabled={isCertificateActionBusy}
+                className="rounded-md border border-amber-300/45 bg-amber-500/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-amber-100 transition hover:bg-amber-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-amber-200/80">
+                  Picture Upload
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => setNewCertificateImageFile(event.target.files?.[0] ?? null)}
+                  className="block w-full rounded-lg border border-amber-300/25 bg-[#2a1c09] p-2 text-sm text-amber-50 file:mr-3 file:rounded file:border-0 file:bg-amber-500/30 file:px-3 file:py-2 file:text-[0.68rem] file:font-semibold file:uppercase file:tracking-[0.12em] file:text-amber-100 hover:file:bg-amber-500/40"
+                />
+                {certificateModalMode === "edit" ? (
+                  <p className="mt-1 text-[0.66rem] text-amber-100/70">
+                    Optional: leave empty to keep the current image.
+                  </p>
+                ) : null}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-amber-200/80">
+                  Certificate Title
+                </label>
+                <input
+                  type="text"
+                  value={newCertificateForm.title}
+                  onChange={(event) =>
+                    setNewCertificateForm((current) => ({ ...current, title: event.target.value }))
+                  }
+                  placeholder="Certificate title"
+                  className="w-full rounded-lg border border-amber-300/25 bg-[#2a1c09] p-3 text-sm text-amber-50 outline-none placeholder:text-amber-100/35 focus:border-amber-300/55 focus:shadow-[0_0_0_2px_rgba(245,158,11,0.16)]"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-amber-200/80">
+                  Issuer
+                </label>
+                <input
+                  type="text"
+                  value={newCertificateForm.issuer}
+                  onChange={(event) =>
+                    setNewCertificateForm((current) => ({ ...current, issuer: event.target.value }))
+                  }
+                  placeholder="Udemy.com"
+                  className="w-full rounded-lg border border-amber-300/25 bg-[#2a1c09] p-3 text-sm text-amber-50 outline-none placeholder:text-amber-100/35 focus:border-amber-300/55 focus:shadow-[0_0_0_2px_rgba(245,158,11,0.16)]"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-amber-200/80">
+                  Verify URL
+                </label>
+                <input
+                  type="url"
+                  value={newCertificateForm.verifyUrl}
+                  onChange={(event) =>
+                    setNewCertificateForm((current) => ({ ...current, verifyUrl: event.target.value }))
+                  }
+                  placeholder="https://www.udemy.com/certificate/..."
+                  className="w-full rounded-lg border border-amber-300/25 bg-[#2a1c09] p-3 text-sm text-amber-50 outline-none placeholder:text-amber-100/35 focus:border-amber-300/55 focus:shadow-[0_0_0_2px_rgba(245,158,11,0.16)]"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleRequestCertificateSubmit}
+                disabled={isCertificateActionBusy}
+                className="rounded-md border border-emerald-300/40 bg-emerald-500/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/30 disabled:cursor-wait disabled:opacity-70"
+              >
+                {isSavingCertificate
+                  ? certificateModalMode === "edit"
+                    ? "Updating..."
+                    : "Adding..."
+                  : certificateModalMode === "edit"
+                    ? "Save Changes"
+                    : "Add Tile"}
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseCertificateModal}
+                disabled={isCertificateActionBusy}
+                className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {isTechStackModalOpen ? (
         <div className="fixed inset-0 z-97 flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm">
           <div className="w-full max-w-xl rounded-2xl border border-emerald-300/40 bg-[#071b12] p-5 shadow-[0_0_45px_rgba(16,185,129,0.24)] sm:p-6">
@@ -2838,6 +4087,38 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
                 type="button"
                 onClick={handleCancelFigmaDecision}
                 disabled={isFigmaActionBusy}
+                className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {certificateDecisionState.open ? (
+        <div className="fixed inset-0 z-98 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-amber-300/45 bg-[#1f1406] p-5 shadow-[0_0_35px_rgba(245,158,11,0.2)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-300">
+              Confirm Action
+            </p>
+            <h3 className="mt-2 text-lg font-semibold uppercase tracking-[0.06em] text-amber-100">
+              {certificateDecisionState.title}
+            </h3>
+            <p className="mt-2 text-sm text-amber-100/85">{certificateDecisionState.message}</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmCertificateDecision}
+                disabled={isCertificateActionBusy}
+                className="rounded-md border border-emerald-300/40 bg-emerald-500/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/30 disabled:cursor-wait disabled:opacity-70"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelCertificateDecision}
+                disabled={isCertificateActionBusy}
                 className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
               >
                 No

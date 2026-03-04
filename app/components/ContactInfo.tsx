@@ -5,71 +5,90 @@ import { FaEnvelope, FaPhone } from "react-icons/fa";
 import { motion } from "framer-motion";
 
 type Props = {
+  emails: string[];
+  phones: string[];
   handleCopy: (text: string, e: React.MouseEvent<HTMLSpanElement>) => void;
 };
 
-export default function ContactInfo({ handleCopy }: Props) {
+export default function ContactInfo({ emails, phones, handleCopy }: Props) {
+  const rowCount = Math.max(emails.length, phones.length);
+  const rows = Array.from({ length: rowCount }, (_, index) => ({
+    email: emails[index] ?? "",
+    phone: phones[index] ?? "",
+  }));
+
   return (
-    <div className="mt-12 sm:mt-16 flex w-full max-w-3xl flex-col sm:flex-row flex-wrap items-center sm:items-stretch justify-center gap-6 sm:gap-8 text-sm sm:text-base md:text-lg font-light">
-      <span
-        onClick={(e) =>
-          handleCopy("ronniedoinog12@gmail.com", e as React.MouseEvent<HTMLSpanElement>)
-        }
-        className="relative flex w-full sm:w-auto max-w-full items-center justify-center sm:justify-start gap-2 cursor-pointer hover:text-indigo-500 transition-colors"
-      >
-        <FaEnvelope className="w-6 h-6" />
-
-        <motion.span
-          initial="rest"
-          whileHover="hover"
-          className="relative flex min-w-0 flex-col items-center sm:items-start"
+    <div className="mt-12 sm:mt-16 w-full text-sm sm:text-base md:text-lg font-light space-y-3">
+      {rows.map((row, index) => (
+        <div
+          key={`contact-row-${index}`}
+          className="mx-auto grid w-fit max-w-full grid-cols-1 sm:grid-cols-[max-content_max-content] gap-3 sm:gap-12"
         >
-          {/* Hover text */}
-          <motion.span
-            variants={{
-              rest: { opacity: 0, y: 6 },
-              hover: { opacity: 1, y: 0 },
-            }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="absolute -top-5 left-1/2 -translate-x-1/2 sm:left-16 sm:translate-x-0 text-xs text-indigo-500 pointer-events-none"
+          <span
+            onClick={(e) =>
+              row.email ? handleCopy(row.email, e as React.MouseEvent<HTMLSpanElement>) : undefined
+            }
+            className={`relative flex max-w-full items-center justify-center gap-2 transition-colors ${
+              row.email ? "cursor-pointer hover:text-indigo-500" : "opacity-50"
+            }`}
           >
-            Click to Copy
-          </motion.span>
+            <FaEnvelope className="w-6 h-6 shrink-0" />
 
-          {/* Actual email */}
-          <span className="break-all text-center sm:text-left">ronniedoinog12@gmail.com</span>
-        </motion.span>
-      </span>
+            <motion.span
+              initial="rest"
+              whileHover={row.email ? "hover" : "rest"}
+              className="relative flex min-w-0 flex-col items-center sm:items-start"
+            >
+              <motion.span
+                variants={{
+                  rest: { opacity: 0, y: 6 },
+                  hover: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="absolute -top-5 left-1/2 -translate-x-1/2 sm:left-16 sm:translate-x-0 text-xs text-indigo-500 pointer-events-none"
+              >
+                Click to Copy
+              </motion.span>
 
-      <span
-        onClick={(e) => 
-          handleCopy("+63 938 646 7629", e as React.MouseEvent<HTMLSpanElement>)
-        }
-        className="relative flex w-full sm:w-auto max-w-full items-center justify-center sm:justify-start gap-2 cursor-pointer hover:text-indigo-500 transition-colors"
-      >
-        <FaPhone className="w-5 h-5" />
+              <span className="break-all text-center sm:text-left">
+                {row.email || "No email"}
+              </span>
+            </motion.span>
+          </span>
 
-        <motion.span
-          initial="rest"
-          whileHover="hover"
-          className="relative flex min-w-0 flex-col items-center sm:items-start"
-        >
-          {/* Hover text */}
-          <motion.span
-            variants={{
-              rest: { opacity: 0, y: 6 },
-              hover: { opacity: 1, y: 0 },
-            }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="absolute -top-5 left-1/2 -translate-x-1/2 sm:left-7 sm:translate-x-0 text-xs text-indigo-500 pointer-events-none"
+          <span
+            onClick={(e) =>
+              row.phone ? handleCopy(row.phone, e as React.MouseEvent<HTMLSpanElement>) : undefined
+            }
+            className={`relative flex max-w-full items-center justify-center gap-2 transition-colors ${
+              row.phone ? "cursor-pointer hover:text-indigo-500" : "opacity-50"
+            }`}
           >
-            Click to Copy
-          </motion.span>
+            <FaPhone className="w-5 h-5 shrink-0" />
 
-          {/* Actual email */}
-          <span className="text-center sm:text-left">+63 938 646 7629</span>
-        </motion.span>
-      </span>
+            <motion.span
+              initial="rest"
+              whileHover={row.phone ? "hover" : "rest"}
+              className="relative flex min-w-0 flex-col items-center sm:items-start"
+            >
+              <motion.span
+                variants={{
+                  rest: { opacity: 0, y: 6 },
+                  hover: { opacity: 1, y: 0 },
+                }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className="absolute -top-5 left-1/2 -translate-x-1/2 sm:left-7 sm:translate-x-0 text-xs text-indigo-500 pointer-events-none"
+              >
+                Click to Copy
+              </motion.span>
+
+              <span className="break-all text-center sm:text-left">
+                {row.phone || "No number"}
+              </span>
+            </motion.span>
+          </span>
+        </div>
+      ))}
     </div>
   );
 }

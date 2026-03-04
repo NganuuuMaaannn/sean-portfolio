@@ -83,7 +83,7 @@ export default function Hero({ onAbout, onContact }: Props) {
   return (
     <section
       id="topMain"
-      className="relative min-h-[100svh] flex flex-col justify-center items-center bg-transparent px-4 sm:px-6 text-center"
+      className="relative min-h-svh flex flex-col justify-center items-center bg-transparent px-4 sm:px-6 text-center"
     >
       <h1
         className={`

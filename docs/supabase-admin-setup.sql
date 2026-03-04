@@ -2,7 +2,7 @@
 -- Sean Portfolio: Recommended Supabase Schema (Split Tables)
 -- ============================================================
 -- What this does:
--- 1) Creates separate tables for profile, projects, figma projects, and tech stack items
+-- 1) Creates separate tables for profile, projects, figma projects, certificates, and tech stack items
 -- 2) Migrates existing data from public.portfolio_content (if it exists)
 -- 3) Enables RLS + policies
 -- 4) Adds realtime publication entries
@@ -35,9 +35,21 @@ create table if not exists public.portfolio_profile (
   id text primary key,
   about_text text not null default '',
   about_image text not null default '/image/Sean.jpg',
+  contact_tagline text not null default 'Let''s build something together!',
+  contact_email text not null default 'ronniedoinog12@gmail.com',
+  contact_phone text not null default '+63 938 646 7629',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+alter table if exists public.portfolio_profile
+  add column if not exists contact_tagline text not null default 'Let''s build something together!';
+
+alter table if exists public.portfolio_profile
+  add column if not exists contact_email text not null default 'ronniedoinog12@gmail.com';
+
+alter table if exists public.portfolio_profile
+  add column if not exists contact_phone text not null default '+63 938 646 7629';
 
 create table if not exists public.portfolio_projects (
   id uuid primary key default gen_random_uuid(),
@@ -64,6 +76,18 @@ create table if not exists public.portfolio_figma_projects (
   updated_at timestamptz not null default now()
 );
 
+create table if not exists public.portfolio_certificates (
+  id uuid primary key default gen_random_uuid(),
+  owner_id text not null default 'main',
+  title text not null,
+  issuer text not null,
+  image text not null,
+  verify_url text,
+  sort_order integer not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
 create table if not exists public.portfolio_tech_stack_items (
   id uuid primary key default gen_random_uuid(),
   owner_id text not null default 'main',
@@ -84,6 +108,9 @@ create index if not exists portfolio_projects_owner_sort_idx
 create index if not exists portfolio_figma_projects_owner_sort_idx
   on public.portfolio_figma_projects(owner_id, sort_order);
 
+create index if not exists portfolio_certificates_owner_sort_idx
+  on public.portfolio_certificates(owner_id, sort_order);
+
 create index if not exists portfolio_tech_stack_owner_sort_idx
   on public.portfolio_tech_stack_items(owner_id, sort_order);
 
@@ -93,11 +120,14 @@ create unique index if not exists portfolio_tech_stack_owner_sort_uidx
 -- ------------------------------------------------------------
 -- 2) Seed main profile row (safe default)
 -- ------------------------------------------------------------
-insert into public.portfolio_profile (id, about_text, about_image)
+insert into public.portfolio_profile (id, about_text, about_image, contact_tagline, contact_email, contact_phone)
 values (
   'main',
   'Hi! I''m Sean, a Front-End Developer passionate about modern design and smooth interactions.',
-  '/image/Sean.jpg'
+  '/image/Sean.jpg',
+  'Let''s build something together!',
+  'ronniedoinog12@gmail.com',
+  '+63 938 646 7629'
 )
 on conflict (id) do nothing;
 
@@ -131,6 +161,23 @@ where not exists (
   where owner_id = 'main'
 );
 
+insert into public.portfolio_certificates (
+  owner_id, title, issuer, image, verify_url, sort_order
+)
+select owner_id, title, issuer, image, verify_url, sort_order
+from (
+  values
+    ('main', 'Introduction to SQL', 'Simplilearn.com', '/image/c4.png', 'https://simpli-web.app.link/e/to8hHyEEUYb', 0),
+    ('main', 'Learn PHP and MySQL for Web Application and Web Development', 'Udemy.com', '/image/c1.png', 'https://www.udemy.com/certificate/UC-f76db58f-516f-4f99-8f3c-d2576d67e376/', 1),
+    ('main', 'Build Complete CMS Blog in PHP MySQL Bootstrap & PDO', 'Udemy.com', '/image/c2.png', 'https://www.udemy.com/certificate/UC-91aa504c-ec8b-4db6-be7c-874db03ca056/', 2),
+    ('main', 'PHP with MySQL: Build 8 PHP and MySQL Projects', 'Udemy.com', '/image/c3.png', 'https://www.udemy.com/certificate/UC-3abfc85e-4724-4f5f-90b9-7548919bfd32/', 3)
+) as defaults(owner_id, title, issuer, image, verify_url, sort_order)
+where not exists (
+  select 1
+  from public.portfolio_certificates
+  where owner_id = 'main'
+);
+
 -- ------------------------------------------------------------
 -- 3) Migrate from legacy public.portfolio_content (if present)
 -- ------------------------------------------------------------
@@ -150,16 +197,22 @@ begin
   end if;
 
   -- 3a) Profile migration (about text/image)
-  insert into public.portfolio_profile (id, about_text, about_image)
+  insert into public.portfolio_profile (id, about_text, about_image, contact_tagline, contact_email, contact_phone)
   select
     'main',
     coalesce(nullif(trim(profile->>'aboutText'), ''), 'Hi! I''m Sean, a Front-End Developer passionate about modern design and smooth interactions.'),
-    coalesce(nullif(trim(profile->>'aboutImage'), ''), '/image/Sean.jpg')
+    coalesce(nullif(trim(profile->>'aboutImage'), ''), '/image/Sean.jpg'),
+    coalesce(nullif(trim(profile->>'contactTagline'), ''), 'Let''s build something together!'),
+    coalesce(nullif(trim(profile->>'contactEmail'), ''), 'ronniedoinog12@gmail.com'),
+    coalesce(nullif(trim(profile->>'contactPhone'), ''), '+63 938 646 7629')
   from public.portfolio_content
   where id = 'main'
   on conflict (id) do update
     set about_text = excluded.about_text,
         about_image = excluded.about_image,
+        contact_tagline = excluded.contact_tagline,
+        contact_email = excluded.contact_email,
+        contact_phone = excluded.contact_phone,
         updated_at = now();
 
   -- 3b) Projects migration
@@ -211,6 +264,26 @@ begin
   where legacy.id = 'main'
     and trim(coalesce(figma_item->>'title', '')) <> ''
     and trim(coalesce(figma_item->>'src', '')) <> '';
+
+  -- 3d) Certificates migration from profile.certificates
+  delete from public.portfolio_certificates where owner_id = 'main';
+  insert into public.portfolio_certificates (
+    owner_id, title, issuer, image, verify_url, sort_order
+  )
+  select
+    'main' as owner_id,
+    trim(coalesce(certificate_item->>'title', '')) as title,
+    trim(coalesce(certificate_item->>'issuer', '')) as issuer,
+    trim(coalesce(certificate_item->>'image', '')) as image,
+    nullif(trim(coalesce(certificate_item->>'verifyUrl', '')), '') as verify_url,
+    ordinality - 1 as sort_order
+  from public.portfolio_content legacy
+  cross join lateral jsonb_array_elements(coalesce(legacy.profile->'certificates', '[]'::jsonb))
+    with ordinality as c(certificate_item, ordinality)
+  where legacy.id = 'main'
+    and trim(coalesce(certificate_item->>'title', '')) <> ''
+    and trim(coalesce(certificate_item->>'issuer', '')) <> ''
+    and trim(coalesce(certificate_item->>'image', '')) <> '';
 end $$;
 
 -- ------------------------------------------------------------
@@ -219,6 +292,7 @@ end $$;
 alter table public.portfolio_profile enable row level security;
 alter table public.portfolio_projects enable row level security;
 alter table public.portfolio_figma_projects enable row level security;
+alter table public.portfolio_certificates enable row level security;
 alter table public.portfolio_tech_stack_items enable row level security;
 
 -- Profile policies
@@ -269,6 +343,22 @@ to authenticated
 using (true)
 with check (true);
 
+-- Certificates policies
+drop policy if exists "portfolio_certificates_select_all" on public.portfolio_certificates;
+create policy "portfolio_certificates_select_all"
+on public.portfolio_certificates
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists "portfolio_certificates_write_auth" on public.portfolio_certificates;
+create policy "portfolio_certificates_write_auth"
+on public.portfolio_certificates
+for all
+to authenticated
+using (true)
+with check (true);
+
 -- Tech stack policies
 drop policy if exists "portfolio_tech_stack_select_all" on public.portfolio_tech_stack_items;
 create policy "portfolio_tech_stack_select_all"
@@ -303,6 +393,12 @@ end $$;
 do $$
 begin
   alter publication supabase_realtime add table public.portfolio_figma_projects;
+exception when duplicate_object then null;
+end $$;
+
+do $$
+begin
+  alter publication supabase_realtime add table public.portfolio_certificates;
 exception when duplicate_object then null;
 end $$;
 
@@ -351,7 +447,7 @@ using (bucket_id = 'portfolio-images');
 -- ------------------------------------------------------------
 -- 7) Verify
 -- ------------------------------------------------------------
-select id, about_text, about_image
+select id, about_text, about_image, contact_tagline, contact_email, contact_phone
 from public.portfolio_profile
 where id = 'main';
 
@@ -362,6 +458,11 @@ order by sort_order;
 
 select owner_id, sort_order, title, src
 from public.portfolio_figma_projects
+where owner_id = 'main'
+order by sort_order;
+
+select owner_id, sort_order, title, issuer, image, verify_url
+from public.portfolio_certificates
 where owner_id = 'main'
 order by sort_order;
 

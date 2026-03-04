@@ -9,6 +9,9 @@ type PortfolioProfileDbRow = {
   id: string;
   about_text: string | null;
   about_image: string | null;
+  contact_tagline: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
 };
 
 type PortfolioProjectDbRow = {
@@ -41,6 +44,16 @@ type PortfolioTechStackDbRow = {
   sort_order: number;
 };
 
+type PortfolioCertificateDbRow = {
+  id: string;
+  owner_id: string;
+  title: string;
+  issuer: string;
+  image: string;
+  verify_url: string | null;
+  sort_order: number;
+};
+
 const headingFont = Orbitron({
   subsets: ["latin"],
   weight: ["600", "700", "800"],
@@ -61,7 +74,7 @@ export default async function SeanAdminPage() {
 
   const { data: profileRow } = await supabase
     .from("portfolio_profile")
-    .select("id, about_text, about_image")
+    .select("id, about_text, about_image, contact_tagline, contact_email, contact_phone")
     .eq("id", "main")
     .maybeSingle<PortfolioProfileDbRow>();
 
@@ -86,9 +99,19 @@ export default async function SeanAdminPage() {
     .order("sort_order", { ascending: true })
     .returns<PortfolioTechStackDbRow[]>();
 
+  const { data: certificateRows } = await supabase
+    .from("portfolio_certificates")
+    .select("id, owner_id, title, issuer, image, verify_url, sort_order")
+    .eq("owner_id", "main")
+    .order("sort_order", { ascending: true })
+    .returns<PortfolioCertificateDbRow[]>();
+
   const initialProfile = {
     aboutText: profileRow?.about_text ?? "",
     aboutImage: profileRow?.about_image ?? "",
+    contactTagline: profileRow?.contact_tagline ?? "",
+    contactEmail: profileRow?.contact_email ?? "",
+    contactPhone: profileRow?.contact_phone ?? "",
     figmaProjects: (figmaRows ?? []).map((row) => ({
       title: row.title,
       src: row.src,
@@ -105,6 +128,13 @@ export default async function SeanAdminPage() {
     private: row.is_private ? true : undefined,
   }));
 
+  const initialCertificates = (certificateRows ?? []).map((row) => ({
+    title: row.title,
+    issuer: row.issuer,
+    image: row.image,
+    verifyUrl: row.verify_url ?? undefined,
+  }));
+
   const initialRow: PortfolioContentRow = {
     id: "main",
     profile: initialProfile,
@@ -115,6 +145,7 @@ export default async function SeanAdminPage() {
       category: row.category,
       logoUrl: row.logo_url ?? undefined,
     })),
+    certificates: initialCertificates,
   };
 
   const userEmail = userData.user.email ?? "unknown";
@@ -169,7 +200,7 @@ export default async function SeanAdminPage() {
         
           <ContentEditor initialRow={initialRow} />
 
-          <article className="mt-10 rounded-2xl border border-fuchsia-300/25 bg-[#120818]/78 p-5 shadow-[0_0_0_1px_rgba(217,70,239,0.12),0_18px_45px_rgba(0,0,0,0.4)]">
+          <article className="rounded-2xl border border-fuchsia-300/25 bg-[#120818]/78 p-5 shadow-[0_0_0_1px_rgba(217,70,239,0.12),0_18px_45px_rgba(0,0,0,0.4)]">
             <h2 className={`text-lg font-semibold uppercase tracking-[0.08em] text-fuchsia-100 ${headingFont.className}`}>
               Security Status
             </h2>
