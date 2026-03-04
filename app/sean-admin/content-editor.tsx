@@ -7,6 +7,7 @@ export type PortfolioContentRow = {
   id: string;
   profile: unknown;
   projects: unknown;
+  figmaProjects?: unknown;
 };
 
 type ProfileShape = {
@@ -25,6 +26,11 @@ type ProjectShape = {
   private?: boolean;
 };
 
+type FigmaProjectShape = {
+  title: string;
+  src: string;
+};
+
 type ProjectLinkMode = "live" | "repo" | "private";
 
 type NewProjectForm = {
@@ -33,6 +39,11 @@ type NewProjectForm = {
   link: string;
   techStack: string;
   linkMode: ProjectLinkMode;
+};
+
+type NewFigmaProjectForm = {
+  title: string;
+  src: string;
 };
 
 type ModalState = {
@@ -52,6 +63,45 @@ type ProjectDecisionState = {
   title: string;
   message: string;
   action: ProjectDecisionAction | null;
+};
+
+type FigmaDecisionAction =
+  | { kind: "submit" }
+  | { kind: "delete"; index: number }
+  | { kind: "reset" };
+
+type FigmaDecisionState = {
+  open: boolean;
+  title: string;
+  message: string;
+  action: FigmaDecisionAction | null;
+};
+
+type PortfolioProfileDbRow = {
+  id: string;
+  about_text: string | null;
+  about_image: string | null;
+};
+
+type PortfolioProjectDbRow = {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  image: string;
+  tech: unknown;
+  live_url: string | null;
+  project_type: "app" | "web" | null;
+  is_private: boolean;
+  sort_order: number;
+};
+
+type PortfolioFigmaProjectDbRow = {
+  id: string;
+  owner_id: string;
+  title: string;
+  src: string;
+  sort_order: number;
 };
 
 function toProfileShape(value: unknown): ProfileShape {
@@ -119,6 +169,33 @@ function toProjectShapeList(value: unknown): ProjectShape[] {
     .filter((entry): entry is ProjectShape => entry !== null);
 }
 
+function toFigmaProjectShapeList(value: unknown): FigmaProjectShape[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry): FigmaProjectShape | null => {
+      if (typeof entry !== "object" || entry === null || Array.isArray(entry)) {
+        return null;
+      }
+
+      const record = entry as Record<string, unknown>;
+      const title = typeof record.title === "string" ? record.title.trim() : "";
+      const src = typeof record.src === "string" ? record.src.trim() : "";
+
+      if (!title || !src) {
+        return null;
+      }
+
+      return {
+        title,
+        src,
+      };
+    })
+    .filter((entry): entry is FigmaProjectShape => entry !== null);
+}
+
 function normalizeTechStack(value: string): string[] {
   return value
     .split(",")
@@ -148,6 +225,11 @@ const emptyProjectForm: NewProjectForm = {
   link: "",
   techStack: "",
   linkMode: "live",
+};
+
+const emptyFigmaForm: NewFigmaProjectForm = {
+  title: "",
+  src: "",
 };
 
 const defaultAboutText =
@@ -208,6 +290,18 @@ const defaultProjects: ProjectShape[] = [
     type: "web",
   },
 ];
+const defaultFigmaProjects: FigmaProjectShape[] = [
+  {
+    title: "BayadBox",
+    src: "https://embed.figma.com/proto/3KLXXroJN0EesN8sAyrSBY/BayadBox?scaling=scale-down&content-scaling=fixed&page-id=0%3A1&node-id=222-622&starting-point-node-id=222%3A622&show-proto-sidebar=0&embed-host=share",
+  },
+  {
+    title: "Riane's Violet Studio Cafe",
+    src: "https://embed.figma.com/proto/YyMdjt2ij2eQVJtHT7KXH0/Doinog_ButtonDesignActivity?node-id=1-2&scaling=scale-down&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A2&show-proto-sidebar=0&embed-host=share",
+  },
+];
+const profileId = "main";
+const ownerId = "main";
 const storageBucket = process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET ?? "portfolio-images";
 
 export default function ContentEditor({ initialRow }: { initialRow: PortfolioContentRow }) {
@@ -217,6 +311,10 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     const parsedProjects = toProjectShapeList(initialRow.projects);
     return parsedProjects.length > 0 ? parsedProjects : defaultProjects;
   }, [initialRow.projects]);
+  const initialFigmaProjects = useMemo(() => {
+    const parsedFigmaProjects = toFigmaProjectShapeList(initialProfile.figmaProjects);
+    return parsedFigmaProjects.length > 0 ? parsedFigmaProjects : defaultFigmaProjects;
+  }, [initialProfile.figmaProjects]);
   const [aboutText, setAboutText] = useState(
     typeof initialProfile.aboutText === "string" && initialProfile.aboutText.trim()
       ? initialProfile.aboutText
@@ -232,14 +330,27 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
   const [isSavingImageUrl, setIsSavingImageUrl] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [projects, setProjects] = useState<ProjectShape[]>(initialProjects);
+  const [figmaProjects, setFigmaProjects] = useState<FigmaProjectShape[]>(initialFigmaProjects);
   const [isSavingProjects, setIsSavingProjects] = useState(false);
+  const [isSavingFigmaProjects, setIsSavingFigmaProjects] = useState(false);
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [projectModalMode, setProjectModalMode] = useState<"add" | "edit">("add");
   const [editingProjectIndex, setEditingProjectIndex] = useState<number | null>(null);
   const [newProjectForm, setNewProjectForm] = useState<NewProjectForm>(emptyProjectForm);
   const [newProjectImageFile, setNewProjectImageFile] = useState<File | null>(null);
   const [isAddingProject, setIsAddingProject] = useState(false);
+  const [isFigmaModalOpen, setIsFigmaModalOpen] = useState(false);
+  const [figmaModalMode, setFigmaModalMode] = useState<"add" | "edit">("add");
+  const [editingFigmaIndex, setEditingFigmaIndex] = useState<number | null>(null);
+  const [newFigmaForm, setNewFigmaForm] = useState<NewFigmaProjectForm>(emptyFigmaForm);
+  const [isSavingFigmaProject, setIsSavingFigmaProject] = useState(false);
   const [projectDecisionState, setProjectDecisionState] = useState<ProjectDecisionState>({
+    open: false,
+    title: "",
+    message: "",
+    action: null,
+  });
+  const [figmaDecisionState, setFigmaDecisionState] = useState<FigmaDecisionState>({
     open: false,
     title: "",
     message: "",
@@ -268,44 +379,131 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
   }, [modalState.open]);
 
   useEffect(() => {
-    const channel = supabase
-      .channel("portfolio-content-admin-live")
+    let active = true;
+
+    const syncProfileFromDatabase = async () => {
+      const { data, error } = await supabase
+        .from("portfolio_profile")
+        .select("id, about_text, about_image")
+        .eq("id", profileId)
+        .maybeSingle<PortfolioProfileDbRow>();
+
+      if (error || !active) {
+        return;
+      }
+
+      setAboutText(
+        typeof data?.about_text === "string" && data.about_text.trim()
+          ? data.about_text
+          : defaultAboutText,
+      );
+      setAboutImage(
+        typeof data?.about_image === "string" && data.about_image.trim()
+          ? data.about_image
+          : defaultAboutImage,
+      );
+    };
+
+    const syncProjectsFromDatabase = async () => {
+      const { data, error } = await supabase
+        .from("portfolio_projects")
+        .select(
+          "id, owner_id, title, description, image, tech, live_url, project_type, is_private, sort_order",
+        )
+        .eq("owner_id", ownerId)
+        .order("sort_order", { ascending: true })
+        .returns<PortfolioProjectDbRow[]>();
+
+      if (error || !active) {
+        return;
+      }
+
+      const projectPayload = (data ?? []).map((row) => ({
+        title: row.title,
+        description: row.description,
+        image: row.image,
+        tech: row.tech,
+        liveUrl: row.live_url ?? undefined,
+        type: row.project_type ?? undefined,
+        private: row.is_private ? true : undefined,
+      }));
+      const nextProjects = toProjectShapeList(projectPayload);
+      setProjects(nextProjects.length > 0 ? nextProjects : defaultProjects);
+    };
+
+    const syncFigmaProjectsFromDatabase = async () => {
+      const { data, error } = await supabase
+        .from("portfolio_figma_projects")
+        .select("id, owner_id, title, src, sort_order")
+        .eq("owner_id", ownerId)
+        .order("sort_order", { ascending: true })
+        .returns<PortfolioFigmaProjectDbRow[]>();
+
+      if (error || !active) {
+        return;
+      }
+
+      const nextFigmaProjects = toFigmaProjectShapeList(data ?? []);
+      setFigmaProjects(nextFigmaProjects.length > 0 ? nextFigmaProjects : defaultFigmaProjects);
+    };
+
+    void syncProfileFromDatabase();
+    void syncProjectsFromDatabase();
+    void syncFigmaProjectsFromDatabase();
+
+    const profileChannel = supabase
+      .channel("portfolio-profile-admin-live")
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "portfolio_content",
-          filter: "id=eq.main",
+          table: "portfolio_profile",
+          filter: `id=eq.${profileId}`,
         },
-        (payload) => {
-          const nextRow = payload.new as { profile?: unknown; projects?: unknown } | null;
-          if (!nextRow) {
-            return;
-          }
+        () => {
+          void syncProfileFromDatabase();
+        },
+      )
+      .subscribe();
 
-          if (Object.prototype.hasOwnProperty.call(nextRow, "profile")) {
-            const nextProfile = toProfileShape(nextRow.profile);
+    const projectsChannel = supabase
+      .channel("portfolio-projects-admin-live")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_projects",
+          filter: `owner_id=eq.${ownerId}`,
+        },
+        () => {
+          void syncProjectsFromDatabase();
+        },
+      )
+      .subscribe();
 
-            if (typeof nextProfile.aboutText === "string" && nextProfile.aboutText.trim()) {
-              setAboutText(nextProfile.aboutText);
-            }
-
-            if (typeof nextProfile.aboutImage === "string" && nextProfile.aboutImage.trim()) {
-              setAboutImage(nextProfile.aboutImage);
-            }
-          }
-
-          if (Object.prototype.hasOwnProperty.call(nextRow, "projects")) {
-            const nextProjects = toProjectShapeList(nextRow.projects);
-            setProjects(nextProjects.length > 0 ? nextProjects : defaultProjects);
-          }
+    const figmaChannel = supabase
+      .channel("portfolio-figma-admin-live")
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "portfolio_figma_projects",
+          filter: `owner_id=eq.${ownerId}`,
+        },
+        () => {
+          void syncFigmaProjectsFromDatabase();
         },
       )
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      active = false;
+      void supabase.removeChannel(profileChannel);
+      void supabase.removeChannel(projectsChannel);
+      void supabase.removeChannel(figmaChannel);
     };
   }, [supabase]);
 
@@ -319,89 +517,190 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
   };
 
   const saveProfilePatch = async (patch: Partial<ProfileShape>) => {
-    const { data: latestRow, error: readError } = await supabase
-      .from("portfolio_content")
-      .select("id, profile, projects")
-      .eq("id", "main")
-      .maybeSingle<PortfolioContentRow>();
+    const { data: latestProfile, error: profileReadError } = await supabase
+      .from("portfolio_profile")
+      .select("id, about_text, about_image")
+      .eq("id", profileId)
+      .maybeSingle<PortfolioProfileDbRow>();
 
-    if (readError) {
+    if (profileReadError) {
       return {
         ok: false as const,
-        message: `Read failed. ${readError.message}`,
+        message: `Read failed. ${profileReadError.message}`,
       };
     }
 
-    const latestProfile = toProfileShape(latestRow?.profile);
-    const nextProfile: ProfileShape = {
-      ...latestProfile,
-      ...patch,
-    };
+    const nextAboutText =
+      typeof patch.aboutText === "string"
+        ? patch.aboutText
+        : latestProfile?.about_text ?? aboutText;
+    const nextAboutImage =
+      typeof patch.aboutImage === "string"
+        ? patch.aboutImage
+        : latestProfile?.about_image ?? aboutImage;
 
-    const { data: savedRow, error: saveError } = await supabase
-      .from("portfolio_content")
+    const { data: savedProfile, error: profileSaveError } = await supabase
+      .from("portfolio_profile")
       .upsert(
         {
-          id: "main",
-          profile: nextProfile,
-          projects: latestRow?.projects ?? initialRow.projects ?? [],
+          id: profileId,
+          about_text: nextAboutText,
+          about_image: nextAboutImage,
         },
         { onConflict: "id" },
       )
-      .select("id, profile, projects")
-      .single<PortfolioContentRow>();
+      .select("id, about_text, about_image")
+      .single<PortfolioProfileDbRow>();
 
-    if (saveError || !savedRow) {
+    if (profileSaveError || !savedProfile) {
       return {
         ok: false as const,
-        message: `Save failed. ${saveError?.message ?? "Unknown error"}`,
+        message: `Save failed. ${profileSaveError?.message ?? "Unknown error"}`,
       };
     }
 
+    let nextFigmaProjects = figmaProjects;
+    if (Object.prototype.hasOwnProperty.call(patch, "figmaProjects")) {
+      nextFigmaProjects = toFigmaProjectShapeList(
+        (patch as { figmaProjects?: unknown }).figmaProjects,
+      );
+
+      const { error: deleteFigmaError } = await supabase
+        .from("portfolio_figma_projects")
+        .delete()
+        .eq("owner_id", ownerId);
+
+      if (deleteFigmaError) {
+        return {
+          ok: false as const,
+          message: `Save failed. ${deleteFigmaError.message}`,
+        };
+      }
+
+      if (nextFigmaProjects.length > 0) {
+        const figmaInsertPayload = nextFigmaProjects.map((project, index) => ({
+          owner_id: ownerId,
+          title: project.title,
+          src: project.src,
+          sort_order: index,
+        }));
+        const { error: figmaInsertError } = await supabase
+          .from("portfolio_figma_projects")
+          .insert(figmaInsertPayload);
+
+        if (figmaInsertError) {
+          return {
+            ok: false as const,
+            message: `Save failed. ${figmaInsertError.message}`,
+          };
+        }
+      }
+    }
+
+    const profilePayload: ProfileShape = {
+      aboutText:
+        typeof savedProfile.about_text === "string" && savedProfile.about_text.trim()
+          ? savedProfile.about_text
+          : defaultAboutText,
+      aboutImage:
+        typeof savedProfile.about_image === "string" && savedProfile.about_image.trim()
+          ? savedProfile.about_image
+          : defaultAboutImage,
+      figmaProjects: nextFigmaProjects,
+    };
+
+    const row: PortfolioContentRow = {
+      id: profileId,
+      profile: profilePayload,
+      projects,
+      figmaProjects: nextFigmaProjects,
+    };
+
     return {
       ok: true as const,
-      row: savedRow,
+      row,
     };
   };
 
   const saveProjectsPatch = async (projectsPatch: ProjectShape[]) => {
-    const { data: latestRow, error: readError } = await supabase
-      .from("portfolio_content")
-      .select("id, profile, projects")
-      .eq("id", "main")
-      .maybeSingle<PortfolioContentRow>();
+    const { error: deleteProjectsError } = await supabase
+      .from("portfolio_projects")
+      .delete()
+      .eq("owner_id", ownerId);
 
-    if (readError) {
+    if (deleteProjectsError) {
       return {
         ok: false as const,
-        message: `Read failed. ${readError.message}`,
+        message: `Save failed. ${deleteProjectsError.message}`,
       };
     }
 
-    const latestProfile = toProfileShape(latestRow?.profile);
-    const { data: savedRow, error: saveError } = await supabase
-      .from("portfolio_content")
-      .upsert(
-        {
-          id: "main",
-          profile: latestProfile,
-          projects: projectsPatch,
-        },
-        { onConflict: "id" },
+    if (projectsPatch.length > 0) {
+      const projectsInsertPayload = projectsPatch.map((project, index) => ({
+        owner_id: ownerId,
+        title: project.title,
+        description: project.description,
+        image: project.image,
+        tech: project.tech,
+        live_url: project.liveUrl ?? null,
+        project_type: project.type ?? null,
+        is_private: project.private ?? false,
+        sort_order: index,
+      }));
+      const { error: insertProjectsError } = await supabase
+        .from("portfolio_projects")
+        .insert(projectsInsertPayload);
+
+      if (insertProjectsError) {
+        return {
+          ok: false as const,
+          message: `Save failed. ${insertProjectsError.message}`,
+        };
+      }
+    }
+
+    const { data: savedProjectRows, error: readProjectsError } = await supabase
+      .from("portfolio_projects")
+      .select(
+        "id, owner_id, title, description, image, tech, live_url, project_type, is_private, sort_order",
       )
-      .select("id, profile, projects")
-      .single<PortfolioContentRow>();
+      .eq("owner_id", ownerId)
+      .order("sort_order", { ascending: true })
+      .returns<PortfolioProjectDbRow[]>();
 
-    if (saveError || !savedRow) {
+    if (readProjectsError) {
       return {
         ok: false as const,
-        message: `Save failed. ${saveError?.message ?? "Unknown error"}`,
+        message: `Read failed. ${readProjectsError.message}`,
       };
     }
+
+    const projectsPayload = (savedProjectRows ?? []).map((row) => ({
+      title: row.title,
+      description: row.description,
+      image: row.image,
+      tech: row.tech,
+      liveUrl: row.live_url ?? undefined,
+      type: row.project_type ?? undefined,
+      private: row.is_private ? true : undefined,
+    }));
+    const savedProjects = toProjectShapeList(projectsPayload);
+    const profilePayload: ProfileShape = {
+      aboutText,
+      aboutImage,
+      figmaProjects,
+    };
+
+    const row: PortfolioContentRow = {
+      id: profileId,
+      profile: profilePayload,
+      projects: savedProjects,
+      figmaProjects,
+    };
 
     return {
       ok: true as const,
-      row: savedRow,
+      row,
     };
   };
 
@@ -811,7 +1110,235 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
   };
 
+  const askFigmaDecision = (
+    title: string,
+    message: string,
+    action: FigmaDecisionAction,
+  ) => {
+    if (isSavingFigmaProject || isSavingFigmaProjects) {
+      return;
+    }
+
+    setFigmaDecisionState({
+      open: true,
+      title,
+      message,
+      action,
+    });
+  };
+
+  const handleOpenAddFigmaModal = () => {
+    setFigmaModalMode("add");
+    setEditingFigmaIndex(null);
+    setNewFigmaForm(emptyFigmaForm);
+    setIsFigmaModalOpen(true);
+  };
+
+  const handleOpenEditFigmaModal = (figmaIndex: number) => {
+    const figmaProjectToEdit = figmaProjects[figmaIndex];
+    if (!figmaProjectToEdit) {
+      return;
+    }
+
+    setFigmaModalMode("edit");
+    setEditingFigmaIndex(figmaIndex);
+    setNewFigmaForm({
+      title: figmaProjectToEdit.title,
+      src: figmaProjectToEdit.src,
+    });
+    setIsFigmaModalOpen(true);
+  };
+
+  const handleCloseFigmaModal = () => {
+    if (isSavingFigmaProject || isSavingFigmaProjects) {
+      return;
+    }
+
+    setFigmaModalMode("add");
+    setEditingFigmaIndex(null);
+    setNewFigmaForm(emptyFigmaForm);
+    setIsFigmaModalOpen(false);
+  };
+
+  const handleRequestFigmaSubmit = () => {
+    askFigmaDecision(
+      figmaModalMode === "edit" ? "Confirm Edit" : "Confirm Add",
+      figmaModalMode === "edit"
+        ? "Are you sure you want to save changes to this Figma tile?"
+        : "Are you sure you want to add this Figma tile?",
+      { kind: "submit" },
+    );
+  };
+
+  const handleSaveFigmaProject = async () => {
+    const isEditingFigmaProject = figmaModalMode === "edit" && editingFigmaIndex !== null;
+    const title = newFigmaForm.title.trim();
+    const src = newFigmaForm.src.trim();
+
+    if (!title || !src) {
+      const message = "Figma project title and embed URL are required.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    try {
+      // Ensure users don't save invalid or incomplete iframe URLs.
+      new URL(src);
+    } catch {
+      const message = "Figma embed URL is invalid.";
+      setStatusText(message);
+      showModal("error", "Validation Error", message);
+      return;
+    }
+
+    setIsSavingFigmaProject(true);
+    setStatusText(
+      isEditingFigmaProject ? "Updating Figma tile..." : "Adding Figma tile...",
+    );
+
+    const nextFigmaProject: FigmaProjectShape = {
+      title,
+      src,
+    };
+
+    const nextFigmaProjects =
+      isEditingFigmaProject && editingFigmaIndex !== null
+        ? figmaProjects.map((project, index) =>
+            index === editingFigmaIndex ? nextFigmaProject : project,
+          )
+        : [...figmaProjects, nextFigmaProject];
+
+    setIsSavingFigmaProjects(true);
+    const saveResult = await saveProfilePatch({ figmaProjects: nextFigmaProjects });
+    setIsSavingFigmaProjects(false);
+    setIsSavingFigmaProject(false);
+
+    if (!saveResult.ok) {
+      setStatusText(saveResult.message);
+      showModal("error", "Save Failed", saveResult.message);
+      return;
+    }
+
+    const savedProfile = toProfileShape(saveResult.row.profile);
+    const savedFigmaProjects = toFigmaProjectShapeList(savedProfile.figmaProjects);
+    setFigmaProjects(savedFigmaProjects.length > 0 ? savedFigmaProjects : defaultFigmaProjects);
+
+    setIsFigmaModalOpen(false);
+    setFigmaModalMode("add");
+    setEditingFigmaIndex(null);
+    setNewFigmaForm(emptyFigmaForm);
+    if (isEditingFigmaProject) {
+      setStatusText("Figma tile updated and saved.");
+      showModal("success", "Figma Updated", "Figma tile updated successfully.");
+      return;
+    }
+
+    setStatusText("Figma tile added and saved.");
+    showModal("success", "Figma Added", "Figma tile added successfully.");
+  };
+
+  const handleRequestDeleteFigmaProject = (indexToRemove: number) => {
+    const targetFigmaProject = figmaProjects[indexToRemove];
+    if (!targetFigmaProject) {
+      return;
+    }
+
+    askFigmaDecision(
+      "Confirm Delete",
+      `Are you sure you want to remove \"${targetFigmaProject.title}\"?`,
+      { kind: "delete", index: indexToRemove },
+    );
+  };
+
+  const handleRemoveFigmaProject = async (indexToRemove: number) => {
+    const nextFigmaProjects = figmaProjects.filter((_, index) => index !== indexToRemove);
+    setIsSavingFigmaProjects(true);
+    setStatusText("Removing Figma tile...");
+    const result = await saveProfilePatch({ figmaProjects: nextFigmaProjects });
+    setIsSavingFigmaProjects(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedProfile = toProfileShape(result.row.profile);
+    const savedFigmaProjects = toFigmaProjectShapeList(savedProfile.figmaProjects);
+    setFigmaProjects(savedFigmaProjects.length > 0 ? savedFigmaProjects : defaultFigmaProjects);
+    setStatusText("Figma tile removed and saved.");
+    showModal("success", "Figma Removed", "Figma tile removed successfully.");
+  };
+
+  const handleRequestResetFigmaProjects = () => {
+    askFigmaDecision(
+      "Confirm Reset",
+      "Are you sure you want to reset all Figma tiles to default?",
+      { kind: "reset" },
+    );
+  };
+
+  const handleResetFigmaProjectsToDefault = async () => {
+    setIsSavingFigmaProjects(true);
+    setStatusText("Resetting Figma projects to default...");
+    const result = await saveProfilePatch({ figmaProjects: defaultFigmaProjects });
+    setIsSavingFigmaProjects(false);
+
+    if (!result.ok) {
+      setStatusText(result.message);
+      showModal("error", "Save Failed", result.message);
+      return;
+    }
+
+    const savedProfile = toProfileShape(result.row.profile);
+    const savedFigmaProjects = toFigmaProjectShapeList(savedProfile.figmaProjects);
+    setFigmaProjects(savedFigmaProjects.length > 0 ? savedFigmaProjects : defaultFigmaProjects);
+    setStatusText("Figma projects reset to default and saved.");
+    showModal("success", "Figma Reset", "Default Figma tiles restored.");
+  };
+
+  const handleConfirmFigmaDecision = async () => {
+    const action = figmaDecisionState.action;
+    if (!action) {
+      return;
+    }
+
+    setFigmaDecisionState({
+      open: false,
+      title: "",
+      message: "",
+      action: null,
+    });
+
+    if (action.kind === "submit") {
+      await handleSaveFigmaProject();
+      return;
+    }
+
+    if (action.kind === "delete") {
+      await handleRemoveFigmaProject(action.index);
+      return;
+    }
+
+    await handleResetFigmaProjectsToDefault();
+  };
+
+  const handleCancelFigmaDecision = () => {
+    if (isSavingFigmaProject || isSavingFigmaProjects) {
+      return;
+    }
+
+    setFigmaDecisionState({
+      open: false,
+      title: "",
+      message: "",
+      action: null,
+    });
+  };
+
   const isProjectActionBusy = isAddingProject || isSavingProjects;
+  const isFigmaActionBusy = isSavingFigmaProject || isSavingFigmaProjects;
 
   return (
     <div className="space-y-4 ">
@@ -1014,6 +1541,93 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
           </section>
         </section>
 
+        <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
+          Figma Project
+        </h1>
+        <section className="rounded-2xl border border-fuchsia-300/25 bg-[#160a1f]/74 p-4 sm:p-5">
+          <section className="rounded-xl border border-fuchsia-300/20 bg-[#1b0f2a]/78 p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xl font-semibold uppercase tracking-[0.18em] text-fuchsia-200/90">
+                  Figma Project Tiles
+                </p>
+                <p className="mt-1 text-sm text-fuchsia-100/70">
+                  Manage every tile shown in `Figma Projects`.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleRequestResetFigmaProjects}
+                  disabled={isFigmaActionBusy}
+                  className="rounded-lg border border-fuchsia-300/45 bg-fuchsia-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-100 transition hover:bg-fuchsia-500/25 hover:shadow-[0_0_18px_rgba(217,70,239,0.28)] disabled:cursor-wait disabled:opacity-70"
+                >
+                  Reset to Default
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenAddFigmaModal}
+                  disabled={isFigmaActionBusy}
+                  className="rounded-lg border border-cyan-300/45 bg-cyan-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100 transition hover:bg-cyan-500/25 hover:shadow-[0_0_18px_rgba(34,211,238,0.28)] disabled:cursor-wait disabled:opacity-70"
+                >
+                  + Add Figma
+                </button>
+              </div>
+            </div>
+
+            {figmaProjects.length > 0 ? (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {figmaProjects.map((figmaProject, index) => (
+                  <article
+                    key={`${figmaProject.title}-${index}`}
+                    className="overflow-hidden rounded-xl border border-fuchsia-300/25 bg-[#180f2d]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+                  >
+                    <div className="relative h-44 w-full overflow-hidden border-b border-fuchsia-300/20">
+                      <iframe
+                        src={figmaProject.src}
+                        title={`${figmaProject.title} preview`}
+                        className="absolute inset-0 h-full w-full"
+                        style={{ border: "0" }}
+                        allowFullScreen
+                      />
+                      <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditFigmaModal(index)}
+                          disabled={isFigmaActionBusy}
+                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDeleteFigmaProject(index)}
+                          disabled={isFigmaActionBusy}
+                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2 p-3">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-fuchsia-100">
+                        {figmaProject.title}
+                      </h3>
+                      <p className="break-all text-[0.68rem] leading-relaxed text-fuchsia-100/75">
+                        {figmaProject.src}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-lg border border-fuchsia-300/20 bg-[#140a22]/80 px-3 py-4 text-xs text-fuchsia-100/70">
+                No Figma tiles yet. Click `+ Add Figma` to create one.
+              </p>
+            )}
+          </section>
+        </section>
+
       </div>
 
       {isProjectModalOpen ? (
@@ -1169,6 +1783,88 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
         </div>
       ) : null}
 
+      {isFigmaModalOpen ? (
+        <div className="fixed inset-0 z-96 flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-2xl border border-fuchsia-300/40 bg-[#130d22] p-5 shadow-[0_0_45px_rgba(217,70,239,0.25)] sm:p-6">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-fuchsia-200/85">
+                  {figmaModalMode === "edit" ? "Edit Figma Tile" : "New Figma Tile"}
+                </p>
+                <h3 className="mt-1 text-lg font-semibold uppercase tracking-[0.06em] text-fuchsia-100">
+                  {figmaModalMode === "edit" ? "Edit Figma Project" : "Add Figma Project"}
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={handleCloseFigmaModal}
+                disabled={isFigmaActionBusy}
+                className="rounded-md border border-fuchsia-300/45 bg-fuchsia-500/15 px-3 py-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-100 transition hover:bg-fuchsia-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                Close
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-fuchsia-200/80">
+                  Project Name
+                </label>
+                <input
+                  type="text"
+                  value={newFigmaForm.title}
+                  onChange={(event) =>
+                    setNewFigmaForm((current) => ({ ...current, title: event.target.value }))
+                  }
+                  placeholder="Figma project name"
+                  className="w-full rounded-lg border border-fuchsia-300/25 bg-[#1b1230] p-3 text-sm text-fuchsia-50 outline-none placeholder:text-fuchsia-100/35 focus:border-fuchsia-300/55 focus:shadow-[0_0_0_2px_rgba(217,70,239,0.16)]"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="mb-1 block text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-fuchsia-200/80">
+                  Figma Embed URL
+                </label>
+                <input
+                  type="url"
+                  value={newFigmaForm.src}
+                  onChange={(event) =>
+                    setNewFigmaForm((current) => ({ ...current, src: event.target.value }))
+                  }
+                  placeholder="https://embed.figma.com/proto/..."
+                  className="w-full rounded-lg border border-fuchsia-300/25 bg-[#1b1230] p-3 text-sm text-fuchsia-50 outline-none placeholder:text-fuchsia-100/35 focus:border-fuchsia-300/55 focus:shadow-[0_0_0_2px_rgba(217,70,239,0.16)]"
+                />
+              </div>
+            </div>
+
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleRequestFigmaSubmit}
+                disabled={isFigmaActionBusy}
+                className="rounded-md border border-emerald-300/40 bg-emerald-500/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/30 disabled:cursor-wait disabled:opacity-70"
+              >
+                {isSavingFigmaProject
+                  ? figmaModalMode === "edit"
+                    ? "Updating..."
+                    : "Adding..."
+                  : figmaModalMode === "edit"
+                    ? "Save Changes"
+                    : "Add Tile"}
+              </button>
+              <button
+                type="button"
+                onClick={handleCloseFigmaModal}
+                disabled={isFigmaActionBusy}
+                className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
       {projectDecisionState.open ? (
         <div className="fixed inset-0 z-98 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-2xl border border-orange-300/45 bg-[#140d08] p-5 shadow-[0_0_35px_rgba(251,146,60,0.2)]">
@@ -1192,6 +1888,38 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
                 type="button"
                 onClick={handleCancelProjectDecision}
                 disabled={isProjectActionBusy}
+                className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
+              >
+                No
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      {figmaDecisionState.open ? (
+        <div className="fixed inset-0 z-98 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-fuchsia-300/45 bg-[#1d0a1a] p-5 shadow-[0_0_35px_rgba(217,70,239,0.2)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-fuchsia-300">
+              Confirm Action
+            </p>
+            <h3 className="mt-2 text-lg font-semibold uppercase tracking-[0.06em] text-fuchsia-100">
+              {figmaDecisionState.title}
+            </h3>
+            <p className="mt-2 text-sm text-fuchsia-100/85">{figmaDecisionState.message}</p>
+            <div className="mt-5 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={handleConfirmFigmaDecision}
+                disabled={isFigmaActionBusy}
+                className="rounded-md border border-emerald-300/40 bg-emerald-500/20 px-4 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-emerald-100 transition hover:bg-emerald-500/30 disabled:cursor-wait disabled:opacity-70"
+              >
+                Yes
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelFigmaDecision}
+                disabled={isFigmaActionBusy}
                 className="rounded-md border border-cyan-300/35 bg-cyan-500/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-500/25 disabled:cursor-wait disabled:opacity-70"
               >
                 No

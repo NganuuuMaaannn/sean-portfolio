@@ -5,6 +5,19 @@ import { motion } from "framer-motion";
 import ProjectCard, { type Props } from "./ProjectCard";
 import { createClient } from "@/lib/supabase/client";
 
+type PortfolioProjectDbRow = {
+  id: string;
+  owner_id: string;
+  title: string;
+  description: string;
+  image: string;
+  tech: unknown;
+  live_url: string | null;
+  project_type: "app" | "web" | null;
+  is_private: boolean;
+  sort_order: number;
+};
+
 function toProjectArray(value: unknown): Props[] {
   if (!Array.isArray(value)) {
     return [];
@@ -145,37 +158,44 @@ export default function Projects() {
 
     const loadProjects = async () => {
       const { data, error } = await supabase
-        .from("portfolio_content")
-        .select("projects")
-        .eq("id", "main")
-        .maybeSingle<{ projects: unknown }>();
+        .from("portfolio_projects")
+        .select(
+          "id, owner_id, title, description, image, tech, live_url, project_type, is_private, sort_order",
+        )
+        .eq("owner_id", "main")
+        .order("sort_order", { ascending: true })
+        .returns<PortfolioProjectDbRow[]>();
 
       if (error || !data) {
         return;
       }
 
-      applyProjects(data.projects);
+      const projectPayload = data.map((row) => ({
+        title: row.title,
+        description: row.description,
+        image: row.image,
+        tech: row.tech,
+        liveUrl: row.live_url ?? undefined,
+        type: row.project_type ?? undefined,
+        private: row.is_private ? true : undefined,
+      }));
+      applyProjects(projectPayload);
     };
 
     void loadProjects();
 
     const channel = supabase
-      .channel("portfolio-content-public-projects-live")
+      .channel("portfolio-projects-public-live")
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "portfolio_content",
-          filter: "id=eq.main",
+          table: "portfolio_projects",
+          filter: "owner_id=eq.main",
         },
-        (payload) => {
-          const nextRow = payload.new as { projects?: unknown } | null;
-          if (!nextRow || !Object.prototype.hasOwnProperty.call(nextRow, "projects")) {
-            return;
-          }
-
-          applyProjects(nextRow.projects);
+        () => {
+          void loadProjects();
         },
       )
       .subscribe();

@@ -5,18 +5,11 @@ import { FaLaptopCode, FaAndroid, FaPalette } from "react-icons/fa";
 import { motion } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 
-type ProfileShape = {
-  aboutText?: string;
-  aboutImage?: string;
+type PortfolioProfileRow = {
+  id: string;
+  about_text: string | null;
+  about_image: string | null;
 };
-
-function toProfileShape(value: unknown): ProfileShape {
-  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
-    return value as ProfileShape;
-  }
-
-  return {};
-}
 
 const defaultAboutText =
   "Hi! I'm Sean, a 23-year-old Front-End Developer passionate about modern design, smooth interactions, and responsive user interfaces. I focus mainly on front-end development but also understand basic back-end concepts. I've worked with React Native, React JS, Next.js, TypeScript, and JavaScript, and I have photo and video editing skills that add a creative touch to my work. I'm adaptable, detail-oriented, and always eager to learn new frameworks and programming languages to grow in the tech industry.";
@@ -40,48 +33,47 @@ export default function About() {
 
     let active = true;
 
-    const applyProfile = (profileValue: unknown) => {
+    const applyProfile = (profileRow: PortfolioProfileRow | null) => {
       if (!active) {
         return;
       }
 
-      const profile = toProfileShape(profileValue);
-      if (typeof profile.aboutText === "string" && profile.aboutText.trim()) {
-        setAboutText(profile.aboutText);
+      if (typeof profileRow?.about_text === "string" && profileRow.about_text.trim()) {
+        setAboutText(profileRow.about_text);
       }
-      if (typeof profile.aboutImage === "string" && profile.aboutImage.trim()) {
-        setAboutImage(profile.aboutImage);
+      if (typeof profileRow?.about_image === "string" && profileRow.about_image.trim()) {
+        setAboutImage(profileRow.about_image);
       }
     };
 
     const loadProfile = async () => {
       const { data, error } = await supabase
-        .from("portfolio_content")
-        .select("profile")
+        .from("portfolio_profile")
+        .select("id, about_text, about_image")
         .eq("id", "main")
-        .maybeSingle<{ profile: unknown }>();
+        .maybeSingle<PortfolioProfileRow>();
 
       if (error || !data) {
         return;
       }
 
-      applyProfile(data.profile);
+      applyProfile(data);
     };
 
     void loadProfile();
 
     const channel = supabase
-      .channel("portfolio-content-public-live")
+      .channel("portfolio-profile-public-live")
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
-          table: "portfolio_content",
+          table: "portfolio_profile",
           filter: "id=eq.main",
         },
         (payload) => {
-          applyProfile((payload.new as { profile?: unknown } | null)?.profile);
+          applyProfile((payload.new as PortfolioProfileRow | null) ?? null);
         },
       )
       .subscribe();
