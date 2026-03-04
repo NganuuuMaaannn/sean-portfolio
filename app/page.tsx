@@ -6,11 +6,14 @@ import { RxCross2 } from "react-icons/rx";
 import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
 import { FiMinus } from "react-icons/fi";
 import { Rajdhani } from "next/font/google";
+import nextPackage from "next/package.json";
 
 const bodyFont = Rajdhani({
   subsets: ["latin"],
   weight: ["400"],
 });
+
+const nextVersion = nextPackage.version;
 
 type Part = { text: string; color?: string };
 type Line = {
@@ -48,7 +51,7 @@ const outputSteps: Line[] = [
     indent: true,
     parts: [
       {
-        text: "▲ Next.js 16.0.7 ",
+        text: `Next.js ${nextVersion} `,
         color: "text-purple-400"
       },
       {
@@ -283,3 +286,4 @@ export default function CmdIntro() {
     </main>
   );
 }
+
