@@ -815,216 +815,201 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
 
   return (
     <div className="space-y-4 ">
-      <header className="mb-5 space-y-3 rounded-2xl border border-cyan-300/30 bg-[#041022]/82 p-5 shadow-[0_0_0_1px_rgba(34,211,238,0.14),0_20px_50px_rgba(0,0,0,0.5)] sm:p-6">
-        <p className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-400/10 px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.2em] text-cyan-200">
-          Profile Node :: About + Projects
-        </p>
-        <h2 className="text-xl font-semibold uppercase tracking-[0.08em] text-cyan-100 sm:text-2xl">
-          Portfolio Content Editor
-        </h2>
-        <p className="text-sm text-cyan-100/75">
-          Save your About profile and My Projects into `portfolio_content` on row `id =
-          &quot;main&quot;`.
-        </p>
-        <p className="inline-flex rounded-full border border-emerald-300/35 bg-emerald-400/10 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-emerald-200">
-          {statusText}
-        </p>
-      </header>
-
+      <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
+        About Me
+      </h1>
       <div className="space-y-4">
         <section className="rounded-2xl border border-cyan-300/25 bg-[#051227]/72 p-4 sm:p-5">
-          <p className="inline-flex rounded-full border border-cyan-300/35 bg-cyan-400/10 px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.2em] text-cyan-200">
-            Section :: About Me
-          </p>
-          <div className="mt-4 space-y-4">
-        <section className="rounded-xl border border-cyan-300/20 bg-[#071021]/75 p-4 sm:p-5">
-          <label className="mb-2 block text-[0.69rem] font-semibold uppercase tracking-[0.18em] text-cyan-200/85">
-            About Text
-          </label>
-          <textarea
-            value={aboutText}
-            onChange={(event) => setAboutText(event.target.value)}
-            className="h-44 w-full rounded-lg border border-cyan-300/25 bg-[#050b18] p-3 text-sm text-cyan-50 outline-none shadow-[inset_0_0_0_1px_rgba(34,211,238,0.08)] transition focus:border-cyan-300/55 focus:shadow-[0_0_0_2px_rgba(34,211,238,0.16)]"
-          />
-          <button
-            type="button"
-            onClick={handleSaveAboutText}
-            disabled={isSavingText}
-            className="mt-3 rounded-lg border border-emerald-300/45 bg-emerald-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100 transition hover:bg-emerald-500/25 hover:shadow-[0_0_18px_rgba(16,185,129,0.28)] disabled:cursor-wait disabled:opacity-75"
-          >
-            {isSavingText ? "Saving..." : "Save About Text"}
-          </button>
-        </section>
-
-        <section className="rounded-xl border border-orange-300/20 bg-[#111019]/75 p-4 sm:p-5">
-          <label className="mb-2 block text-[0.69rem] font-semibold uppercase tracking-[0.18em] text-orange-200/85">
-            About Picture URL or Path
-          </label>
-          <input
-            type="text"
-            value={aboutImage}
-            onChange={(event) => setAboutImage(event.target.value)}
-            placeholder="/image/Sean.jpg or https://..."
-            className="w-full rounded-lg border border-orange-300/25 bg-[#0d0812] p-3 text-sm text-orange-50 outline-none placeholder:text-orange-200/35 shadow-[inset_0_0_0_1px_rgba(251,146,60,0.07)] transition focus:border-orange-300/55 focus:shadow-[0_0_0_2px_rgba(251,146,60,0.16)]"
-          />
-          <p className="mt-2 text-xs text-orange-100/70">
-            Use `/image/your-file.jpg` for files inside `public/image`, or a full HTTPS image URL.
-          </p>
-          <button
-            type="button"
-            onClick={handleSaveImageUrl}
-            disabled={isSavingImageUrl}
-            className="mt-3 rounded-lg border border-orange-300/45 bg-orange-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-orange-100 transition hover:bg-orange-500/25 hover:shadow-[0_0_18px_rgba(251,146,60,0.26)] disabled:cursor-wait disabled:opacity-75"
-          >
-            {isSavingImageUrl ? "Saving..." : "Save Image URL"}
-          </button>
-        </section>
-
-        <section className="rounded-xl border border-fuchsia-300/20 bg-[#14091b]/75 p-4 sm:p-5">
-          <p className="mb-2 text-[0.69rem] font-semibold uppercase tracking-[0.18em] text-fuchsia-200/85">
-            Upload Picture File
-          </p>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(event) => setSelectedImageFile(event.target.files?.[0] ?? null)}
-            className="block w-full rounded-lg border border-fuchsia-300/25 bg-[#1a0c24] p-2 text-sm text-fuchsia-50 file:mr-3 file:rounded file:border-0 file:bg-fuchsia-500/25 file:px-3 file:py-2 file:text-[0.68rem] file:font-semibold file:uppercase file:tracking-[0.12em] file:text-fuchsia-100 hover:file:bg-fuchsia-500/35"
-          />
-          <p className="mt-2 text-xs text-fuchsia-100/70">
-            Bucket: <span className="font-semibold">{storageBucket}</span>
-          </p>
-          <button
-            type="button"
-            onClick={handleUploadImageFile}
-            disabled={isUploadingImage}
-            className="mt-3 rounded-lg border border-fuchsia-300/45 bg-fuchsia-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-100 transition hover:bg-fuchsia-500/25 hover:shadow-[0_0_18px_rgba(217,70,239,0.3)] disabled:cursor-wait disabled:opacity-75"
-          >
-            {isUploadingImage ? "Uploading..." : "Upload + Save Picture"}
-          </button>
-        </section>
-
-        <section className="rounded-xl border border-cyan-300/20 bg-[#071021]/75 p-4 sm:p-5">
-          <p className="mb-3 text-[0.69rem] font-semibold uppercase tracking-[0.18em] text-cyan-200/85">
-            Live Preview
-          </p>
-          <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-center">
-            <div className="h-52 overflow-y-auto rounded-xl border border-cyan-300/25 bg-[#050b18] p-3 text-sm leading-relaxed text-cyan-100/90 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.08)]">
-              {aboutText}
-            </div>
-            <div className="relative h-52 w-52 overflow-hidden rounded-xl border border-cyan-300/25 shadow-[0_0_18px_rgba(34,211,238,0.12)] md:justify-self-end">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={aboutImage || defaultAboutImage}
-                alt="About preview"
-                className="h-full w-full object-cover"
-                onError={(event) => {
-                  event.currentTarget.src = defaultAboutImage;
-                }}
+          <div className="space-y-4">
+            <section className="rounded-xl border border-cyan-300/20 bg-[#071021]/75 p-4 sm:p-5">
+              <label className="mb-2 block text-md font-semibold uppercase tracking-[0.18em] text-cyan-200/85">
+                About Text
+              </label>
+              <textarea
+                value={aboutText}
+                onChange={(event) => setAboutText(event.target.value)}
+                className="h-44 w-full rounded-lg border border-cyan-300/25 bg-[#050b18] p-3 text-sm md:text-base text-cyan-50 outline-none shadow-[inset_0_0_0_1px_rgba(34,211,238,0.08)] transition focus:border-cyan-300/55 focus:shadow-[0_0_0_2px_rgba(34,211,238,0.16)]"
               />
-            </div>
-          </div>
-        </section>
-          </div>
-        </section>
+              <button
+                type="button"
+                onClick={handleSaveAboutText}
+                disabled={isSavingText}
+                className="mt-3 rounded-lg border border-emerald-300/45 bg-emerald-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-emerald-100 transition hover:bg-emerald-500/25 hover:shadow-[0_0_18px_rgba(16,185,129,0.28)] disabled:cursor-wait disabled:opacity-75"
+              >
+                {isSavingText ? "Saving..." : "Save About Text"}
+              </button>
+            </section>
 
+            <section className="rounded-xl border border-orange-300/20 bg-[#111019]/75 p-4 sm:p-5">
+              <label className="mb-2 block text-md font-semibold uppercase tracking-[0.18em] text-orange-200/85">
+                About Picture URL or Path
+              </label>
+              <input
+                type="text"
+                value={aboutImage}
+                onChange={(event) => setAboutImage(event.target.value)}
+                placeholder="/image/Sean.jpg or https://..."
+                className="w-full rounded-lg border border-orange-300/25 bg-[#0d0812] p-3 text-sm text-orange-50 outline-none placeholder:text-orange-200/35 shadow-[inset_0_0_0_1px_rgba(251,146,60,0.07)] transition focus:border-orange-300/55 focus:shadow-[0_0_0_2px_rgba(251,146,60,0.16)]"
+              />
+              <p className="mt-2 text-xs text-orange-100/70">
+                Use `/image/your-file.jpg` for files inside `public/image`, or a full HTTPS image URL.
+              </p>
+              <button
+                type="button"
+                onClick={handleSaveImageUrl}
+                disabled={isSavingImageUrl}
+                className="mt-3 rounded-lg border border-orange-300/45 bg-orange-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-orange-100 transition hover:bg-orange-500/25 hover:shadow-[0_0_18px_rgba(251,146,60,0.26)] disabled:cursor-wait disabled:opacity-75"
+              >
+                {isSavingImageUrl ? "Saving..." : "Save Image URL"}
+              </button>
+            </section>
+
+            <section className="rounded-xl border border-fuchsia-300/20 bg-[#14091b]/75 p-4 sm:p-5">
+              <p className="mb-2 text-md font-semibold uppercase tracking-[0.18em] text-fuchsia-200/85">
+                Upload Picture File
+              </p>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(event) => setSelectedImageFile(event.target.files?.[0] ?? null)}
+                className="block w-full rounded-lg border border-fuchsia-300/25 bg-[#1a0c24] p-2 text-sm text-fuchsia-50 file:mr-3 file:rounded file:border-0 file:bg-fuchsia-500/25 file:px-3 file:py-2 file:text-[0.68rem] file:font-semibold file:uppercase file:tracking-[0.12em] file:text-fuchsia-100 hover:file:bg-fuchsia-500/35"
+              />
+              <p className="mt-2 text-sm text-fuchsia-100/70">
+                Bucket: <span className="font-semibold">{storageBucket}</span>
+              </p>
+              <button
+                type="button"
+                onClick={handleUploadImageFile}
+                disabled={isUploadingImage}
+                className="mt-3 rounded-lg border border-fuchsia-300/45 bg-fuchsia-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-fuchsia-100 transition hover:bg-fuchsia-500/25 hover:shadow-[0_0_18px_rgba(217,70,239,0.3)] disabled:cursor-wait disabled:opacity-75"
+              >
+                {isUploadingImage ? "Uploading..." : "Upload + Save Picture"}
+              </button>
+            </section>
+
+            <section className="rounded-xl border border-cyan-300/20 bg-[#071021]/75 p-4 sm:p-5">
+              <p className="mb-3 text-md font-semibold uppercase tracking-[0.18em] text-cyan-200/85">
+                Live Preview
+              </p>
+              <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_220px] md:items-center cursor-default">
+                <div className="h-52 overflow-y-auto rounded-xl border border-cyan-300/25 bg-[#050b18] p-3 text-sm md:text-base leading-relaxed text-cyan-100/90 shadow-[inset_0_0_0_1px_rgba(34,211,238,0.08)]">
+                  {aboutText}
+                </div>
+                <div className="relative h-52 w-52 overflow-hidden rounded-xl border border-cyan-300/25 shadow-[0_0_18px_rgba(34,211,238,0.12)] md:justify-self-end">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={aboutImage || defaultAboutImage}
+                    alt="About preview"
+                    className="h-full w-full object-cover"
+                    onError={(event) => {
+                      event.currentTarget.src = defaultAboutImage;
+                    }}
+                  />
+                </div>
+              </div>
+            </section>
+          </div>
+        </section>
+        <h1 className="text-4xl md:text-5xl font-bold text-center mt-20 text-cyan-100">
+          My Project
+        </h1>
         <section className="rounded-2xl border border-indigo-300/25 bg-[#0c1226]/74 p-4 sm:p-5">
-          <p className="inline-flex rounded-full border border-indigo-300/35 bg-indigo-400/10 px-3 py-1 text-[0.64rem] font-semibold uppercase tracking-[0.2em] text-indigo-200">
-            Section :: My Projects
-          </p>
-          <section className="mt-4 rounded-xl border border-indigo-300/20 bg-[#101327]/78 p-4 sm:p-5">
-          <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <p className="text-[0.69rem] font-semibold uppercase tracking-[0.18em] text-indigo-200/90">
-                My Projects Tiles
-              </p>
-              <p className="mt-1 text-xs text-indigo-100/70">
-                Manage every tile shown in `My Projects`.
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={handleRequestResetProjects}
-                disabled={isProjectActionBusy}
-                className="rounded-lg border border-indigo-300/45 bg-indigo-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-indigo-100 transition hover:bg-indigo-500/25 hover:shadow-[0_0_18px_rgba(129,140,248,0.28)] disabled:cursor-wait disabled:opacity-70"
-              >
-                Reset to Default
-              </button>
-              <button
-                type="button"
-                onClick={handleOpenAddProjectModal}
-                disabled={isProjectActionBusy}
-                className="rounded-lg border border-cyan-300/45 bg-cyan-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100 transition hover:bg-cyan-500/25 hover:shadow-[0_0_18px_rgba(34,211,238,0.28)] disabled:cursor-wait disabled:opacity-70"
-              >
-                + Add Project
-              </button>
-            </div>
-          </div>
-
-          {projects.length > 0 ? (
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {projects.map((project, index) => (
-                <article
-                  key={`${project.title}-${index}`}
-                  className="overflow-hidden rounded-xl border border-indigo-300/25 bg-[#0a1122]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+          <section className="rounded-xl border border-indigo-300/20 bg-[#101327]/78 p-4 sm:p-5">
+            <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="text-xl font-semibold uppercase tracking-[0.18em] text-indigo-200/90">
+                  My Projects Tiles
+                </p>
+                <p className="mt-1 text-sm text-indigo-100/70">
+                  Manage every tile shown in `My Projects`.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={handleRequestResetProjects}
+                  disabled={isProjectActionBusy}
+                  className="rounded-lg border border-indigo-300/45 bg-indigo-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-indigo-100 transition hover:bg-indigo-500/25 hover:shadow-[0_0_18px_rgba(129,140,248,0.28)] disabled:cursor-wait disabled:opacity-70"
                 >
-                  <div className="relative h-32 w-full overflow-hidden border-b border-indigo-300/15">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="h-full w-full object-cover"
-                      onError={(event) => {
-                        event.currentTarget.src = fallbackProjectImage;
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleOpenEditProjectModal(index)}
-                      disabled={isProjectActionBusy}
-                      className="absolute right-20 top-2 rounded-md border border-cyan-300/45 bg-cyan-500/80 px-5 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleRequestDeleteProject(index)}
-                      disabled={isProjectActionBusy}
-                      className="absolute right-2 top-2 rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800"
-                    >
-                      Remove
-                    </button>
-                  </div>
-                  <div className="space-y-2 p-3">
-                    <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-indigo-100">
-                      {project.title}
-                    </h3>
-                    <p className="text-xs leading-relaxed text-indigo-100/75">{project.description}</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {project.tech.map((tag, techIndex) => (
-                        <span
-                          key={`${tag}-${techIndex}`}
-                          className="rounded border border-indigo-300/30 bg-indigo-500/10 px-2 py-0.5 text-[0.62rem] font-medium uppercase tracking-[0.08em] text-indigo-100/90"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <p
-                      className={`text-[0.62rem] font-semibold uppercase tracking-[0.14em] ${project.private ? "text-rose-300" : "text-emerald-200"
-                        }`}
-                    >
-                      {getProjectLinkLabel(project)}
-                    </p>
-                  </div>
-                </article>
-              ))}
+                  Reset to Default
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenAddProjectModal}
+                  disabled={isProjectActionBusy}
+                  className="rounded-lg border border-cyan-300/45 bg-cyan-500/15 px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] text-cyan-100 transition hover:bg-cyan-500/25 hover:shadow-[0_0_18px_rgba(34,211,238,0.28)] disabled:cursor-wait disabled:opacity-70"
+                >
+                  + Add Project
+                </button>
+              </div>
             </div>
-          ) : (
-            <p className="rounded-lg border border-indigo-300/20 bg-[#070b18]/80 px-3 py-4 text-xs text-indigo-100/70">
-              No project tiles yet. Click `+ Add Project` to create one.
-            </p>
-          )}
+
+            {projects.length > 0 ? (
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                {projects.map((project, index) => (
+                  <article
+                    key={`${project.title}-${index}`}
+                    className="overflow-hidden rounded-xl border border-indigo-300/25 bg-[#0a1122]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+                  >
+                    <div className="relative h-32 w-full overflow-hidden border-b border-indigo-300/15">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="h-full w-full object-cover"
+                        onError={(event) => {
+                          event.currentTarget.src = fallbackProjectImage;
+                        }}
+                      />
+                      <div className="absolute right-2 top-2 flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEditProjectModal(index)}
+                          disabled={isProjectActionBusy}
+                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRequestDeleteProject(index)}
+                          disabled={isProjectActionBusy}
+                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2 p-3">
+                      <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-indigo-100">
+                        {project.title}
+                      </h3>
+                      <p className="text-xs leading-relaxed text-indigo-100/75">{project.description}</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {project.tech.map((tag, techIndex) => (
+                          <span
+                            key={`${tag}-${techIndex}`}
+                            className="rounded border border-indigo-300/30 bg-indigo-500/10 px-2 py-0.5 text-[0.62rem] font-medium uppercase tracking-[0.08em] text-indigo-100/90"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                      <p
+                        className={`text-[0.62rem] font-semibold uppercase tracking-[0.14em] ${project.private ? "text-rose-300" : "text-emerald-200"
+                          }`}
+                      >
+                        {getProjectLinkLabel(project)}
+                      </p>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            ) : (
+              <p className="rounded-lg border border-indigo-300/20 bg-[#070b18]/80 px-3 py-4 text-xs text-indigo-100/70">
+                No project tiles yet. Click `+ Add Project` to create one.
+              </p>
+            )}
 
           </section>
         </section>
@@ -1220,8 +1205,8 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
         <div className="fixed inset-0 z-100 flex items-center justify-center bg-black/70 px-4 backdrop-blur-sm">
           <div
             className={`relative w-full max-w-md overflow-hidden rounded-2xl border p-5 shadow-[0_0_35px_rgba(34,211,238,0.18)] ${modalState.tone === "success"
-                ? "border-emerald-300/45 bg-[#041810]"
-                : "border-rose-300/45 bg-[#1b0912]"
+              ? "border-emerald-300/45 bg-[#041810]"
+              : "border-rose-300/45 bg-[#1b0912]"
               }`}
           >
             <div className="pointer-events-none absolute inset-x-0 top-0 h-12 bg-linear-to-r from-transparent via-cyan-200/10 to-transparent" />
