@@ -164,6 +164,7 @@ export default function Figma() {
                     width="100%"
                     height="100%"
                     src={project.src}
+                    loading="lazy"
                     allowFullScreen
                     title={`${project.title} Figma Live Preview`}
                     className="absolute inset-0"

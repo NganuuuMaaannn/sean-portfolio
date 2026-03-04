@@ -162,6 +162,8 @@ function TechStackItemVisual({
       <img
         src={item.logoUrl}
         alt={`${item.name} logo`}
+        loading="lazy"
+        decoding="async"
         className={imageClassName}
         onError={() => setImageFailed(true)}
       />
@@ -173,6 +175,8 @@ function TechStackItemVisual({
 
 export default function TechStack() {
   const [items, setItems] = useState<TechStackItem[]>(defaultTechStackItems);
+  const [hasTechEnteredViewport, setHasTechEnteredViewport] = useState(false);
+  const [hasToolsEnteredViewport, setHasToolsEnteredViewport] = useState(false);
   const [supabase] = useState(() => {
     try {
       return createClient();
@@ -180,6 +184,14 @@ export default function TechStack() {
       return null;
     }
   });
+
+  const container: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 },
+    },
+  };
 
   const item: Variants = {
     hidden: { opacity: 0, y: 40 },
@@ -387,7 +399,7 @@ export default function TechStack() {
 
         {/* Title */}
         <motion.h2
-          className="text-3xl font-bold mb-6"
+          className="text-3xl sm:text-4xl font-bold mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -397,13 +409,20 @@ export default function TechStack() {
         </motion.h2>
 
         {/* Tech Stack Grid */}
-        <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-12">
+        <motion.div
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 mb-20"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          onViewportEnter={() => setHasTechEnteredViewport(true)}
+        >
           {techItems.map((itemData, index) => (
             <motion.div
               key={`${itemData.name}-${index}`}
               variants={item}
-              initial="hidden"
-              animate="show"
+              initial={hasTechEnteredViewport ? "hidden" : undefined}
+              animate={hasTechEnteredViewport ? "show" : undefined}
               whileHover={{ rotate: -1, scale: 1.05, y: "-2%" }}
               transition={{ type: "spring", duration: 0.8 }}
               className="flex flex-col items-center gap-2 p-4 rounded-xl shadow-lg hover:shadow-xl bg-white/5 backdrop-blur-md border border-white/10"
@@ -418,7 +437,7 @@ export default function TechStack() {
 
         {/* Tools Title */}
         <motion.h2
-          className="text-3xl font-bold mb-6"
+          className="text-3xl sm:text-4xl font-bold mb-8"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
@@ -428,13 +447,20 @@ export default function TechStack() {
         </motion.h2>
 
         {/* Tools Grid */}
-        <motion.div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6">
+        <motion.div
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6"
+          variants={container}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.2 }}
+          onViewportEnter={() => setHasToolsEnteredViewport(true)}
+        >
           {toolItems.map((itemData, index) => (
             <motion.div
               key={`${itemData.name}-${index}`}
               variants={item}
-              initial="hidden"
-              animate="show"
+              initial={hasToolsEnteredViewport ? "hidden" : undefined}
+              animate={hasToolsEnteredViewport ? "show" : undefined}
               whileHover={{ rotate: -1, scale: 1.05, y: "-2%" }}
               transition={{ type: "spring", duration: 0.8 }}
               className="flex flex-col items-center gap-2 p-4 rounded-xl shadow-lg hover:shadow-xl bg-white/5 backdrop-blur-md border border-white/10"

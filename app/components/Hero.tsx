@@ -171,7 +171,10 @@ export default function Hero({ onAbout, onContact }: Props) {
 
           {/* Contact Me */}
           <a
-            onClick={onContact}
+            onClick={(event) => {
+              event.preventDefault();
+              onContact();
+            }}
             href="#contact"
             className="
             inline-flex items-center gap-2 sm:gap-3

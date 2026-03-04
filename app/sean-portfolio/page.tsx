@@ -29,9 +29,28 @@ const FooterSection = memo(Footer);
 const SCROLL_DURATION = 1000;
 const BACK_TO_TOP_THRESHOLD = 100;
 
-function smoothScrollTo(targetY: number, duration = 1500) {
+function smoothScrollTo(
+  targetY: number,
+  duration = 1500,
+  scrollAnimationRef: { current: number | null },
+) {
+  if (scrollAnimationRef.current !== null) {
+    cancelAnimationFrame(scrollAnimationRef.current);
+    scrollAnimationRef.current = null;
+  }
+
   const startY = window.scrollY;
-  const distance = targetY - startY;
+  const maxScrollY = Math.max(
+    0,
+    document.documentElement.scrollHeight - window.innerHeight,
+  );
+  const clampedTargetY = Math.max(0, Math.min(targetY, maxScrollY));
+  const distance = clampedTargetY - startY;
+
+  if (Math.abs(distance) < 1) {
+    return;
+  }
+
   let startTime: number | null = null;
 
   function step(timestamp: number) {
@@ -50,11 +69,14 @@ function smoothScrollTo(targetY: number, duration = 1500) {
     window.scrollTo(0, startY + distance * easeInOut);
 
     if (progress < duration) {
-      requestAnimationFrame(step);
+      scrollAnimationRef.current = requestAnimationFrame(step);
+      return;
     }
+
+    scrollAnimationRef.current = null;
   }
 
-  requestAnimationFrame(step);
+  scrollAnimationRef.current = requestAnimationFrame(step);
 }
 
 const Home = () => {
@@ -62,6 +84,14 @@ const Home = () => {
   const [showHeader, setShowHeader] = useState(true);
   const lastScrollYRef = useRef(0);
   const scrollFrameRef = useRef<number | null>(null);
+  const scrollAnimationRef = useRef<number | null>(null);
+
+  const cancelSmoothScroll = useCallback(() => {
+    if (scrollAnimationRef.current !== null) {
+      cancelAnimationFrame(scrollAnimationRef.current);
+      scrollAnimationRef.current = null;
+    }
+  }, []);
 
   useEffect(() => {
     document.body.classList.remove("cmd-exit");
@@ -97,9 +127,10 @@ const Home = () => {
       if (scrollFrameRef.current !== null) {
         cancelAnimationFrame(scrollFrameRef.current);
       }
+      cancelSmoothScroll();
       window.removeEventListener("scroll", handleScroll);
     };
-  }, []);
+  }, [cancelSmoothScroll]);
 
   const scrollToSection = useCallback((sectionId: string) => {
     const section = document.getElementById(sectionId);
@@ -107,7 +138,7 @@ const Home = () => {
       return;
     }
 
-    smoothScrollTo(section.offsetTop, SCROLL_DURATION);
+    smoothScrollTo(section.offsetTop, SCROLL_DURATION, scrollAnimationRef);
   }, []);
 
   const scrollToTop = useCallback(() => {

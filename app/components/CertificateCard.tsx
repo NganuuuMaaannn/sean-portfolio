@@ -15,13 +15,16 @@ export default function CertificateCard({ title, issuer, image, verifyUrl }: Pro
     <motion.div
       whileHover={{ y: "-1%", scale: 1.01 }}
       transition={{ type: "spring", duration: 1 }}
-      className="flex flex-col z-10 h-full min-h-[380px] lg:min-h-[480px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
+      className="transform-gpu will-change-transform flex flex-col z-10 h-full min-h-[380px] lg:min-h-[480px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
     >
       {/* Certificate Image Transition */}
       <div className="relative h-52 sm:h-60 md:h-64 overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image}
           alt={title}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover" />
       </div>
 

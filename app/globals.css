@@ -272,7 +272,8 @@ button {
 }
 
 html {
-  scroll-behavior: smooth;
+  /* Section navigation uses JS rAF scrolling; keep CSS scrolling immediate to avoid double-smoothing. */
+  scroll-behavior: auto;
 }
 
 .hide-scrollbar {
@@ -339,6 +340,8 @@ html {
   position: fixed;
   inset: 0;
   pointer-events: none;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .cyber-portfolio .bg-gradient {
@@ -347,6 +350,7 @@ html {
     radial-gradient(65% 45% at 90% 82%, rgba(48, 255, 216, 0.2), transparent 62%),
     linear-gradient(150deg, #03050d 5%, #061529 48%, #09060f 96%);
   animation: pulse-bg 8s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 .cyber-portfolio .bg-grid {
@@ -368,6 +372,7 @@ html {
   mix-blend-mode: soft-light;
   opacity: 0.32;
   animation: scan-shift 9s linear infinite;
+  will-change: transform, opacity;
 }
 
 .cyber-portfolio .orb {
@@ -379,6 +384,9 @@ html {
   opacity: 0.55;
   pointer-events: none;
   z-index: 0;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 .cyber-portfolio .orb-left {

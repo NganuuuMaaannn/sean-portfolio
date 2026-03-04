@@ -136,6 +136,8 @@ export default function About() {
             <img
               src={aboutImage || defaultAboutImage}
               alt="Sean profile"
+              loading="lazy"
+              decoding="async"
               className="object-cover w-full h-full transform scale-100 transition-transform duration-1000 ease-in-out group-hover:scale-105"
               onError={(event) => {
                 event.currentTarget.src = defaultAboutImage;

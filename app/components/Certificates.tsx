@@ -1,43 +1,51 @@
 "use client";
 
 import CertificateCard from "./CertificateCard";
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
+
+const certificates = [
+  {
+    title: "Introduction to SQL",
+    issuer: "Simplilearn.com",
+    image: "/image/c4.png",
+    verifyUrl: "https://simpli-web.app.link/e/to8hHyEEUYb",
+  },
+  {
+    title: "Learn PHP and MySQL for Web Application and Web Development",
+    issuer: "Udemy.com",
+    image: "/image/c1.png",
+    verifyUrl: "https://www.udemy.com/certificate/UC-f76db58f-516f-4f99-8f3c-d2576d67e376/",
+  },
+  {
+    title: "Build Complete CMS Blog in PHP MySQL Bootstrap & PDO",
+    issuer: "Udemy.com",
+    image: "/image/c2.png",
+    verifyUrl: "https://www.udemy.com/certificate/UC-91aa504c-ec8b-4db6-be7c-874db03ca056/",
+  },
+  {
+    title: "PHP with MySQL: Build 8 PHP and MySQL Projects",
+    issuer: "Udemy.com",
+    image: "/image/c3.png",
+    verifyUrl: "https://www.udemy.com/certificate/UC-3abfc85e-4724-4f5f-90b9-7548919bfd32/",
+  },
+];
 
 export default function Certificates() {
-  const certificates = [
-    {
-      title: "Introduction to SQL",
-      issuer: "Simplilearn.com",
-      image: "/image/c4.png",
-      verifyUrl: "https://simpli-web.app.link/e/to8hHyEEUYb",
-    },
-    {
-      title: "Learn PHP and MySQL for Web Application and Web Development",
-      issuer: "Udemy.com",
-      image: "/image/c1.png",
-      verifyUrl: "https://www.udemy.com/certificate/UC-f76db58f-516f-4f99-8f3c-d2576d67e376/",
-    },
-    {
-      title: "Build Complete CMS Blog in PHP MySQL Bootstrap & PDO",
-      issuer: "Udemy.com",
-      image: "/image/c2.png",
-      verifyUrl: "https://www.udemy.com/certificate/UC-91aa504c-ec8b-4db6-be7c-874db03ca056/",
-    },
-    {
-      title: "PHP with MySQL: Build 8 PHP and MySQL Projects",
-      issuer: "Udemy.com",
-      image: "/image/c3.png",
-      verifyUrl: "https://www.udemy.com/certificate/UC-3abfc85e-4724-4f5f-90b9-7548919bfd32/",
-    },
-  ];
-
-  const container = {
+  const container: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
       transition: {
         staggerChildren: 0.2,
       },
+    },
+  };
+  const item: Variants = {
+    hidden: { opacity: 0, y: 70 },
+    show: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 1, ease: "easeOut" },
     },
   };
 
@@ -64,13 +72,11 @@ export default function Certificates() {
         whileInView="show"
         viewport={{ once: true, amount: 0.2 }}
       >
-        {certificates.map((c, i) => (
+        {certificates.map((c) => (
           <motion.div
             key={c.title}
-            initial={{ opacity: 0, y: 70 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: "easeOut", delay: i * 0.3 }}
-            viewport={{ once: true, amount: 0.2 }}
+            variants={item}
+            className="will-change-transform"
           >
             <CertificateCard {...c} />
           </motion.div>

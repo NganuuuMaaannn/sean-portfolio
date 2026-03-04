@@ -32,7 +32,14 @@ export default function ProjectCard({
             className="flex flex-col z-10 h-full min-h-[420px] lg:min-h-[520px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
         >
             <div className="relative h-52 sm:h-60 md:h-64 overflow-hidden">
-                <img src={image} alt={title} className="w-full h-full object-cover" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                    src={image}
+                    alt={title}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover"
+                />
             </div>
 
             <div className="p-4 sm:p-6 flex flex-col grow">
