@@ -386,7 +386,7 @@ export default function Certificates() {
         whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
         viewport={{ once: true, amount: 0.65 }}
         transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center"
+        className="text-3xl sm:text-4xl md:text-5xl font-bold mb-3 md:mb-8 text-center"
       >
         My Certificates
       </motion.h2>
@@ -464,17 +464,17 @@ export default function Certificates() {
             </p>
           </div> */}
 
-          <div className="mt-0 flex flex-wrap items-center justify-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
             {certificates.map((certificate, index) => (
               <button
                 key={`${certificate.title}-${index}`}
                 type="button"
                 onClick={() => jumpToSlide(index)}
                 disabled={animating}
-                className={`h-2.5 rounded-full transition-all duration-300 ${
+                className={`rounded-full transition-all duration-300 ${
                   index === currentIndex
-                    ? "w-8 bg-cyan-300 shadow-[0_0_14px_rgba(34,211,238,0.85)]"
-                    : "w-2.5 bg-white/35 hover:bg-white/60"
+                    ? "h-2 w-6 sm:h-2.5 sm:w-8 bg-cyan-300 shadow-[0_0_10px_rgba(34,211,238,0.75)] sm:shadow-[0_0_14px_rgba(34,211,238,0.85)]"
+                    : "h-2 w-2 sm:h-2.5 sm:w-2.5 bg-white/35 hover:bg-white/60"
                 } cursor-pointer disabled:opacity-70`}
                 aria-label={`Go to certificate ${index + 1}`}
               />

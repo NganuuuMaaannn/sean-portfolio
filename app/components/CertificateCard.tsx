@@ -18,7 +18,7 @@ export default function CertificateCard({ title, issuer, image, verifyUrl }: Pro
       className="transform-gpu will-change-transform flex flex-col z-10 h-full min-h-[300px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
     >
       {/* Certificate Image Transition */}
-      <div className="relative h-[70%] min-h-[170px] sm:min-h-[210px] overflow-hidden bg-slate-950/35">
+      <div className="relative h-[52%] min-h-[130px] sm:h-[70%] sm:min-h-[210px] overflow-hidden bg-slate-950/35">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image}
@@ -30,18 +30,18 @@ export default function CertificateCard({ title, issuer, image, verifyUrl }: Pro
       </div>
 
       {/* Content */}
-      <div className="p-4 sm:p-5 flex flex-col grow">
-        <h3 className="text-xl sm:text-2xl font-bold mb-2">{title}</h3>
+      <div className="p-3 sm:p-5 flex flex-col grow">
+        <h3 className="text-lg leading-tight sm:text-2xl font-bold mb-2">{title}</h3>
         <p className="text-sm sm:text-base mb-2">{issuer}</p>
 
         {/* Bottom section */}
-        <div className="mt-10">
+        <div className="mt-auto pt-2 sm:pt-3">
           {verifyUrl && (
             <a
               href={verifyUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm text-indigo-400 hover:underline"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm text-indigo-400 hover:underline"
             >
               Verify Certificate <FaExternalLinkAlt />
             </a>
