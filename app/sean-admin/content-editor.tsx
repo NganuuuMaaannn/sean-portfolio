@@ -3371,7 +3371,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
                 Development & Design Tools
               </p>
               {toolItemsPreview.length > 0 ? (
-                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
+                <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
                   {toolItemsPreview.map((item) => (
                     <TechStackTileCard
                       key={`${item.name}-${item.index}`}

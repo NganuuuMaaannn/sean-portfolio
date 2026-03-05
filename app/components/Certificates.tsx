@@ -379,7 +379,7 @@ export default function Certificates() {
   return (
     <section
       id="certificates"
-      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 mt-12"
+      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 mt-12 mb-10"
     >
       <motion.h2
         initial={{ opacity: 0, y: 32, filter: "blur(2px)" }}
