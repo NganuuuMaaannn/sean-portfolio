@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactElement, useEffect, useMemo, useState } from "react";
+import { memo, type ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import {
   SiReact,
@@ -67,6 +67,10 @@ type TechStackItemShape = {
   name: string;
   category: TechStackCategory;
   logoUrl?: string;
+};
+
+type TechStackPreviewItem = TechStackItemShape & {
+  index: number;
 };
 
 type ProjectLinkMode = "live" | "repo" | "private";
@@ -597,6 +601,245 @@ function TechStackItemVisual({
 
   return getTechStackItemIconByName(item.name, item.category);
 }
+
+const ProjectTileCard = memo(function ProjectTileCard({
+  project,
+  index,
+  fallbackImage,
+  isBusy,
+  onEdit,
+  onRemove,
+}: {
+  project: ProjectShape;
+  index: number;
+  fallbackImage: string;
+  isBusy: boolean;
+  onEdit: (index: number) => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <article
+      className="overflow-hidden rounded-xl border border-indigo-300/25 bg-[#0a1122]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+    >
+      <div className="relative h-32 w-full overflow-hidden border-b border-indigo-300/15">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={project.image}
+          alt={project.title}
+          className="h-full w-full object-cover"
+          onError={(event) => {
+            event.currentTarget.src = fallbackImage;
+          }}
+        />
+        <div className="absolute right-2 top-2 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onEdit(index)}
+            disabled={isBusy}
+            className="rounded-md border border-blue-500 bg-blue-500 px-4 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-blue-600 disabled:cursor-wait disabled:opacity-70"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            disabled={isBusy}
+            className="rounded-md border border-rose-500 bg-rose-500 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+      <div className="space-y-2 p-3">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-indigo-100">
+          {project.title}
+        </h3>
+        <p className="text-xs leading-relaxed text-indigo-100/75">{project.description}</p>
+        <div className="flex flex-wrap gap-1.5">
+          {project.tech.map((tag, techIndex) => (
+            <span
+              key={`${tag}-${techIndex}`}
+              className="rounded border border-indigo-300/30 bg-indigo-500/10 px-2 py-0.5 text-[0.62rem] font-medium uppercase tracking-[0.08em] text-indigo-100/90"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+        <p
+          className={`text-[0.62rem] font-semibold uppercase tracking-[0.14em] ${
+            project.private ? "text-rose-300" : "text-emerald-200"
+          }`}
+        >
+          {getProjectLinkLabel(project)}
+        </p>
+      </div>
+    </article>
+  );
+});
+
+const FigmaTileCard = memo(function FigmaTileCard({
+  figmaProject,
+  index,
+  isBusy,
+  onEdit,
+  onRemove,
+}: {
+  figmaProject: FigmaProjectShape;
+  index: number;
+  isBusy: boolean;
+  onEdit: (index: number) => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <article
+      className="overflow-hidden rounded-xl border border-fuchsia-300/25 bg-[#180f2d]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+    >
+      <div className="relative h-44 w-full overflow-hidden border-b border-fuchsia-300/20">
+        <iframe
+          src={figmaProject.src}
+          title={`${figmaProject.title} preview`}
+          className="absolute inset-0 h-full w-full"
+          style={{ border: "0" }}
+          allowFullScreen
+        />
+        <div className="absolute left-2 top-2 z-10 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onEdit(index)}
+            disabled={isBusy}
+            className="rounded-md border border-blue-500 bg-blue-500 px-4 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-blue-600 disabled:cursor-wait disabled:opacity-70"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            disabled={isBusy}
+            className="rounded-md border border-red-500 bg-red-500 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-red-600 disabled:cursor-wait disabled:opacity-70"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+      <div className="space-y-2 p-3">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-fuchsia-100">
+          {figmaProject.title}
+        </h3>
+        <p className="break-all text-[0.68rem] leading-relaxed text-fuchsia-100/75">
+          {figmaProject.src}
+        </p>
+      </div>
+    </article>
+  );
+});
+
+const TechStackTileCard = memo(function TechStackTileCard({
+  item,
+  isBusy,
+  onEdit,
+  onRemove,
+  iconContainerClassName,
+  imageClassName,
+  labelClassName,
+}: {
+  item: TechStackPreviewItem;
+  isBusy: boolean;
+  onEdit: (index: number) => void;
+  onRemove: (index: number) => void;
+  iconContainerClassName: string;
+  imageClassName: string;
+  labelClassName: string;
+}) {
+  return (
+    <article
+      className="flex flex-col rounded-xl border border-white/10 bg-white/5 p-3 shadow-lg backdrop-blur-md"
+    >
+      <div className={iconContainerClassName}>
+        <TechStackItemVisual item={item} imageClassName={imageClassName} />
+      </div>
+      <p className={labelClassName}>{item.name}</p>
+      <div className="mt-3 flex justify-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => onEdit(item.index)}
+          disabled={isBusy}
+          className="rounded-md border border-blue-500 bg-blue-500 px-4 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-blue-600 disabled:cursor-wait disabled:opacity-70"
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          onClick={() => onRemove(item.index)}
+          disabled={isBusy}
+          className="rounded-md border border-red-500 bg-red-500 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-red-600 disabled:cursor-wait disabled:opacity-70"
+        >
+          Remove
+        </button>
+      </div>
+    </article>
+  );
+});
+
+const CertificateTileCard = memo(function CertificateTileCard({
+  certificate,
+  index,
+  fallbackImage,
+  isBusy,
+  onEdit,
+  onRemove,
+}: {
+  certificate: CertificateShape;
+  index: number;
+  fallbackImage: string;
+  isBusy: boolean;
+  onEdit: (index: number) => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <article
+      className="overflow-hidden rounded-xl border border-amber-300/25 bg-[#251a07]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
+    >
+      <div className="relative h-36 w-full overflow-hidden border-b border-amber-300/20">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={certificate.image}
+          alt={certificate.title}
+          className="h-full w-full object-cover"
+          onError={(event) => {
+            event.currentTarget.src = fallbackImage;
+          }}
+        />
+        <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onEdit(index)}
+            disabled={isBusy}
+            className="rounded-md border border-blue-500 bg-blue-500 px-4 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-blue-600 disabled:cursor-wait disabled:opacity-70"
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            onClick={() => onRemove(index)}
+            disabled={isBusy}
+            className="rounded-md border border-red-500 bg-red-500 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-white transition hover:bg-red-600 disabled:cursor-wait disabled:opacity-70"
+          >
+            Remove
+          </button>
+        </div>
+      </div>
+      <div className="space-y-2 p-3">
+        <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-amber-100">
+          {certificate.title}
+        </h3>
+        <p className="text-xs text-amber-100/80">{certificate.issuer}</p>
+        <p className="break-all text-[0.66rem] leading-relaxed text-amber-100/70">
+          {certificate.verifyUrl ?? "No verify URL provided."}
+        </p>
+      </div>
+    </article>
+  );
+});
 
 const emptyTechStackForm: TechStackForm = {
   name: "",
@@ -1719,7 +1962,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     showModal("success", "Saved", "Contact details updated successfully.");
   };
 
-  const askProjectDecision = (
+  const askProjectDecision = useCallback((
     title: string,
     message: string,
     action: ProjectDecisionAction,
@@ -1734,7 +1977,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       message,
       action,
     });
-  };
+  }, [isAddingProject, isSavingProjects]);
 
   const handleOpenAddProjectModal = () => {
     setProjectModalMode("add");
@@ -1744,7 +1987,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     setIsProjectModalOpen(true);
   };
 
-  const handleOpenEditProjectModal = (projectIndex: number) => {
+  const handleOpenEditProjectModal = useCallback((projectIndex: number) => {
     const projectToEdit = projects[projectIndex];
     if (!projectToEdit) {
       return;
@@ -1761,7 +2004,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
     setNewProjectImageFile(null);
     setIsProjectModalOpen(true);
-  };
+  }, [projects]);
 
   const handleCloseAddProjectModal = () => {
     if (isAddingProject || isSavingProjects) {
@@ -1919,7 +2162,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     );
   };
 
-  const handleRequestDeleteProject = (indexToRemove: number) => {
+  const handleRequestDeleteProject = useCallback((indexToRemove: number) => {
     const targetProject = projects[indexToRemove];
     if (!targetProject) {
       return;
@@ -1930,7 +2173,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       `Are you sure you want to remove \"${targetProject.title}\"?`,
       { kind: "delete", index: indexToRemove },
     );
-  };
+  }, [askProjectDecision, projects]);
 
   const handleRemoveProject = async (indexToRemove: number) => {
     const nextProjects = projects.filter((_, index) => index !== indexToRemove);
@@ -2016,7 +2259,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
   };
 
-  const askFigmaDecision = (
+  const askFigmaDecision = useCallback((
     title: string,
     message: string,
     action: FigmaDecisionAction,
@@ -2031,7 +2274,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       message,
       action,
     });
-  };
+  }, [isSavingFigmaProject, isSavingFigmaProjects]);
 
   const handleOpenAddFigmaModal = () => {
     setFigmaModalMode("add");
@@ -2040,7 +2283,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     setIsFigmaModalOpen(true);
   };
 
-  const handleOpenEditFigmaModal = (figmaIndex: number) => {
+  const handleOpenEditFigmaModal = useCallback((figmaIndex: number) => {
     const figmaProjectToEdit = figmaProjects[figmaIndex];
     if (!figmaProjectToEdit) {
       return;
@@ -2053,7 +2296,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       src: figmaProjectToEdit.src,
     });
     setIsFigmaModalOpen(true);
-  };
+  }, [figmaProjects]);
 
   const handleCloseFigmaModal = () => {
     if (isSavingFigmaProject || isSavingFigmaProjects) {
@@ -2144,7 +2387,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     showModal("success", "Figma Added", "Figma tile added successfully.");
   };
 
-  const handleRequestDeleteFigmaProject = (indexToRemove: number) => {
+  const handleRequestDeleteFigmaProject = useCallback((indexToRemove: number) => {
     const targetFigmaProject = figmaProjects[indexToRemove];
     if (!targetFigmaProject) {
       return;
@@ -2155,7 +2398,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       `Are you sure you want to remove \"${targetFigmaProject.title}\"?`,
       { kind: "delete", index: indexToRemove },
     );
-  };
+  }, [askFigmaDecision, figmaProjects]);
 
   const handleRemoveFigmaProject = async (indexToRemove: number) => {
     const nextFigmaProjects = figmaProjects.filter((_, index) => index !== indexToRemove);
@@ -2243,7 +2486,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
   };
 
-  const askCertificateDecision = (
+  const askCertificateDecision = useCallback((
     title: string,
     message: string,
     action: CertificateDecisionAction,
@@ -2258,7 +2501,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       message,
       action,
     });
-  };
+  }, [isSavingCertificate, isSavingCertificates]);
 
   const handleOpenAddCertificateModal = () => {
     setCertificateModalMode("add");
@@ -2268,7 +2511,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     setIsCertificateModalOpen(true);
   };
 
-  const handleOpenEditCertificateModal = (certificateIndex: number) => {
+  const handleOpenEditCertificateModal = useCallback((certificateIndex: number) => {
     const certificateToEdit = certificates[certificateIndex];
     if (!certificateToEdit) {
       return;
@@ -2283,7 +2526,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
     setNewCertificateImageFile(null);
     setIsCertificateModalOpen(true);
-  };
+  }, [certificates]);
 
   const handleCloseCertificateModal = () => {
     if (isSavingCertificate || isSavingCertificates) {
@@ -2440,7 +2683,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     showModal("success", "Certificate Added", "Certificate tile added successfully.");
   };
 
-  const handleRequestDeleteCertificate = (indexToRemove: number) => {
+  const handleRequestDeleteCertificate = useCallback((indexToRemove: number) => {
     const targetCertificate = certificates[indexToRemove];
     if (!targetCertificate) {
       return;
@@ -2451,7 +2694,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       `Are you sure you want to remove \"${targetCertificate.title}\"?`,
       { kind: "delete", index: indexToRemove },
     );
-  };
+  }, [askCertificateDecision, certificates]);
 
   const handleRemoveCertificate = async (indexToRemove: number) => {
     const nextCertificates = certificates.filter((_, index) => index !== indexToRemove);
@@ -2555,7 +2798,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     setIsTechStackModalOpen(true);
   };
 
-  const handleOpenEditTechStackModal = (indexToEdit: number) => {
+  const handleOpenEditTechStackModal = useCallback((indexToEdit: number) => {
     if (isSavingTechStack) {
       return;
     }
@@ -2574,7 +2817,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     });
     setTechStackLogoFile(null);
     setIsTechStackModalOpen(true);
-  };
+  }, [isSavingTechStack, techStackItems]);
 
   const handleCloseTechStackModal = () => {
     if (isSavingTechStack) {
@@ -2699,7 +2942,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
     showModal("success", "Item Added", "Tech stack item added successfully.");
   };
 
-  const askTechStackDecision = (
+  const askTechStackDecision = useCallback((
     title: string,
     message: string,
     action: TechStackDecisionAction,
@@ -2714,9 +2957,9 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       message,
       action,
     });
-  };
+  }, [isSavingTechStack]);
 
-  const handleRequestDeleteTechStackItem = (indexToRemove: number) => {
+  const handleRequestDeleteTechStackItem = useCallback((indexToRemove: number) => {
     const targetItem = techStackItems[indexToRemove];
     if (!targetItem) {
       return;
@@ -2727,7 +2970,7 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
       `Are you sure you want to remove \"${targetItem.name}\"?`,
       { kind: "delete", index: indexToRemove },
     );
-  };
+  }, [askTechStackDecision, techStackItems]);
 
   const handleConfirmTechStackDecision = async () => {
     const action = techStackDecisionState.action;
@@ -2817,12 +3060,23 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
   const isFigmaActionBusy = isSavingFigmaProject || isSavingFigmaProjects;
   const isCertificateActionBusy = isSavingCertificate || isSavingCertificates;
   const isTechStackActionBusy = isSavingTechStack;
-  const techItemsPreview = techStackItems
-    .map((item, index) => ({ ...item, index }))
-    .filter((item) => item.category === "tech");
-  const toolItemsPreview = techStackItems
-    .map((item, index) => ({ ...item, index }))
-    .filter((item) => item.category === "tool");
+  const [techItemsPreview, toolItemsPreview] = useMemo(() => {
+    const techItems: TechStackPreviewItem[] = [];
+    const toolItems: TechStackPreviewItem[] = [];
+
+    techStackItems.forEach((item, index) => {
+      const previewItem = { ...item, index };
+
+      if (previewItem.category === "tech") {
+        techItems.push(previewItem);
+        return;
+      }
+
+      toolItems.push(previewItem);
+    });
+
+    return [techItems, toolItems];
+  }, [techStackItems]);
 
   return (
     <div className="space-y-4 ">
@@ -2970,62 +3224,15 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
             {projects.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {projects.map((project, index) => (
-                  <article
+                  <ProjectTileCard
                     key={`${project.title}-${index}`}
-                    className="overflow-hidden rounded-xl border border-indigo-300/25 bg-[#0a1122]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
-                  >
-                    <div className="relative h-32 w-full overflow-hidden border-b border-indigo-300/15">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={project.image}
-                        alt={project.title}
-                        className="h-full w-full object-cover"
-                        onError={(event) => {
-                          event.currentTarget.src = fallbackProjectImage;
-                        }}
-                      />
-                      <div className="absolute right-2 top-2 flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditProjectModal(index)}
-                          disabled={isProjectActionBusy}
-                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRequestDeleteProject(index)}
-                          disabled={isProjectActionBusy}
-                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                    <div className="space-y-2 p-3">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-indigo-100">
-                        {project.title}
-                      </h3>
-                      <p className="text-xs leading-relaxed text-indigo-100/75">{project.description}</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {project.tech.map((tag, techIndex) => (
-                          <span
-                            key={`${tag}-${techIndex}`}
-                            className="rounded border border-indigo-300/30 bg-indigo-500/10 px-2 py-0.5 text-[0.62rem] font-medium uppercase tracking-[0.08em] text-indigo-100/90"
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                      <p
-                        className={`text-[0.62rem] font-semibold uppercase tracking-[0.14em] ${project.private ? "text-rose-300" : "text-emerald-200"
-                          }`}
-                      >
-                        {getProjectLinkLabel(project)}
-                      </p>
-                    </div>
-                  </article>
+                    project={project}
+                    index={index}
+                    fallbackImage={fallbackProjectImage}
+                    isBusy={isProjectActionBusy}
+                    onEdit={handleOpenEditProjectModal}
+                    onRemove={handleRequestDeleteProject}
+                  />
                 ))}
               </div>
             ) : (
@@ -3078,46 +3285,14 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
             {figmaProjects.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {figmaProjects.map((figmaProject, index) => (
-                  <article
+                  <FigmaTileCard
                     key={`${figmaProject.title}-${index}`}
-                    className="overflow-hidden rounded-xl border border-fuchsia-300/25 bg-[#180f2d]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
-                  >
-                    <div className="relative h-44 w-full overflow-hidden border-b border-fuchsia-300/20">
-                      <iframe
-                        src={figmaProject.src}
-                        title={`${figmaProject.title} preview`}
-                        className="absolute inset-0 h-full w-full"
-                        style={{ border: "0" }}
-                        allowFullScreen
-                      />
-                      <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditFigmaModal(index)}
-                          disabled={isFigmaActionBusy}
-                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRequestDeleteFigmaProject(index)}
-                          disabled={isFigmaActionBusy}
-                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                    <div className="space-y-2 p-3">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-fuchsia-100">
-                        {figmaProject.title}
-                      </h3>
-                      <p className="break-all text-[0.68rem] leading-relaxed text-fuchsia-100/75">
-                        {figmaProject.src}
-                      </p>
-                    </div>
-                  </article>
+                    figmaProject={figmaProject}
+                    index={index}
+                    isBusy={isFigmaActionBusy}
+                    onEdit={handleOpenEditFigmaModal}
+                    onRemove={handleRequestDeleteFigmaProject}
+                  />
                 ))}
               </div>
             ) : (
@@ -3174,35 +3349,16 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
               {techItemsPreview.length > 0 ? (
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
                   {techItemsPreview.map((item) => (
-                    <article
+                    <TechStackTileCard
                       key={`${item.name}-${item.index}`}
-                      className="flex flex-col rounded-xl border border-white/10 bg-white/5 p-3 shadow-lg backdrop-blur-md"
-                    >
-                      <div className="flex items-center justify-center text-4xl">
-                        <TechStackItemVisual item={item} imageClassName="h-10 w-10 object-contain" />
-                      </div>
-                      <p className="mt-3 text-center text-xs font-semibold tracking-[0.04em] text-emerald-100">
-                        {item.name}
-                      </p>
-                      <div className="mt-3 flex justify-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditTechStackModal(item.index)}
-                          disabled={isTechStackActionBusy}
-                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRequestDeleteTechStackItem(item.index)}
-                          disabled={isTechStackActionBusy}
-                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </article>
+                      item={item}
+                      isBusy={isTechStackActionBusy}
+                      onEdit={handleOpenEditTechStackModal}
+                      onRemove={handleRequestDeleteTechStackItem}
+                      iconContainerClassName="flex items-center justify-center text-4xl"
+                      imageClassName="h-10 w-10 object-contain"
+                      labelClassName="mt-3 text-center text-xs font-semibold tracking-[0.04em] text-emerald-100"
+                    />
                   ))}
                 </div>
               ) : (
@@ -3217,35 +3373,16 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
               {toolItemsPreview.length > 0 ? (
                 <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-6">
                   {toolItemsPreview.map((item) => (
-                    <article
+                    <TechStackTileCard
                       key={`${item.name}-${item.index}`}
-                      className="flex flex-col rounded-xl border border-white/10 bg-white/5 p-3 shadow-lg backdrop-blur-md"
-                    >
-                      <div className="flex items-center justify-center text-3xl">
-                        <TechStackItemVisual item={item} imageClassName="h-8 w-8 object-contain" />
-                      </div>
-                      <p className="mt-3 text-center text-xs font-semibold tracking-[0.04em] text-cyan-100">
-                        {item.name}
-                      </p>
-                      <div className="mt-3 flex justify-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditTechStackModal(item.index)}
-                          disabled={isTechStackActionBusy}
-                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRequestDeleteTechStackItem(item.index)}
-                          disabled={isTechStackActionBusy}
-                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </article>
+                      item={item}
+                      isBusy={isTechStackActionBusy}
+                      onEdit={handleOpenEditTechStackModal}
+                      onRemove={handleRequestDeleteTechStackItem}
+                      iconContainerClassName="flex items-center justify-center text-3xl"
+                      imageClassName="h-8 w-8 object-contain"
+                      labelClassName="mt-3 text-center text-xs font-semibold tracking-[0.04em] text-cyan-100"
+                    />
                   ))}
                 </div>
               ) : (
@@ -3297,49 +3434,15 @@ export default function ContentEditor({ initialRow }: { initialRow: PortfolioCon
             {certificates.length > 0 ? (
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {certificates.map((certificate, index) => (
-                  <article
+                  <CertificateTileCard
                     key={`${certificate.title}-${index}`}
-                    className="overflow-hidden rounded-xl border border-amber-300/25 bg-[#251a07]/80 shadow-[0_8px_20px_rgba(0,0,0,0.35)]"
-                  >
-                    <div className="relative h-36 w-full overflow-hidden border-b border-amber-300/20">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={certificate.image}
-                        alt={certificate.title}
-                        className="h-full w-full object-cover"
-                        onError={(event) => {
-                          event.currentTarget.src = fallbackCertificateImage;
-                        }}
-                      />
-                      <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEditCertificateModal(index)}
-                          disabled={isCertificateActionBusy}
-                          className="rounded-md border border-cyan-300/45 bg-cyan-500/80 px-3 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition hover:bg-cyan-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleRequestDeleteCertificate(index)}
-                          disabled={isCertificateActionBusy}
-                          className="rounded-md border border-rose-300/45 bg-rose-500/85 px-2 py-1 text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-rose-100 transition hover:bg-rose-800 disabled:cursor-wait disabled:opacity-70"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                    <div className="space-y-2 p-3">
-                      <h3 className="text-sm font-semibold uppercase tracking-[0.05em] text-amber-100">
-                        {certificate.title}
-                      </h3>
-                      <p className="text-xs text-amber-100/80">{certificate.issuer}</p>
-                      <p className="break-all text-[0.66rem] leading-relaxed text-amber-100/70">
-                        {certificate.verifyUrl ?? "No verify URL provided."}
-                      </p>
-                    </div>
-                  </article>
+                    certificate={certificate}
+                    index={index}
+                    fallbackImage={fallbackCertificateImage}
+                    isBusy={isCertificateActionBusy}
+                    onEdit={handleOpenEditCertificateModal}
+                    onRemove={handleRequestDeleteCertificate}
+                  />
                 ))}
               </div>
             ) : (

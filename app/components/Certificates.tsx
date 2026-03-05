@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import CertificateCard from "./CertificateCard";
-import { motion, type Variants } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { motion } from "framer-motion";
 
 type CertificateShape = {
   title: string;
@@ -111,9 +112,18 @@ const defaultCertificates: CertificateShape[] = [
   },
 ];
 
+function getMiddleIndex(length: number) {
+  if (length <= 0) {
+    return 0;
+  }
+
+  return Math.floor(length / 2);
+}
+
 export default function Certificates() {
   const [certificates, setCertificates] = useState<CertificateShape[]>(defaultCertificates);
-  const [hasEnteredViewport, setHasEnteredViewport] = useState(false);
+  const [current, setCurrent] = useState(() => getMiddleIndex(defaultCertificates.length));
+  const [animating, setAnimating] = useState(false);
   const [supabase] = useState(() => {
     try {
       return createClient();
@@ -122,23 +132,10 @@ export default function Certificates() {
     }
   });
 
-  const container: Variants = {
-    hidden: { opacity: 0 },
-    show: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-  const item: Variants = {
-    hidden: { opacity: 0, y: 70 },
-    show: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 1, ease: "easeOut" },
-    },
-  };
+  const total = certificates.length;
+  const currentIndex = total === 0 ? 0 : Math.min(current, total - 1);
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < total - 1;
 
   useEffect(() => {
     if (!supabase) {
@@ -338,42 +335,157 @@ export default function Certificates() {
     };
   }, [supabase]);
 
+  useEffect(() => {
+    if (!animating) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setAnimating(false);
+    }, 420);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [animating]);
+
+  const nextSlide = () => {
+    if (animating || currentIndex >= total - 1) {
+      return;
+    }
+
+    setAnimating(true);
+    setCurrent((prev) => Math.min(prev + 1, total - 1));
+  };
+
+  const prevSlide = () => {
+    if (animating || currentIndex <= 0) {
+      return;
+    }
+
+    setAnimating(true);
+    setCurrent((prev) => Math.max(prev - 1, 0));
+  };
+
+  const jumpToSlide = (index: number) => {
+    if (animating || index === currentIndex) {
+      return;
+    }
+
+    setAnimating(true);
+    setCurrent(index);
+  };
+
   return (
     <section
       id="certificates"
-      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 mt-16"
+      className="min-h-screen flex flex-col justify-center items-center px-4 sm:px-8 mt-12"
     >
       <motion.h2
+        initial={{ opacity: 0, y: 32, filter: "blur(2px)" }}
+        whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        viewport={{ once: true, amount: 0.65 }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         className="text-3xl sm:text-4xl md:text-5xl font-bold mb-8 text-center"
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: "easeOut" }}
-        viewport={{ once: true }}
       >
         My Certificates
       </motion.h2>
 
-      {/* Motion grid */}
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-6xl w-full"
-        variants={container}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.2 }}
-        onViewportEnter={() => setHasEnteredViewport(true)}
-      >
-        {certificates.map((c, index) => (
+      {total > 0 ? (
+        <>
           <motion.div
-            key={`${c.title}-${index}`}
-            variants={item}
-            initial={hasEnteredViewport ? "hidden" : undefined}
-            animate={hasEnteredViewport ? "show" : undefined}
-            className="will-change-transform"
+            initial={{ opacity: 0, x: -96, rotate: -2 }}
+            whileInView={{ opacity: 1, x: 0, rotate: 0 }}
+            viewport={{ once: true, amount: 0.35 }}
+            transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+            className="relative mt-0 mb-10 flex items-center justify-center w-full max-w-7xl h-[330px] sm:h-[430px] md:h-[500px] lg:h-[560px] transform-gpu"
           >
-            <CertificateCard {...c} />
+            {canGoPrev ? (
+              <button
+                type="button"
+                onClick={prevSlide}
+                disabled={animating}
+                className="absolute left-2 sm:left-8 md:left-60 top-1/2 -translate-y-1/2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full p-2 sm:p-4 shadow-lg transition z-30 cursor-pointer disabled:opacity-50"
+                aria-label="Move carousel left"
+              >
+                <FaChevronLeft size={18} />
+              </button>
+            ) : null}
+
+            {certificates.map((certificate, index) => {
+              const isCurrent = index === currentIndex;
+              const isLeft = index === currentIndex - 1;
+              const isRight = index === currentIndex + 1;
+              const isSideTile = isLeft || isRight;
+              const isFarLeft = index < currentIndex - 1;
+
+              let transform = "opacity-0 pointer-events-none scale-80";
+              if (isCurrent) {
+                transform = "translate-x-0 scale-100 opacity-100 z-20";
+              } else if (isLeft) {
+                transform = "-translate-x-[78%] scale-50 opacity-50 z-10";
+              } else if (isRight) {
+                transform = "translate-x-[78%] scale-50 opacity-50 z-10";
+              } else if (isFarLeft) {
+                transform = "-translate-x-[165%] scale-40 opacity-0 pointer-events-none z-0";
+              } else {
+                transform = "translate-x-[165%] scale-40 opacity-0 pointer-events-none z-0";
+              }
+
+              return (
+                <div
+                  key={`${certificate.title}-${index}`}
+                  // onClick={isSideTile ? () => jumpToSlide(index) : undefined}
+                  className={`absolute w-[220px] h-[285px] sm:w-[340px] sm:h-[410px] md:w-[470px] md:h-[500px] lg:w-[520px] lg:h-[560px] rounded-3xl transition-all duration-700 ease-in-out transform ${transform} ${
+                    isSideTile ? "cursor-default" : ""
+                  }`}
+                >
+                  <CertificateCard {...certificate} />
+                </div>
+              );
+            })}
+
+            {canGoNext ? (
+              <button
+                type="button"
+                onClick={nextSlide}
+                disabled={animating}
+                className="absolute right-2 sm:right-8 md:right-60 top-1/2 -translate-y-1/2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-full p-2 sm:p-4 shadow-lg transition z-30 cursor-pointer disabled:opacity-50"
+                aria-label="Move carousel right"
+              >
+                <FaChevronRight className="pl-1" size={18} />
+              </button>
+            ) : null}
           </motion.div>
-        ))}
-      </motion.div>
+
+          {/* <div className="mt-2 flex items-center justify-center gap-3">
+            <p className="min-w-20 text-center text-sm sm:text-base font-semibold text-cyan-100/90">
+              {currentIndex + 1} / {total}
+            </p>
+          </div> */}
+
+          <div className="mt-0 flex flex-wrap items-center justify-center gap-2">
+            {certificates.map((certificate, index) => (
+              <button
+                key={`${certificate.title}-${index}`}
+                type="button"
+                onClick={() => jumpToSlide(index)}
+                disabled={animating}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "w-8 bg-cyan-300 shadow-[0_0_14px_rgba(34,211,238,0.85)]"
+                    : "w-2.5 bg-white/35 hover:bg-white/60"
+                } cursor-pointer disabled:opacity-70`}
+                aria-label={`Go to certificate ${index + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      ) : (
+        <p className="rounded-xl border border-white/15 bg-white/5 px-5 py-6 text-center text-sm text-cyan-100/80">
+          No certificates available right now.
+        </p>
+      )}
     </section>
   );
 }

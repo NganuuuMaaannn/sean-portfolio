@@ -15,26 +15,27 @@ export default function CertificateCard({ title, issuer, image, verifyUrl }: Pro
     <motion.div
       whileHover={{ y: "-1%", scale: 1.01 }}
       transition={{ type: "spring", duration: 1 }}
-      className="transform-gpu will-change-transform flex flex-col z-10 h-full min-h-[380px] lg:min-h-[480px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
+      className="transform-gpu will-change-transform flex flex-col z-10 h-full min-h-[300px] rounded-xl shadow-xl overflow-hidden group bg-white/10 backdrop-blur-md border border-white/10"
     >
       {/* Certificate Image Transition */}
-      <div className="relative h-52 sm:h-60 md:h-64 overflow-hidden">
+      <div className="relative h-[70%] min-h-[170px] sm:min-h-[210px] overflow-hidden bg-slate-950/35">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={image}
           alt={title}
           loading="lazy"
           decoding="async"
-          className="w-full h-full object-cover" />
+          className="w-full h-full object-contain object-center p-1"
+        />
       </div>
 
       {/* Content */}
-      <div className="p-4 sm:p-6 flex flex-col grow">
+      <div className="p-4 sm:p-5 flex flex-col grow">
         <h3 className="text-xl sm:text-2xl font-bold mb-2">{title}</h3>
         <p className="text-sm sm:text-base mb-2">{issuer}</p>
 
         {/* Bottom section */}
-        <div className="mt-auto">
+        <div className="mt-10">
           {verifyUrl && (
             <a
               href={verifyUrl}
