@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Script from "next/script";
 import PageTransition from "@/app/components/PageTransition";
+import AntiInspectGuard from "@/app/components/AntiInspectGuard";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,6 +34,7 @@ export default function RootLayout({
       </head>
 
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <AntiInspectGuard />
         <PageTransition>
           {children}
         </PageTransition>

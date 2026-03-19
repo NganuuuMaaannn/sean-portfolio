@@ -20,6 +20,27 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Anti-Inspect Guard
+
+The public portfolio page at `/sean-portfolio` uses the `disable-devtool` library as a best-effort anti-inspect guard. It blocks common inspect shortcuts, blocks right-click, and reacts when developer tools are opened.
+
+Use `NEXT_PUBLIC_ANTI_INSPECT_ENABLED` to control it:
+
+```bash
+# disable it anywhere
+NEXT_PUBLIC_ANTI_INSPECT_ENABLED=false
+
+# re-enable it
+NEXT_PUBLIC_ANTI_INSPECT_ENABLED=true
+```
+
+Behavior:
+
+- Enabled by default on `/sean-portfolio`
+- Disabled only when you set `NEXT_PUBLIC_ANTI_INSPECT_ENABLED=false`
+
+Restart the dev server after changing the variable.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
