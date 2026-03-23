@@ -21,6 +21,7 @@ export default function Hero({ onAbout, onContact }: Props) {
   const [showLottie, setShowLottie] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
   const [text, setText] = useState("");
+  const [effectsEnabled, setEffectsEnabled] = useState(false);
 
   useEffect(() => {
     const timers = [
@@ -86,26 +87,49 @@ export default function Hero({ onAbout, onContact }: Props) {
       id="topMain"
       className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-transparent px-4 text-center text-white sm:px-6"
     >
+      <div
+        className={`absolute inset-0 transition-colors duration-500 ${
+          effectsEnabled ? "bg-[#030303]" : "bg-transparent"
+        }`}
+      />
+
       <div className="absolute inset-0">
-        <WebcamPixelGrid
-          gridCols={60}
-          gridRows={40}
-          maxElevation={50}
-          motionSensitivity={0.25}
-          elevationSmoothing={0.2}
-          colorMode="webcam"
-          backgroundColor="#030303"
-          mirror
-          gapRatio={0.05}
-          invertColors={false}
-          darken={0.55}
-          borderColor="#ffffff"
-          borderOpacity={0.06}
-          className="h-full w-full"
-        />
+        {effectsEnabled && (
+          <WebcamPixelGrid
+            gridCols={60}
+            gridRows={40}
+            maxElevation={50}
+            motionSensitivity={0.25}
+            elevationSmoothing={0.2}
+            colorMode="webcam"
+            backgroundColor="#030303"
+            mirror
+            gapRatio={0.05}
+            invertColors={false}
+            darken={0.55}
+            borderColor="#ffffff"
+            borderOpacity={0.06}
+            className="h-full w-full"
+          />
+        )}
       </div>
 
-      <div className="pointer-events-none absolute inset-0 bg-linear-to-b from-black/55 via-black/30 to-black/70" />
+      <div
+        className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${
+          effectsEnabled
+            ? "bg-linear-to-b from-black/55 via-black/30 to-black/70 opacity-100"
+            : "opacity-0"
+        }`}
+      />
+
+      <button
+        type="button"
+        aria-pressed={effectsEnabled}
+        onClick={() => setEffectsEnabled((current) => !current)}
+        className="absolute right-4 top-4 z-20 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white/90 backdrop-blur-md transition hover:scale-105 hover:bg-white/5 sm:right-6 sm:top-6 sm:text-sm animate-pulse hover:animate-none"
+      >
+        {effectsEnabled ? "Turn Off Webcam FX" : "Turn On Webcam FX"}
+      </button>
 
       <h1
         className={`
