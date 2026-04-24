@@ -5,7 +5,6 @@ import { FaArrowDown, FaFileAlt, FaGithub, FaFacebook } from "react-icons/fa";
 import Lottie from "lottie-react";
 import { motion } from "framer-motion";
 
-import WebcamPixelGrid from "@/components/ui/webcam-pixel-grid";
 import waveAnim from "@/public/lottie/hand.json";
 
 type Props = {
@@ -21,7 +20,6 @@ export default function Hero({ onAbout, onContact }: Props) {
   const [showLottie, setShowLottie] = useState(false);
   const [showButtons, setShowButtons] = useState(false);
   const [text, setText] = useState("");
-  const [effectsEnabled, setEffectsEnabled] = useState(false);
 
   useEffect(() => {
     const timers = [
@@ -85,55 +83,11 @@ export default function Hero({ onAbout, onContact }: Props) {
   return (
     <section
       id="topMain"
-      className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-transparent px-4 text-center text-white sm:px-6"
+      className="relative min-h-svh flex flex-col justify-center items-center bg-transparent px-4 sm:px-6 text-center"
     >
-      <div
-        className={`absolute inset-0 transition-colors duration-500 ${
-          effectsEnabled ? "bg-[#030303]" : "bg-transparent"
-        }`}
-      />
-
-      <div className="absolute inset-0">
-        {effectsEnabled && (
-          <WebcamPixelGrid
-            gridCols={60}
-            gridRows={40}
-            maxElevation={50}
-            motionSensitivity={0.25}
-            elevationSmoothing={0.2}
-            colorMode="webcam"
-            backgroundColor="#030303"
-            mirror
-            gapRatio={0.05}
-            invertColors={false}
-            darken={0.55}
-            borderColor="#ffffff"
-            borderOpacity={0.06}
-            className="h-full w-full"
-          />
-        )}
-      </div>
-
-      <div
-        className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${
-          effectsEnabled
-            ? "bg-linear-to-b from-black/55 via-black/30 to-black/70 opacity-100"
-            : "opacity-0"
-        }`}
-      />
-
-      <button
-        type="button"
-        aria-pressed={effectsEnabled}
-        onClick={() => setEffectsEnabled((current) => !current)}
-        className="absolute right-4 top-4 z-20 inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-2 text-xs font-medium text-white/90 backdrop-blur-md transition hover:scale-105 hover:bg-white/5 sm:right-6 sm:top-6 sm:text-sm animate-pulse hover:animate-none"
-      >
-        {effectsEnabled ? "Turn Off Webcam FX" : "Turn On Webcam FX"}
-      </button>
-
       <h1
         className={`
-          relative z-10 flex items-center font-bold 
+          relative flex items-center font-bold 
           text-3xl sm:text-4xl md:text-5xl
           space-x-2 transition-all duration-700 ease-out
           ${showLottie ? "-translate-x-2.5" : "translate-x-0"}
@@ -177,7 +131,7 @@ export default function Hero({ onAbout, onContact }: Props) {
         )}
       </h1>
 
-      <p className="relative z-10 mt-2 max-w-2xl px-2 text-sm font-light text-white/85 lg:mt-4 sm:text-lg md:text-xl">
+      <p className="mt-2 lg:mt-4 max-w-2xl text-sm sm:text-lg md:text-xl font-light px-2">
         {text}
         <span className="animate-ping ml-1">|</span>
       </p>
@@ -188,7 +142,7 @@ export default function Hero({ onAbout, onContact }: Props) {
         initial={false}
         animate={showButtons ? "show" : "hidden"}
         transition={{ duration: 0.6, ease: "easeOut", staggerChildren: 0.15 }}
-        className="relative z-10 mt-8 flex w-full max-w-2xl flex-col items-center gap-6 px-2"
+        className="mt-8 flex w-full max-w-2xl flex-col items-center gap-6 px-2"
       >
 
         <motion.div
@@ -267,7 +221,7 @@ export default function Hero({ onAbout, onContact }: Props) {
       </motion.div>
 
       {/* View More button */}
-      <div className="absolute bottom-6 z-10 flex cursor-default flex-col items-center text-white/65 transition duration-1000 ease-in-out hover:scale-105 hover:text-white/90">
+      <div className="absolute bottom-6 flex flex-col items-center cursor-default text-gray-700 group transform transition ease-in-out duration-1000 hover:scale-105 hover:text-gray-600">
         <span
           onClick={onAbout}
           className="sm:text-sm md:text-sm font-extralight"
