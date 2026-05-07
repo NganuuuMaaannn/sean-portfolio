@@ -11,12 +11,16 @@ const defaultContactPhone = "+63 938 646 7629";
 const defaultContactTagline = "Let's build something together!";
 const emailJsEndpoint = "https://api.emailjs.com/api/v1.0/email/send";
 const emailSendCooldownMs = 60000;
+const emailSendCooldownStorageKey = "portfolio-email-send-cooldown-ends-at";
 const emailJsServiceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "";
 const emailJsTemplateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "";
 const emailJsAutoReplyTemplateId =
   process.env.NEXT_PUBLIC_EMAILJS_AUTO_REPLY_TEMPLATE_ID ?? "";
 const emailJsPublicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY ?? "";
 const emailJsToName = process.env.NEXT_PUBLIC_EMAILJS_TO_NAME ?? "Sean";
+const isEmailJsConfigured = Boolean(
+  emailJsServiceId && emailJsTemplateId && emailJsPublicKey,
+);
 
 type PortfolioProfileContactRow = {
   id: string;
@@ -68,6 +72,31 @@ function getIdleStatusText(isConfigured: boolean) {
     : "Add your EmailJS keys in the environment file to enable sending.";
 }
 
+function getCooldownSecondsLeft(cooldownEndsAt: number | null) {
+  if (!cooldownEndsAt) {
+    return 0;
+  }
+
+  return Math.max(0, Math.ceil((cooldownEndsAt - Date.now()) / 1000));
+}
+
+function getStoredCooldownEndsAt() {
+  if (typeof window === "undefined") {
+    return null;
+  }
+
+  const storedValue = Number(
+    window.localStorage.getItem(emailSendCooldownStorageKey) ?? "0",
+  );
+
+  if (!Number.isFinite(storedValue) || storedValue <= Date.now()) {
+    window.localStorage.removeItem(emailSendCooldownStorageKey);
+    return null;
+  }
+
+  return storedValue;
+}
+
 async function sendEmailJsTemplate(
   templateId: string,
   templateParams: Record<string, string>,
@@ -103,7 +132,7 @@ export default function Contact() {
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState(() =>
     getIdleStatusText(
-      Boolean(emailJsServiceId && emailJsTemplateId && emailJsPublicKey),
+      isEmailJsConfigured,
     ),
   );
   const [supabase] = useState(() => {
@@ -114,9 +143,6 @@ export default function Contact() {
     }
   });
 
-  const isEmailJsConfigured = Boolean(
-    emailJsServiceId && emailJsTemplateId && emailJsPublicKey,
-  );
   const isCooldownActive = cooldownSecondsLeft > 0;
 
   const handleCopy = async (text: string, event: React.MouseEvent<HTMLElement>) => {
@@ -218,8 +244,13 @@ export default function Contact() {
       }
 
       setFormValues(initialFormValues);
-      setCooldownEndsAt(Date.now() + emailSendCooldownMs);
-      setCooldownSecondsLeft(Math.ceil(emailSendCooldownMs / 1000));
+      const nextCooldownEndsAt = Date.now() + emailSendCooldownMs;
+      window.localStorage.setItem(
+        emailSendCooldownStorageKey,
+        nextCooldownEndsAt.toString(),
+      );
+      setCooldownEndsAt(nextCooldownEndsAt);
+      setCooldownSecondsLeft(getCooldownSecondsLeft(nextCooldownEndsAt));
       setFormStatus("success");
       setStatusMessage(
         autoReplyFailed
@@ -237,6 +268,23 @@ export default function Contact() {
   };
 
   useEffect(() => {
+    const storedCooldownEndsAt = getStoredCooldownEndsAt();
+
+    if (!storedCooldownEndsAt) {
+      return;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCooldownEndsAt(storedCooldownEndsAt);
+      setCooldownSecondsLeft(getCooldownSecondsLeft(storedCooldownEndsAt));
+    }, 0);
+
+    return () => {
+      window.clearTimeout(timeoutId);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!cooldownEndsAt) {
       return;
     }
@@ -245,8 +293,11 @@ export default function Contact() {
       const remainingMs = cooldownEndsAt - Date.now();
 
       if (remainingMs <= 0) {
+        window.localStorage.removeItem(emailSendCooldownStorageKey);
         setCooldownEndsAt(null);
         setCooldownSecondsLeft(0);
+        setFormStatus("idle");
+        setStatusMessage(getIdleStatusText(isEmailJsConfigured));
         return;
       }
 
