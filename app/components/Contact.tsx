@@ -10,6 +10,7 @@ const defaultContactEmail = "seanmichael.doinog@hcdc.edu.ph";
 const defaultContactPhone = "+63 938 646 7629";
 const defaultContactTagline = "Let's build something together!";
 const emailJsEndpoint = "https://api.emailjs.com/api/v1.0/email/send";
+const emailSendCooldownMs = 60000;
 const emailJsServiceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID ?? "";
 const emailJsTemplateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID ?? "";
 const emailJsAutoReplyTemplateId =
@@ -97,6 +98,8 @@ export default function Contact() {
   const [contactPhones, setContactPhones] = useState<string[]>([defaultContactPhone]);
   const [contactTagline, setContactTagline] = useState(defaultContactTagline);
   const [formValues, setFormValues] = useState(initialFormValues);
+  const [cooldownEndsAt, setCooldownEndsAt] = useState<number | null>(null);
+  const [cooldownSecondsLeft, setCooldownSecondsLeft] = useState(0);
   const [formStatus, setFormStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [statusMessage, setStatusMessage] = useState(() =>
     getIdleStatusText(
@@ -114,6 +117,7 @@ export default function Contact() {
   const isEmailJsConfigured = Boolean(
     emailJsServiceId && emailJsTemplateId && emailJsPublicKey,
   );
+  const isCooldownActive = cooldownSecondsLeft > 0;
 
   const handleCopy = async (text: string, event: React.MouseEvent<HTMLElement>) => {
     const target = event.currentTarget;
@@ -158,6 +162,12 @@ export default function Contact() {
     if (!isEmailJsConfigured) {
       setFormStatus("error");
       setStatusMessage("EmailJS is not configured yet. Add the public keys first.");
+      return;
+    }
+
+    if (isCooldownActive) {
+      setFormStatus("error");
+      setStatusMessage(`Please wait ${cooldownSecondsLeft}s before sending another message.`);
       return;
     }
 
@@ -208,6 +218,8 @@ export default function Contact() {
       }
 
       setFormValues(initialFormValues);
+      setCooldownEndsAt(Date.now() + emailSendCooldownMs);
+      setCooldownSecondsLeft(Math.ceil(emailSendCooldownMs / 1000));
       setFormStatus("success");
       setStatusMessage(
         autoReplyFailed
@@ -223,6 +235,28 @@ export default function Contact() {
       setStatusMessage(`Message failed to send: ${errorMessage}`);
     }
   };
+
+  useEffect(() => {
+    if (!cooldownEndsAt) {
+      return;
+    }
+
+    const interval = window.setInterval(() => {
+      const remainingMs = cooldownEndsAt - Date.now();
+
+      if (remainingMs <= 0) {
+        setCooldownEndsAt(null);
+        setCooldownSecondsLeft(0);
+        return;
+      }
+
+      setCooldownSecondsLeft(Math.ceil(remainingMs / 1000));
+    }, 1000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [cooldownEndsAt]);
 
   useEffect(() => {
     if (!supabase) {
@@ -450,7 +484,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="card contact-card relative overflow-hidden rounded-[32px] border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
+          className="card contact-card relative overflow-hidden rounded-4xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
         >
           <div className="pointer-events-none absolute inset-0" />
 
@@ -460,11 +494,11 @@ export default function Contact() {
               Contact Me
             </h2>
 
-            <p className="mt-4 max-w-lg text-sm leading-7 sm:text-base [color:var(--muted)]">
+            <p className="mt-4 max-w-lg text-sm leading-7 sm:text-base text-(--muted)">
               {contactTagline}
             </p>
 
-            <p className="mt-3 max-w-lg text-sm leading-7 sm:text-base [color:var(--muted)]">
+            <p className="mt-3 max-w-lg text-sm leading-7 sm:text-base text-(--muted)">
               If you have a project, collaboration, or role in mind, the details on this side are
               ready for quick contact. If you want to send a direct message right away, use the
               EmailJS form on the right.
@@ -485,7 +519,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
           viewport={{ once: true }}
-          className="card contact-card relative overflow-hidden rounded-[32px] border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
+          className="card contact-card relative overflow-hidden rounded-4xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
         >
           <div className="pointer-events-none absolute inset-0" />
 
@@ -494,7 +528,7 @@ export default function Contact() {
               Send Message
             </h3>
 
-            <p className="mt-4 max-w-xl text-sm leading-7 sm:text-base [color:var(--muted)]">
+            <p className="mt-4 max-w-xl text-sm leading-7 sm:text-base text-(--muted)">
               Share your name, email, and message below. This form is wired for EmailJS, so once
               your keys are added it can send messages directly from the portfolio.
             </p>
@@ -507,7 +541,7 @@ export default function Contact() {
               <div>
                 <label
                   htmlFor="contact-full-name"
-                  className="text-sm font-medium uppercase tracking-[0.2em] [color:var(--muted)]"
+                  className="text-sm font-medium uppercase tracking-[0.2em] text-(--muted)"
                 >
                   Full Name
                 </label>
@@ -519,14 +553,14 @@ export default function Contact() {
                   value={formValues.from_name}
                   onChange={handleFieldChange}
                   placeholder="Your full name"
-                  className="mt-3 w-full rounded-[24px] border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
+                  className="mt-3 w-full rounded-3xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="contact-email-address"
-                  className="text-sm font-medium uppercase tracking-[0.2em] [color:var(--muted)]"
+                  className="text-sm font-medium uppercase tracking-[0.2em] text-(--muted)"
                 >
                   Email Address
                 </label>
@@ -538,14 +572,14 @@ export default function Contact() {
                   value={formValues.reply_to}
                   onChange={handleFieldChange}
                   placeholder="you@example.com"
-                  className="mt-3 w-full rounded-[24px] border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
+                  className="mt-3 w-full rounded-3xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="contact-message"
-                  className="text-sm font-medium uppercase tracking-[0.2em] [color:var(--muted)]"
+                  className="text-sm font-medium uppercase tracking-[0.2em] text-(--muted)"
                 >
                   Your Message
                 </label>
@@ -556,7 +590,7 @@ export default function Contact() {
                   onChange={handleFieldChange}
                   placeholder="Tell me about your project, idea, or opportunity."
                   rows={7}
-                  className="mt-3 min-h-[180px] w-full resize-y rounded-[24px] border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
+                  className="mt-3 min-h-[180px] w-full resize-y rounded-3xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
                 />
               </div>
 
@@ -567,7 +601,7 @@ export default function Contact() {
                       ? "text-rose-400"
                       : formStatus === "success"
                         ? "text-emerald-400"
-                        : "[color:var(--muted)]"
+                        : "text-(--muted)"
                     }`}
                 >
                   {statusMessage}
@@ -575,10 +609,14 @@ export default function Contact() {
 
                 <button
                   type="submit"
-                  disabled={formStatus === "sending" || !isEmailJsConfigured}
-                  className="inline-flex items-center justify-center rounded-full bg-gradient-to-r text from-amber-300 via-orange-300 to-orange-400 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+                  disabled={formStatus === "sending" || isCooldownActive || !isEmailJsConfigured}
+                  className="inline-flex items-center justify-center rounded-full bg-linear-to-r text from-amber-300 via-orange-300 to-orange-400 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {formStatus === "sending" ? "Sending..." : "Send Message"}
+                  {formStatus === "sending"
+                    ? "Sending..."
+                    : isCooldownActive
+                      ? `Send again in ${cooldownSecondsLeft}s`
+                      : "Send Message"}
                 </button>
               </div>
             </form>

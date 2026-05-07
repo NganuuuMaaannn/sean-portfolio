@@ -200,7 +200,7 @@ const Home = () => {
 
         <CertificatesSection />
 
-        {/* <ContactSection /> */}
+        <ContactSection />
 
         <FooterSection />
 

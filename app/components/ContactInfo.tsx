@@ -57,10 +57,10 @@ export default function ContactInfo({ emails, phones, handleCopy }: Props) {
           </span>
 
           <div className="min-w-0 flex-1">
-            <p className="text-xs uppercase tracking-[0.3em] [color:var(--muted)]">
+            <p className="text-xs uppercase tracking-[0.3em] text-(--muted)">
               Email
             </p>
-            <p className="mt-1 text-sm leading-6 [color:var(--muted)]">
+            <p className="mt-1 text-sm leading-6 text-(--muted)">
               Reach out directly or tap any address to copy it.
             </p>
 
@@ -86,10 +86,10 @@ export default function ContactInfo({ emails, phones, handleCopy }: Props) {
           </span>
 
           <div className="min-w-0 flex-1">
-            <p className="text-xs uppercase tracking-[0.3em] [color:var(--muted)]">
+            <p className="text-xs uppercase tracking-[0.3em] text-(--muted)">
               Phone
             </p>
-            <p className="mt-1 text-sm leading-6 [color:var(--muted)]">
+            <p className="mt-1 text-sm leading-6 text-(--muted)">
               Prefer a quick call? Use the number below or copy it in one tap.
             </p>
 
