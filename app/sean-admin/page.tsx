@@ -5,6 +5,8 @@ import ViewMainPageButton from "./view-mainpage";
 import ContentEditor, { type PortfolioContentRow } from "./content-editor";
 import { Orbitron, Rajdhani } from "next/font/google";
 
+export const dynamic = "force-dynamic";
+
 type PortfolioProfileDbRow = {
   id: string;
   about_text: string | null;
