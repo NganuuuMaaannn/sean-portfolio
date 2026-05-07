@@ -209,11 +209,17 @@ body {
   border: 1px solid rgba(139, 92, 246, 0.1);
 }
 
-[data-theme="dark"] .card:hover {
-  box-shadow: 0 0 25px rgba(139, 92, 246, 0.15);
-  border-color: rgba(139, 92, 246, 0.3);
+/* [data-theme="dark"] .card:hover {
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+  border-color: rgba(0, 0, 0, 0.3);
   transform: translateY(-2px);
-}
+} */
+
+/* [data-theme="dark"] .contact-card:hover {
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: none;
+} */
 
 /* Apply soft effects to cards in light theme */
 [data-theme="light"] .card {
@@ -227,6 +233,12 @@ body {
   transform: translateY(-2px);
 }
 
+[data-theme="light"] .contact-card:hover {
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: none;
+}
+
 /* Theme-specific button effects */
 button {
   transition: all 0.3s ease;
@@ -236,8 +248,16 @@ button {
   box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
 }
 
+[data-theme="dark"] .contact-copy-trigger:hover:not(:disabled) {
+  box-shadow: none;
+}
+
 [data-theme="light"] button:hover:not(:disabled) {
   box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="light"] .contact-copy-trigger:hover:not(:disabled) {
+  box-shadow: none;
 }
 
 /* Smooth scrollbar styling */

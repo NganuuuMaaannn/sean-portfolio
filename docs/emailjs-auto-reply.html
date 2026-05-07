@@ -1,0 +1,206 @@
+<!--
+EmailJS auto-reply template format
+
+Suggested EmailJS template fields:
+- Subject: Thanks for reaching out, {{from_name}}
+- To Email: {{reply_to}} or {{email}}
+- To Name: {{from_name}}
+- Reply To: {{portfolio_email}}
+
+Paste everything below into the EmailJS "Content" editor.
+-->
+
+<style>
+  @media only screen and (max-width: 640px) {
+    .reply-shell {
+      width: 100% !important;
+      max-width: 100% !important;
+      border-radius: 20px !important;
+    }
+
+    .reply-header {
+      padding: 26px 18px 24px !important;
+    }
+
+    .reply-section {
+      padding-left: 18px !important;
+      padding-right: 18px !important;
+    }
+
+    .reply-title {
+      font-size: 24px !important;
+      line-height: 1.24 !important;
+    }
+
+    .reply-copy {
+      font-size: 14px !important;
+      line-height: 1.72 !important;
+    }
+
+    .reply-card-cell {
+      padding: 18px !important;
+    }
+
+    .reply-footer {
+      padding: 18px 18px 26px !important;
+    }
+  }
+</style>
+
+<table
+  role="presentation"
+  width="100%"
+  cellpadding="0"
+  cellspacing="0"
+  border="0"
+  style="width: 100%; margin: 0; padding: 24px 0; background-color: #0b1020; font-family: Arial, Helvetica, sans-serif;"
+>
+  <tr>
+    <td align="center" style="padding: 0 12px;">
+      <table
+        role="presentation"
+        width="640"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        class="reply-shell"
+        style="width: 100%; max-width: 640px; margin: 0 auto; background: #111827; border: 1px solid #243041; border-radius: 28px;"
+      >
+        <tr>
+          <td
+            class="reply-header"
+            style="padding: 34px 34px 28px; background: linear-gradient(135deg, #1f2937 0%, #111827 52%, #0f172a 100%); border-radius: 28px 28px 0 0;"
+          >
+            <span
+              style="display: inline-block; padding: 8px 14px; border-radius: 999px; background: #2b2414; border: 1px solid #6f5620; color: #fcd34d; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;"
+            >
+              Message Received
+            </span>
+
+            <h1
+              class="reply-title"
+              style="margin: 18px 0 10px; font-size: 30px; line-height: 1.2; color: #ffffff; font-weight: 700;"
+            >
+              Thanks for reaching out, {{from_name}}.
+            </h1>
+
+            <p
+              class="reply-copy"
+              style="margin: 0; font-size: 15px; line-height: 1.8; color: #cbd5e1;"
+            >
+              Your message has been received successfully. I appreciate you taking the time to get
+              in touch, and I will review it and reply as soon as I can.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="reply-section" style="padding: 26px 34px 0;">
+            <table
+              role="presentation"
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              style="width: 100%; background: #182235; border: 1px solid #243041; border-radius: 24px;"
+            >
+              <tr>
+                <td class="reply-card-cell" style="padding: 22px 24px;">
+                  <p
+                    style="margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8;"
+                  >
+                    Quick Note
+                  </p>
+                  <p
+                    class="reply-copy"
+                    style="margin: 0; font-size: 15px; line-height: 1.8; color: #e5e7eb;"
+                  >
+                    This is an automatic confirmation so you know your message was delivered. If
+                    your inquiry is time-sensitive, you can also reach me directly at
+                    <span style="color: #fcd34d;"> {{portfolio_email}}</span>.
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="reply-section" style="padding: 18px 34px 0;">
+            <table
+              role="presentation"
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              style="width: 100%; background: #182235; border: 1px solid #243041; border-radius: 24px;"
+            >
+              <tr>
+                <td class="reply-card-cell" style="padding: 24px 24px 18px;">
+                  <p
+                    style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8;"
+                  >
+                    Message Sent
+                  </p>
+                  <p
+                    style="margin: 0; font-size: 16px; line-height: 1.8; color: #f8fafc;"
+                  >
+                    {{submitted_at}}
+                  </p>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding: 0 24px 24px;">
+                  <p
+                    style="margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8;"
+                  >
+                    Your Message
+                  </p>
+                  <table
+                    role="presentation"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="width: 100%; background: #0f172a; border: 1px solid #3b4658; border-radius: 18px;"
+                  >
+                    <tr>
+                      <td class="reply-card-cell" style="padding: 18px;">
+                        <p
+                          style="margin: 0; font-size: 15px; line-height: 1.9; color: #e2e8f0; white-space: pre-line; word-break: break-word;"
+                        >
+                          {{message}}
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td align="center" class="reply-section" style="padding: 28px 34px 12px;">
+            <a
+              href="mailto:{{portfolio_email}}"
+              style="display: inline-block; padding: 14px 28px; border-radius: 999px; background: #f59e0b; color: #111827; font-size: 14px; font-weight: 700; text-decoration: none;"
+            >
+              Contact {{portfolio_owner}}
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <td
+            class="reply-footer"
+            style="padding: 0 34px 34px; text-align: center; font-size: 12px; line-height: 1.8; color: #94a3b8;"
+          >
+            Thank you again for your message. I will get back to you soon.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

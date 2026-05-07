@@ -1,0 +1,256 @@
+<!--
+EmailJS receive template format
+
+Suggested EmailJS template fields:
+- Subject: New portfolio message from {{from_name}}
+- Reply To: {{reply_to}}
+- To Name: {{to_name}}
+
+Paste everything below into the EmailJS "Content" editor.
+-->
+
+<style>
+  @media only screen and (max-width: 640px) {
+    .email-shell {
+      width: 100% !important;
+      max-width: 100% !important;
+      border-radius: 20px !important;
+    }
+
+    .email-header {
+      padding: 26px 18px 22px !important;
+    }
+
+    .email-section-padding {
+      padding-left: 18px !important;
+      padding-right: 18px !important;
+    }
+
+    .email-stack,
+    .email-stack td {
+      display: block !important;
+      width: 100% !important;
+    }
+
+    .email-stack-left {
+      padding: 0 0 14px !important;
+    }
+
+    .email-stack-right {
+      padding: 0 0 14px !important;
+    }
+
+    .email-title {
+      font-size: 24px !important;
+      line-height: 1.25 !important;
+    }
+
+    .email-body-copy {
+      font-size: 14px !important;
+      line-height: 1.7 !important;
+    }
+
+    .email-card-cell {
+      padding: 18px !important;
+    }
+
+    .email-message-cell {
+      padding: 16px !important;
+    }
+
+    .email-footer {
+      padding: 18px 18px 26px !important;
+    }
+  }
+</style>
+
+<table
+  role="presentation"
+  width="100%"
+  cellpadding="0"
+  cellspacing="0"
+  border="0"
+  style="width: 100%; margin: 0; padding: 24px 0; background-color: #0b1020; font-family: Arial, Helvetica, sans-serif;"
+>
+  <tr>
+    <td align="center" style="padding: 0 12px;">
+      <table
+        role="presentation"
+        width="640"
+        cellpadding="0"
+        cellspacing="0"
+        border="0"
+        class="email-shell"
+        style="width: 100%; max-width: 640px; margin: 0 auto; background: #111827; border: 1px solid #243041; border-radius: 28px;"
+      >
+        <tr>
+          <td
+            class="email-header"
+            style="padding: 34px 34px 26px; background: linear-gradient(135deg, #1f2937 0%, #111827 55%, #0f172a 100%); border-radius: 28px 28px 0 0;"
+          >
+            <span
+              style="display: inline-block; padding: 8px 14px; border-radius: 999px; background: #2b2414; border: 1px solid #6f5620; color: #fcd34d; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase;"
+            >
+              Portfolio Inquiry
+            </span>
+
+            <h1
+              class="email-title"
+              style="margin: 18px 0 10px; font-size: 30px; line-height: 1.2; color: #ffffff; font-weight: 700;"
+            >
+              Hello {{to_name}},
+            </h1>
+
+            <p
+              class="email-body-copy"
+              style="margin: 0; font-size: 15px; line-height: 1.8; color: #cbd5e1;"
+            >
+              You received a new message from your portfolio contact form.
+            </p>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="email-section-padding" style="padding: 26px 34px 0;">
+            <table
+              role="presentation"
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              class="email-stack"
+              style="width: 100%;"
+            >
+              <tr>
+                <td
+                  valign="top"
+                  class="email-stack-left"
+                  style="width: 50%; padding: 0 8px 16px 0;"
+                >
+                  <table
+                    role="presentation"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="width: 100%; background: #182235; border: 1px solid #243041; border-radius: 22px;"
+                  >
+                    <tr>
+                      <td class="email-card-cell" style="padding: 18px;">
+                        <p
+                          style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8;"
+                        >
+                          From
+                        </p>
+                        <p
+                          style="margin: 0; font-size: 18px; line-height: 1.5; color: #ffffff; font-weight: 600;"
+                        >
+                          {{from_name}}
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+
+                <td
+                  valign="top"
+                  class="email-stack-right"
+                  style="width: 50%; padding: 0 0 16px 8px;"
+                >
+                  <table
+                    role="presentation"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="width: 100%; background: #182235; border: 1px solid #243041; border-radius: 22px;"
+                  >
+                    <tr>
+                      <td class="email-card-cell" style="padding: 18px;">
+                        <p
+                          style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8;"
+                        >
+                          Sent At
+                        </p>
+                        <p
+                          style="margin: 0; font-size: 18px; line-height: 1.5; color: #ffffff; font-weight: 600;"
+                        >
+                          {{submitted_at}}
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="email-section-padding" style="padding: 0 34px 0;">
+            <table
+              role="presentation"
+              width="100%"
+              cellpadding="0"
+              cellspacing="0"
+              border="0"
+              style="width: 100%; background: #182235; border: 1px solid #243041; border-radius: 24px;"
+            >
+              <tr>
+                <td class="email-card-cell" style="padding: 24px 24px 18px;">
+                  <p
+                    style="margin: 0 0 8px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8;"
+                  >
+                    Email Address
+                  </p>
+                  <p
+                    style="margin: 0; font-size: 16px; line-height: 1.8; color: #f8fafc; word-break: break-word;"
+                  >
+                    {{from_email}}
+                  </p>
+                </td>
+              </tr>
+
+              <tr>
+                <td style="padding: 0 24px 24px;">
+                  <p
+                    style="margin: 0 0 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #94a3b8;"
+                  >
+                    Message
+                  </p>
+                  <table
+                    role="presentation"
+                    width="100%"
+                    cellpadding="0"
+                    cellspacing="0"
+                    border="0"
+                    style="width: 100%; background: #0f172a; border: 1px solid #3b4658; border-radius: 18px;"
+                  >
+                    <tr>
+                      <td class="email-message-cell" style="padding: 18px;">
+                        <p
+                          style="margin: 0; font-size: 15px; line-height: 1.9; color: #e2e8f0; white-space: pre-line; word-break: break-word;"
+                        >
+                          {{message}}
+                        </p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td
+            class="email-footer"
+            style="padding: 20px 34px 34px; text-align: center; font-size: 12px; line-height: 1.8; color: #94a3b8;"
+          >
+            This message was sent from your portfolio contact form using EmailJS.
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>

@@ -2,93 +2,111 @@
 
 import React from "react";
 import { FaEnvelope, FaPhone } from "react-icons/fa";
-import { motion } from "framer-motion";
 
 type Props = {
   emails: string[];
   phones: string[];
-  handleCopy: (text: string, e: React.MouseEvent<HTMLSpanElement>) => void;
+  handleCopy: (text: string, e: React.MouseEvent<HTMLElement>) => void;
 };
 
-export default function ContactInfo({ emails, phones, handleCopy }: Props) {
-  const rowCount = Math.max(emails.length, phones.length);
-  const rows = Array.from({ length: rowCount }, (_, index) => ({
-    email: emails[index] ?? "",
-    phone: phones[index] ?? "",
-  }));
+type ContactValueProps = {
+  actionLabel: string;
+  actionHref: string;
+  value: string;
+  handleCopy: (text: string, e: React.MouseEvent<HTMLElement>) => void;
+};
 
+function ContactValue({
+  actionLabel,
+  actionHref,
+  value,
+  handleCopy,
+}: ContactValueProps) {
   return (
-    <div className="mt-12 sm:mt-16 w-full text-sm sm:text-base md:text-lg font-light space-y-3">
-      {rows.map((row, index) => (
-        <div
-          key={`contact-row-${index}`}
-          className="mx-auto grid w-fit max-w-full grid-cols-1 sm:grid-cols-[max-content_max-content] gap-3 sm:gap-12"
-        >
-          <span
-            onClick={(e) =>
-              row.email ? handleCopy(row.email, e as React.MouseEvent<HTMLSpanElement>) : undefined
-            }
-            className={`relative flex max-w-full items-center justify-center gap-2 transition-colors ${
-              row.email ? "cursor-pointer hover:text-indigo-500" : "opacity-50"
-            }`}
-          >
-            <FaEnvelope className="w-6 h-6 shrink-0" />
+    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+      <button
+        type="button"
+        onClick={(event) => handleCopy(value, event)}
+        className="contact-copy-trigger text-left transition hover:text-blue-600"
+      >
+        <span className="block break-all text-base font-medium sm:text-lg">
+          {value}
+        </span>
+        <span className="mt-1 block text-[0.68rem] uppercase tracking-[0.28em] hover:text-blue-600">
+          Click to copy
+        </span>
+      </button>
 
-            <motion.span
-              initial="rest"
-              whileHover={row.email ? "hover" : "rest"}
-              className="relative flex min-w-0 flex-col items-center sm:items-start"
-            >
-              <motion.span
-                variants={{
-                  rest: { opacity: 0, y: 6 },
-                  hover: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="absolute -top-5 left-1/2 -translate-x-1/2 sm:left-16 sm:translate-x-0 text-xs text-indigo-500 pointer-events-none"
-              >
-                Click to Copy
-              </motion.span>
+      <a
+        href={actionHref}
+        className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-2 text-sm font-medium transition hover:bg-blue-600/20"
+      >
+        {actionLabel}
+      </a>
+    </div>
+  );
+}
 
-              <span className="break-all text-center sm:text-left">
-                {row.email || "No email"}
-              </span>
-            </motion.span>
+export default function ContactInfo({ emails, phones, handleCopy }: Props) {
+  return (
+    <div className="space-y-5">
+      <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+        <div className="flex items-start gap-4">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-white">
+            <FaEnvelope className="h-5 w-5" />
           </span>
 
-          <span
-            onClick={(e) =>
-              row.phone ? handleCopy(row.phone, e as React.MouseEvent<HTMLSpanElement>) : undefined
-            }
-            className={`relative flex max-w-full items-center justify-center gap-2 transition-colors ${
-              row.phone ? "cursor-pointer hover:text-indigo-500" : "opacity-50"
-            }`}
-          >
-            <FaPhone className="w-5 h-5 shrink-0" />
+          <div className="min-w-0 flex-1">
+            <p className="text-xs uppercase tracking-[0.3em] [color:var(--muted)]">
+              Email
+            </p>
+            <p className="mt-1 text-sm leading-6 [color:var(--muted)]">
+              Reach out directly or tap any address to copy it.
+            </p>
 
-            <motion.span
-              initial="rest"
-              whileHover={row.phone ? "hover" : "rest"}
-              className="relative flex min-w-0 flex-col items-center sm:items-start"
-            >
-              <motion.span
-                variants={{
-                  rest: { opacity: 0, y: 6 },
-                  hover: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.25, ease: "easeOut" }}
-                className="absolute -top-5 left-1/2 -translate-x-1/2 sm:left-7 sm:translate-x-0 text-xs text-indigo-500 pointer-events-none"
-              >
-                Click to Copy
-              </motion.span>
-
-              <span className="break-all text-center sm:text-left">
-                {row.phone || "No number"}
-              </span>
-            </motion.span>
-          </span>
+            <div className="mt-4 space-y-3">
+              {emails.map((email, index) => (
+                <ContactValue
+                  key={`contact-email-${index}`}
+                  actionHref={`mailto:${email}`}
+                  actionLabel="Mail"
+                  value={email}
+                  handleCopy={handleCopy}
+                />
+              ))}
+            </div>
+          </div>
         </div>
-      ))}
+      </div>
+
+      <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+        <div className="flex items-start gap-4">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-white">
+            <FaPhone className="h-5 w-5" />
+          </span>
+
+          <div className="min-w-0 flex-1">
+            <p className="text-xs uppercase tracking-[0.3em] [color:var(--muted)]">
+              Phone
+            </p>
+            <p className="mt-1 text-sm leading-6 [color:var(--muted)]">
+              Prefer a quick call? Use the number below or copy it in one tap.
+            </p>
+
+            <div className="mt-4 space-y-3">
+              {phones.map((phone, index) => (
+                <ContactValue
+                  key={`contact-phone-${index}`}
+                  actionHref={`tel:${phone.replace(/\s+/g, "")}`}
+                  actionLabel="Call"
+                  value={phone}
+                  handleCopy={handleCopy}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
