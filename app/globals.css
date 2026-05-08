@@ -85,6 +85,23 @@ html.smooth-cursor-hidden * {
   z-index: -1;
 }
 
+/* Noise texture overlay for the sean-portfolio section */
+.cyber-portfolio::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: url('/noise.svg') repeat;
+  background-size: 80px 80px;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0.2;
+  mix-blend-mode: normal;
+}
+
+.cyber-portfolio .bg-layer {
+  z-index: 0;
+}
+
 /* Reusable card background */
 .card {
   background: var(--card-bg);
@@ -343,6 +360,7 @@ html {
   pointer-events: none;
   transform: translateZ(0);
   backface-visibility: hidden;
+  z-index: 0;
 }
 
 .cyber-portfolio .bg-gradient {
