@@ -266,38 +266,13 @@ button {
   box-shadow: none;
 }
 
-/* Smooth scrollbar styling */
+/* Hide scrollbar globally */
 ::-webkit-scrollbar {
-  width: 10px;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: rgba(139, 92, 246, 0.3);
-  border-radius: 5px;
-}
-
-[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(139, 92, 246, 0.5);
-}
-
-[data-theme="light"] ::-webkit-scrollbar-track {
-  background: rgba(59, 130, 246, 0.05);
-}
-
-[data-theme="light"] ::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.3);
-  border-radius: 5px;
-}
-
-[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.5);
+  display: none;
 }
 
 html {
+  scrollbar-width: none;
   /* Section navigation uses JS rAF scrolling; keep CSS scrolling immediate to avoid double-smoothing. */
   scroll-behavior: auto;
 }

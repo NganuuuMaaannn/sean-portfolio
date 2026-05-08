@@ -548,11 +548,11 @@ export default function Contact() {
 
       <div className="relative mx-auto grid w-full max-w-6xl gap-6 lg:grid-cols-[0.92fr_1.08fr]">
         <motion.div
-          initial={{ opacity: 0, x: -60 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="card contact-card relative overflow-hidden rounded-4xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
+          className="card contact-card relative overflow-hidden rounded-xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
         >
           <div className="pointer-events-none absolute inset-0" />
 
@@ -583,11 +583,11 @@ export default function Contact() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, x: 60 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+          initial={{ opacity: 0, y: 100 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
           viewport={{ once: true }}
-          className="card contact-card relative overflow-hidden rounded-4xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
+          className="card contact-card relative overflow-hidden rounded-xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
         >
           <div className="pointer-events-none absolute inset-0" />
 
@@ -621,7 +621,7 @@ export default function Contact() {
                   value={formValues.from_name}
                   onChange={handleFieldChange}
                   placeholder="Your full name"
-                  className="mt-3 w-full rounded-3xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
+                  className="mt-3 w-full rounded-xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
                 />
               </div>
 
@@ -640,7 +640,7 @@ export default function Contact() {
                   value={formValues.reply_to}
                   onChange={handleFieldChange}
                   placeholder="you@example.com"
-                  className="mt-3 w-full rounded-3xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
+                  className="mt-3 w-full rounded-xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
                 />
               </div>
 
@@ -658,7 +658,7 @@ export default function Contact() {
                   onChange={handleFieldChange}
                   placeholder="Tell me about your project, idea, or opportunity."
                   rows={7}
-                  className="mt-3 min-h-[180px] w-full resize-y rounded-3xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
+                  className="mt-3 min-h-[180px] w-full resize-y rounded-xl border border-white/10 px-4 py-3.5 text-sm outline-none transition [background:var(--glass)] placeholder:text-slate-400 focus:border-white/40"
                 />
               </div>
 
@@ -679,7 +679,7 @@ export default function Contact() {
                   type="submit"
                   aria-label={submitButtonLabel}
                   disabled={isSubmitDisabled}
-                  className={`group/submit relative inline-flex h-12 w-full overflow-hidden rounded-full border border-black/15 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.2)] transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:w-auto sm:min-w-56 ${
+                  className={`group/submit relative inline-flex h-12 w-full overflow-hidden rounded-xl border border-black/15 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.2)] transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:w-auto sm:min-w-56 ${
                     isSubmitDisabled
                       ? "cursor-not-allowed opacity-60"
                       : "hover:-translate-y-0.5 hover:border-white/25 hover:shadow-[0_22px_50px_rgba(249,115,22,0.22)]"
@@ -688,7 +688,7 @@ export default function Contact() {
                   <span className="sr-only">{submitButtonLabel}</span>
                   <span
                     aria-hidden="true"
-                    className={`absolute inset-0 flex items-center justify-center rounded-full bg-white px-6 text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-950 transition-transform duration-300 ease-[cubic-bezier(0.44,0,0.56,1)] will-change-transform ${
+                    className={`absolute inset-0 flex items-center justify-center rounded-xl bg-white px-6 text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-950 transition-transform duration-300 ease-[cubic-bezier(0.44,0,0.56,1)] will-change-transform ${
                       submitButtonCanHover ? "group-hover/submit:-translate-y-[105%]" : ""
                     }`}
                   >
@@ -696,7 +696,7 @@ export default function Contact() {
                   </span>
                   <span
                     aria-hidden="true"
-                    className={`absolute inset-0 flex translate-y-[105%] items-center justify-between rounded-full bg-slate-950 pl-5 pr-2.5 text-white transition-transform duration-300 ease-[cubic-bezier(0.44,0,0.56,1)] will-change-transform ${
+                    className={`absolute inset-0 flex translate-y-[105%] items-center justify-between rounded-xl bg-slate-950 pl-5 pr-2.5 text-white transition-transform duration-300 ease-[cubic-bezier(0.44,0,0.56,1)] will-change-transform ${
                       submitButtonCanHover ? "group-hover/submit:translate-y-0" : ""
                     }`}
                   >

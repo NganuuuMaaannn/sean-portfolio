@@ -199,10 +199,16 @@ export default function DirectionalCompassCursor({
       updateVelocity(currentPosition);
       updateHiddenSectionState(currentPosition);
 
+      // Clamp cursor position to prevent overlap with scrollbars
+      const maxX = document.documentElement.clientWidth - cursorSize / 2;
+      const maxY = document.documentElement.clientHeight - cursorSize / 2;
+      const clampedX = Math.min(currentPosition.x, maxX);
+      const clampedY = Math.min(currentPosition.y, maxY);
+
       const speed = Math.hypot(velocity.current.x, velocity.current.y);
 
-      cursorX.set(currentPosition.x);
-      cursorY.set(currentPosition.y);
+      cursorX.set(clampedX);
+      cursorY.set(clampedY);
 
       if (speed <= 0.1) {
         return;

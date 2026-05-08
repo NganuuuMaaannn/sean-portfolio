@@ -157,7 +157,7 @@ export default function Hero({ onAbout, onContact }: Props) {
             className="
             inline-flex items-center gap-2 sm:gap-3
             px-4 py-2 sm:px-6 sm:py-3
-            rounded-full text-sm sm:text-base
+            rounded-xl text-sm sm:text-base
             bg-white/10 dark:bg-white/20
             backdrop-blur-md border border-white/20
             font-medium shadow-lg hover:shadow-xl
@@ -179,7 +179,7 @@ export default function Hero({ onAbout, onContact }: Props) {
             className="
             inline-flex items-center gap-2 sm:gap-3
             px-4 py-2 sm:px-6 sm:py-3
-            rounded-full text-sm sm:text-base
+            rounded-xl text-sm sm:text-base
             bg-white/10 dark:bg-white/20
             backdrop-blur-md border border-white/20
             font-medium shadow-lg hover:shadow-xl

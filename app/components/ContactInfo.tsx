@@ -23,7 +23,7 @@ function ContactValue({
   handleCopy,
 }: ContactValueProps) {
   return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
+    <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl sm:flex-row sm:items-center sm:justify-between">
       <button
         type="button"
         onClick={(event) => handleCopy(value, event)}
@@ -39,7 +39,7 @@ function ContactValue({
 
       <a
         href={actionHref}
-        className="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-md px-4 py-2 text-sm font-medium transition hover:bg-blue-600/20"
+        className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/10 backdrop-blur-md px-4 py-2 text-sm font-medium transition hover:bg-blue-600/20"
       >
         {actionLabel}
       </a>
@@ -50,9 +50,9 @@ function ContactValue({
 export default function ContactInfo({ emails, phones, handleCopy }: Props) {
   return (
     <div className="space-y-5">
-      <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+      <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
         <div className="flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-white">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/12 text-white">
             <FaEnvelope className="h-5 w-5" />
           </span>
 
@@ -79,9 +79,9 @@ export default function ContactInfo({ emails, phones, handleCopy }: Props) {
         </div>
       </div>
 
-      <div className="rounded-[28px] border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
+      <div className="rounded-xl border border-white/10 bg-white/5 p-5 backdrop-blur-xl">
         <div className="flex items-start gap-4">
-          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white/12 text-white">
+          <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/12 text-white">
             <FaPhone className="h-5 w-5" />
           </span>
 
