@@ -45,6 +45,12 @@ body {
   position: relative;
 }
 
+html.smooth-cursor-hidden,
+html.smooth-cursor-hidden body,
+html.smooth-cursor-hidden * {
+  cursor: none !important;
+}
+
 /* Dark theme animated gradient overlay */
 [data-theme="dark"] body::before {
   content: "";

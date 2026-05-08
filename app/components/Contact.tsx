@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { FiArrowUpRight } from "react-icons/fi";
 
 import ContactInfo from "./ContactInfo";
 import { createClient } from "@/lib/supabase/client";
@@ -525,6 +526,22 @@ export default function Contact() {
     };
   }, [supabase]);
 
+  const isSubmitDisabled =
+    formStatus === "sending" || isCooldownActive || !isEmailJsConfigured;
+  const submitButtonLabel =
+    formStatus === "sending"
+      ? "Sending..."
+      : isCooldownActive
+        ? `Send again in ${cooldownSecondsLeft}s`
+        : "Send Message";
+  const submitButtonHoverLabel =
+    formStatus === "sending"
+      ? "Sending..."
+      : isCooldownActive
+        ? `Retry in ${cooldownSecondsLeft}s`
+        : "Send Message";
+  const submitButtonCanHover = !isSubmitDisabled;
+
   return (
     <section id="contact" className="relative mt-6 mb-8 min-h-screen px-4 py-16 sm:px-8">
       <div className="pointer-events-none absolute inset-x-0 top-16 mx-auto h-80 max-w-5xl blur-3xl" />
@@ -660,14 +677,36 @@ export default function Contact() {
 
                 <button
                   type="submit"
-                  disabled={formStatus === "sending" || isCooldownActive || !isEmailJsConfigured}
-                  className="inline-flex items-center justify-center rounded-full bg-linear-to-r text from-amber-300 via-orange-300 to-orange-400 px-6 py-3 text-sm font-semibold text-slate-900 transition hover:scale-[1.01] disabled:cursor-not-allowed disabled:opacity-60"
+                  aria-label={submitButtonLabel}
+                  disabled={isSubmitDisabled}
+                  className={`group/submit relative inline-flex h-12 w-full overflow-hidden rounded-full border border-black/15 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.2)] transition duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-200/70 focus-visible:ring-offset-2 focus-visible:ring-offset-white sm:w-auto sm:min-w-56 ${
+                    isSubmitDisabled
+                      ? "cursor-not-allowed opacity-60"
+                      : "hover:-translate-y-0.5 hover:border-white/25 hover:shadow-[0_22px_50px_rgba(249,115,22,0.22)]"
+                  }`}
                 >
-                  {formStatus === "sending"
-                    ? "Sending..."
-                    : isCooldownActive
-                      ? `Send again in ${cooldownSecondsLeft}s`
-                      : "Send Message"}
+                  <span className="sr-only">{submitButtonLabel}</span>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute inset-0 flex items-center justify-center rounded-full bg-white px-6 text-[0.72rem] font-semibold uppercase tracking-[0.28em] text-slate-950 transition-transform duration-300 ease-[cubic-bezier(0.44,0,0.56,1)] will-change-transform ${
+                      submitButtonCanHover ? "group-hover/submit:-translate-y-[105%]" : ""
+                    }`}
+                  >
+                    {submitButtonLabel}
+                  </span>
+                  <span
+                    aria-hidden="true"
+                    className={`absolute inset-0 flex translate-y-[105%] items-center justify-between rounded-full bg-slate-950 pl-5 pr-2.5 text-white transition-transform duration-300 ease-[cubic-bezier(0.44,0,0.56,1)] will-change-transform ${
+                      submitButtonCanHover ? "group-hover/submit:translate-y-0" : ""
+                    }`}
+                  >
+                    <span className="text-[0.72rem] font-semibold uppercase tracking-[0.22em]">
+                      {submitButtonHoverLabel}
+                    </span>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-slate-950 shadow-[0_8px_20px_rgba(15,23,42,0.22)]">
+                      <FiArrowUpRight className="h-4 w-4" />
+                    </span>
+                  </span>
                 </button>
               </div>
             </form>
