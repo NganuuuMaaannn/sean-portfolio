@@ -19,7 +19,13 @@ const IDLE_REDIRECT_MS = 10000;
 
 export default function SeanLoginPage() {
   const router = useRouter();
-  const [supabase] = useState(() => createClient());
+  const [supabase] = useState(() => {
+    try {
+      return createClient();
+    } catch {
+      return null;
+    }
+  });
   const [isInitialized, setIsInitialized] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -36,6 +42,10 @@ export default function SeanLoginPage() {
   }, []);
 
   useEffect(() => {
+    if (!supabase) {
+      return;
+    }
+
     let active = true;
 
     const checkExistingSession = async () => {
@@ -102,6 +112,12 @@ export default function SeanLoginPage() {
     event.preventDefault();
     setIsSubmitting(true);
     setStatusText("Verifying encrypted handshake...");
+
+    if (!supabase) {
+      setStatusText("Authentication service unavailable. Please check configuration.");
+      setIsSubmitting(false);
+      return;
+    }
 
     const formData = new FormData(event.currentTarget);
     const email = String(formData.get("operator") ?? "").trim().toLowerCase();

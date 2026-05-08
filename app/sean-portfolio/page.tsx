@@ -172,7 +172,7 @@ const Home = () => {
 
   return (
     <main className={`cyber-portfolio relative font-sans cursor-default overflow-hidden ${bodyFont.className}`} id="topMain">
-      <DirectionalCompassCursor hideWhenInsideSelector="#figma-projects" />
+      <DirectionalCompassCursor hideWhenInsideSelector=".figma-project-card" />
       <div className="bg-layer bg-gradient" />
       <div className="bg-layer bg-grid" />
       <div className="bg-layer bg-scanlines" />

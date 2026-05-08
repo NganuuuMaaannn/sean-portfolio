@@ -179,18 +179,28 @@ export default function DirectionalCompassCursor({
         return;
       }
 
-      const hiddenSection = document.querySelector(hideWhenInsideSelector);
-      if (!(hiddenSection instanceof HTMLElement)) {
+      const hiddenSections = document.querySelectorAll(hideWhenInsideSelector);
+      if (hiddenSections.length === 0) {
         updateSuppression(false);
         return;
       }
 
-      const sectionBounds = hiddenSection.getBoundingClientRect();
-      const nextSuppressed =
-        currentPosition.x >= sectionBounds.left &&
-        currentPosition.x <= sectionBounds.right &&
-        currentPosition.y >= sectionBounds.top &&
-        currentPosition.y <= sectionBounds.bottom;
+      let nextSuppressed = false;
+      for (const section of hiddenSections) {
+        if (!(section instanceof HTMLElement)) {
+          continue;
+        }
+        const sectionBounds = section.getBoundingClientRect();
+        if (
+          currentPosition.x >= sectionBounds.left &&
+          currentPosition.x <= sectionBounds.right &&
+          currentPosition.y >= sectionBounds.top &&
+          currentPosition.y <= sectionBounds.bottom
+        ) {
+          nextSuppressed = true;
+          break;
+        }
+      }
 
       updateSuppression(nextSuppressed);
     };

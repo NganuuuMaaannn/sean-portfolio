@@ -153,7 +153,7 @@ export default function Figma() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, ease: "easeOut", delay: index * 0.3 }}
                 viewport={{ once: true, amount: 0.2 }}
-                className="bg-white text-black rounded-lg overflow-hidden shadow-lg"
+                className="figma-project-card bg-white text-black rounded-lg overflow-hidden shadow-lg"
               >
                 <div className="p-4">
                   <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
