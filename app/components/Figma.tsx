@@ -153,14 +153,14 @@ export default function Figma() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, ease: "easeOut", delay: index * 0.3 }}
                 viewport={{ once: true, amount: 0.2 }}
-                className="figma-project-card bg-white text-black rounded-lg overflow-hidden shadow-lg"
+                className="figma-project-card rounded-3xl overflow-hidden border border-white/10 bg-white/5 backdrop-blur-md shadow-[0_28px_70px_rgba(0,0,0,0.18)]"
               >
-                <div className="p-4">
-                  <h3 className="text-xl font-semibold mb-2">{project.title}</h3>
+                <div className="p-4 border-b border-white/10">
+                  <h3 className="text-xl font-semibold mb-2 text-white">{project.title}</h3>
                 </div>
-                <div className="relative w-full min-h-[400px] sm:min-h-[500px]" style={{ aspectRatio: "4 / 3" }}>
+                <div className="relative w-full min-h-[400px] sm:min-h-[500px] bg-slate-950/5" style={{ aspectRatio: "4 / 3" }}>
                   <iframe
-                    style={{ border: "1px solid rgba(0, 0, 0, 0.1)" }}
+                    style={{ border: "1px solid rgba(255, 255, 255, 0.12)" }}
                     width="100%"
                     height="100%"
                     src={project.src}

@@ -552,7 +552,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           viewport={{ once: true }}
-          className="card contact-card relative overflow-hidden rounded-xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
+          className="card contact-card relative overflow-hidden rounded-xl border border-white/10 p-6 text-left backdrop-blur-md shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
         >
           <div className="pointer-events-none absolute inset-0" />
 
@@ -587,7 +587,7 @@ export default function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut", delay: 0.3 }}
           viewport={{ once: true }}
-          className="card contact-card relative overflow-hidden rounded-xl border border-white/10 p-6 text-left shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
+          className="card contact-card relative overflow-hidden rounded-xl border border-white/10 p-6 text-left backdrop-blur-md shadow-[0_24px_80px_rgba(15,23,42,0.25)] sm:p-8"
         >
           <div className="pointer-events-none absolute inset-0" />
 

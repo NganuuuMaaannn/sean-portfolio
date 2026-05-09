@@ -4,17 +4,19 @@
   /* Dark theme (default) */
   --background: #0b1020;
   --foreground: #e6eef8;
-  --card-bg: #0f1724;
+  --card-bg: rgba(15, 23, 36, 0.65);
   --muted: #9ca3af;
-  --glass: rgba(255, 255, 255, 0.06);
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
 }
 
 [data-theme="light"] {
   --background: #fafafa;
   --foreground: #111827;
-  --card-bg: #f3f4f6;
+  --card-bg: rgba(255, 255, 255, 0.72);
   --muted: #6b7280;
-  --glass: rgba(255, 255, 255, 0.8);
+  --glass: rgba(255, 255, 255, 1);
+  --glass-border: rgba(255, 255, 255, 0.9);
   --glow-light: rgba(59, 130, 246, 0.1);
   --glow-blue: rgba(59, 130, 246, 0.15);
 }
@@ -22,9 +24,10 @@
 [data-theme="dark"] {
   --background: #0b1020;
   --foreground: #e6eef8;
-  --card-bg: #0f1724;
+  --card-bg: rgba(15, 23, 36, 0.65);
   --muted: #9ca3af;
-  --glass: rgba(255, 255, 255, 0.06);
+  --glass: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.12);
   --glow-dark: rgba(139, 92, 246, 0.2);
   --glow-purple: rgba(168, 85, 247, 0.15);
   --glow-cyan: rgba(34, 211, 238, 0.1);
@@ -35,6 +38,10 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -92,6 +99,7 @@ html.smooth-cursor-hidden * {
   inset: 0;
   background: url('/noise.svg') repeat;
   background-size: 80px 80px;
+  background-attachment: fixed;
   pointer-events: none;
   z-index: 5;
   opacity: 0.2;
@@ -102,10 +110,15 @@ html.smooth-cursor-hidden * {
   z-index: 0;
 }
 
-/* Reusable card background */
+/* Reusable glassmorphism card background */
 .card {
-  background: var(--card-bg);
+  background: var(--glass);
   color: var(--foreground);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
+  background-clip: padding-box;
 }
 
 .muted {
