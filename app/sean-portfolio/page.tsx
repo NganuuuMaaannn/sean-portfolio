@@ -11,7 +11,6 @@ import TechStack from "../components/TechStack";
 import Contact from "../components/Contact";
 import Footer from "../components/Footer";
 import Certificates from "../components/Certificates";
-import DirectionalCompassCursor from "../components/DirectionalCompassCursor";
 import { Rajdhani } from "next/font/google";
 
 const bodyFont = Rajdhani({
@@ -172,7 +171,6 @@ const Home = () => {
 
   return (
     <main className={`cyber-portfolio relative font-sans cursor-default overflow-hidden ${bodyFont.className}`} id="topMain">
-      <DirectionalCompassCursor hideWhenInsideSelector=".figma-project-card" />
       <div className="bg-layer bg-gradient" />
       <div className="bg-layer bg-grid" />
       <div className="bg-layer bg-scanlines" />
